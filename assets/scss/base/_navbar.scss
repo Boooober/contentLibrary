@@ -1,0 +1,21 @@
+.navbar {
+  position: relative;
+//  @include clearfix;
+
+  .navbar-left{
+    float: left;
+  }
+
+  .navbar-right{
+    float: right;
+  }
+
+  .navbar-links{
+    margin: 0 -15px;
+    @include clearfix;
+    li{
+      float: left;
+      padding: 0 15px;
+    }
+  }
+}

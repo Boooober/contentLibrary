@@ -1,0 +1,17 @@
+@mixin clearfix {
+  &::before, &::after{
+    content: " ";
+    display: table;
+  }
+  &::after{
+    clear: both;
+  }
+}
+
+@mixin inlineList ($fontSize:16px){
+  font-size: 0;
+  & > li{
+    display: inline-block;
+    font-size: $fontSize;
+  }
+}
