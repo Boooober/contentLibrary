@@ -9,35 +9,35 @@ html, body {
   overflow-x: hidden;
 
   &.sidebar-hide{
-    .navbar-static-side {
+    .sidebar {
       width: 0;
     }
-    .page-wrapper{
+    .page-layout{
       margin-left: 0;
     }
   }
 }
 
 
-.page-wrapper{
+.page-layout{
   height: 100%;
   padding: 0 15px;
 }
-.navbar-static-side{
+.sidebar{
   display: none;
 }
 
 //Sidebar
 $sidebarWidth: 220px;
 
-.fixed-sidebar{
+.with-sidebar{
 
-  .page-wrapper{
+  .page-layout{
     transition: .4s;
     margin-left: $sidebarWidth;
   }
 
-  .navbar-static-side{
+  .sidebar{
     top: 0;
     left: 0;
     height: 100%;

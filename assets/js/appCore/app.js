@@ -1,3 +1,5 @@
+'use strict';
+
 var App = {
     Models: {},
     Collections: {},
@@ -5,3 +7,8 @@ var App = {
 
     Helpers: {}
 };
+
+
+// Main wrapper of the page
+// Contains sidebar and page layout
+var wrapper;

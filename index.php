@@ -10,15 +10,10 @@
 </head>
 <body class="no-js blue-theme">
 
+<div id="wrapper"></div>
 
 
 <?php get_templates(['layouts', 'index-cart', 'login-form']); ?>
-
-<div class="preloader">
-	<div class="loader"></div>
-</div>
-
-
 
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
@@ -28,8 +23,6 @@
 <script src="/assets/js/database/index_data.js"></script>
 
 <script src="/assets/js/app.js"></script>
-<script src="/assets/js/include.js"></script>
-
 
 </body>
 </html>
