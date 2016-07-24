@@ -1,5 +1,6 @@
 html, body {
   height: 100%;
+  overflow: hidden;
 }
 
 #wrapper{
@@ -17,26 +18,41 @@ html, body {
   }
 }
 
-//Sidebar
-$sidebarWidth: 220px;
+
 .page-wrapper{
   height: 100%;
   padding: 0 15px;
-  transition: .4s;
-  margin-left: $sidebarWidth;
 }
-
 .navbar-static-side{
-  top: 0;
-  left: 0;
-  height: 100%;
-  z-index: 9999;
-  position: fixed;
-  transition: .4s;
-  overflow: hidden;
-  width: $sidebarWidth;
+  display: none;
+}
 
-  background: lightgray;
+//Sidebar
+$sidebarWidth: 220px;
+
+.fixed-sidebar{
+
+  .page-wrapper{
+    transition: .4s;
+    margin-left: $sidebarWidth;
+  }
+
+  .navbar-static-side{
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 9999;
+    display: block;
+    position: fixed;
+    transition: .4s;
+    overflow: hidden;
+    width: $sidebarWidth;
+    background: lightgray;
+  }
 
 }
+
+
+
+
 

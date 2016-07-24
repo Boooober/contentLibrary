@@ -1,0 +1,117 @@
+.cart-content{
+  background: white;
+  overflow: hidden;
+  .cart-head{}
+  .cart-body{}
+  .cart-footer{}
+
+  .toolbox{
+    color: white;
+    z-index: 100;
+    a{
+      color: inherit;
+      transition: .3s;
+      margin-left: 10px;
+      display: inline-block;
+      &:first-child{
+        margin-left: 0;
+      }
+      &:hover{
+        color: $orange;
+      }
+    }
+  }
+
+  .hover-toolbox{
+    position: relative;
+    .toolbox{
+      bottom: 0;
+      opacity: 0;
+      width: 100%;
+      transition: .3s;
+      position: absolute;
+      transform: translateY(25%);
+
+      background: rgba(0,0,0,.5);
+      /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+100&0+0,0.65+70,0.65+100 */
+      background: -moz-linear-gradient(top,  rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 100%);
+      background: -webkit-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%);
+      background: linear-gradient(to bottom,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%);
+      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#a6000000',GradientType=0 );
+    }
+    &:hover{
+      .toolbox{
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+
+  .with-padding{
+    padding: 15px;
+  }
+
+  img, iframe{
+    display: block;
+  }
+
+
+//
+//  .action-btns{
+//    ul{
+//      @include inlineList;
+//      margin: 0 -10px;
+//      & > li{
+//        padding: 0 10px;
+//      }
+//    }
+//  }
+//
+//  .cart-meta{
+//    color: $gray;
+//    margin-bottom: 0.75em;
+//    ul{
+//      @include inlineList(14px);
+//      margin: 0 -10px;
+//      & > li{
+//        padding: 0 10px;
+//      }
+//    }
+//  }
+}
+
+
+.image-cart{
+  .cart-image{
+    display: block;
+    background-size: cover;
+    background-position: center;
+  }
+}
+
+.video-cart{
+  .video-frame{
+    height: 0;
+    display: block;
+    position: relative;
+
+    iframe{
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+    }
+  }
+}
+
+.rate-button{
+  .icon-rate-star{
+    @extend .icon-star-empty;
+  }
+  &:hover, &.is-favorite {
+    .icon-rate-star {
+      @extend .icon-star;
+    }
+  }
+}

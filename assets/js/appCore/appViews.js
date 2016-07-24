@@ -1,61 +1,3 @@
-var App = {
-    Models: {},
-    Collections: {},
-    Views: {},
-
-    Helpers: {}
-};
-App.Helpers = {
-
-    renderContent: function(content){
-        $('.page-content').html(content);
-    },
-    getTemplate: function(selector){
-        return _.template($(selector).html());
-    },
-
-    getTypeTemplate:function(type){
-        return this.getTemplate('#'+type+'Cart');
-    }
-};
-/**
- * Created by Boooober on 22.07.2016.
- */
-
-/**
- * Created by Boooober on 22.07.2016.
- */
-
-/**
- * Cart model
- */
-App.Models.Cart = Backbone.Model.extend({
-    defaults: {
-        id: '',
-        type: '',
-
-        title: '',
-        content: '',
-        author: '',
-        mediaLink: '',
-        favorites: 0,
-
-        isFavorite: false
-    },
-
-    favoriteToggle: function(){
-        var count = this.get('favorites'),
-            favorite = this.get('isFavorite');
-
-        this.set('isFavorite', !favorite);
-        this.set('favorites', favorite ? --count : ++count);
-    }
-
-});
-App.Collections.Carts = Backbone.Collection.extend({
-    model:App.Models.Cart
-});
-
 // BaseView for views with subviews.
 // Extended with helpful methods for rendering DOM
 App.Views.BaseView = Backbone.View.extend({
@@ -149,8 +91,3 @@ App.Views.Carts = Backbone.View.extend({
         this.$el.append(cartView.render().el);
     }
 });
-(function(){
-    var indexCarts = new App.Collections.Carts(indexData);
-    var carts = new App.Views.Carts({collection: indexCarts});
-    App.Helpers.renderContent(carts.render().el);
-})();

@@ -28,7 +28,6 @@ var UsersCollection = Backbone.Collection.extend({
         var searchResult = this.find(function(user){
             return user.get('name') === $.trim(username);
         });
-
         console.log(searchResult);
         return searchResult != null;
     }
