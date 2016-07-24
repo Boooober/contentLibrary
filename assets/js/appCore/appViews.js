@@ -25,6 +25,9 @@ App.Views.BaseView = Backbone.View.extend({
 });
 
 
+App.Views.SidebarLayout = App.Views.BaseView.extend({
+
+});
 
 // Views for rendering main content items
 

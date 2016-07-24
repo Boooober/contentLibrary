@@ -30,7 +30,7 @@
         function attachEvents(){
             //Sidebar toggle
             elems.$sidebarTrigger.click(function(){
-                elems.$wrapper.toggleClass('navbar-hide');
+                elems.$wrapper.toggleClass('sidebar-hide');
                 elems.$sidebar.children().fadeToggle();
             });
 
