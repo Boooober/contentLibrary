@@ -25,6 +25,8 @@ App.Views.Cart = App.Views.BaseView.extend({
     initialize: function(){
         //this.model.on('change:favorite', this.render, this);
         this.subviews['.toolbox'] = new App.Views.CartToolbox({model: this.model});
+
+        if(this.model.isVideo()) App.Events.on('layoutResize', this.scaleMedia, this);
     },
     subviews: {},
 
@@ -50,7 +52,7 @@ App.Views.Cart = App.Views.BaseView.extend({
     },
 
     scaleMedia: function(){
-        var normalizer = function(){
+        var scaleMedia = function(){
             var video = this.$('.video-frame iframe'),
                 container = video.parent(),
                 ratio = container.width() / video.attr('width'),
@@ -59,9 +61,8 @@ App.Views.Cart = App.Views.BaseView.extend({
             container.css('padding-bottom', height);
         }.bind(this);
 
-
-        $(document).ready(normalizer);
-        $(window).resize(normalizer);
+        $(document).ready(scaleMedia);
+        $(window).resize(scaleMedia);
     }
 
 });
@@ -78,14 +79,15 @@ App.Views.Carts = Backbone.View.extend({
         this.$el.append(cartView.render().el);
     },
     masonry: function(){
-        $(window).load(function(){
-
+        var masonry = function(){
             this.$el.masonry({
                 columnWidth:this.$('.cart-item')[0],
                 itemSelector: '.cart-item',
                 percentPosition: true
             });
+        }.bind(this);
 
-        }.bind(this));
+        $(window).load(masonry);
+        App.Events.on('layoutResize', masonry);
     }
 });

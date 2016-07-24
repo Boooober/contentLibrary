@@ -77,7 +77,14 @@ App.Views.Wrapper = App.Views.BaseView.extend({
     loaded: function(e){
         this.$('.preloader').fadeOut();
     },
+
+    // Resize layouts width
     toggleSidebar: function(){
         this.$el.toggleClass('sidebar-hide');
+
+        setTimeout(function(){
+            App.Events.trigger('layoutResize');
+        }, 400);
+
     }
 });
