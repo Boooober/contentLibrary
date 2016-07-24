@@ -8,12 +8,14 @@
 @import 'base/variables';
 
 @import 'base/color-scheme';
-
 @import 'base/base';
 @import 'base/layout';
 
-@import 'parts/preloader';
-
+@import 'blocks/topmenu';
 @import 'blocks/cart-content';
+@import 'blocks/box';
+@import 'blocks/box-forms';
+
+@import 'parts/preloader';
 
 

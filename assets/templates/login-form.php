@@ -36,8 +36,10 @@
 			</form>
 		</div>
 		<div class="form-box-footer">
-			<a href="#">I don`t have an accout</a>
-			<a href="#">I forgot my password</a>
+			<ul>
+				<li><a href="#">I don`t have an accout</a></li>
+				<li><a href="#">I forgot my password</a></li>
+			</ul>
 		</div>
 	</div>
 </script>

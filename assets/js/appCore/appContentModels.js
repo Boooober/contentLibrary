@@ -21,6 +21,18 @@ App.Models.Cart = Backbone.Model.extend({
 
         this.set('isFavorite', !favorite);
         this.set('favorites', favorite ? --count : ++count);
+    },
+
+    isImage: function(){
+        return this.get('type') === 0;
+    },
+
+    isVideo: function(){
+        return this.get('type') === 1;
+    },
+
+    isText: function(){
+        return this.get('type') === 2;
     }
 
 });

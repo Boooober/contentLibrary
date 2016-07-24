@@ -44,8 +44,25 @@ App.Views.Cart = App.Views.BaseView.extend({
         this.setElement($(template));
         this.assign(this.subviews);
 
+        if(this.model.isVideo()) this.scaleMedia();
+
         return this;
     },
+
+    scaleMedia: function(){
+        var normalizer = function(){
+            var video = this.$('.video-frame iframe'),
+                container = video.parent(),
+                ratio = container.width() / video.attr('width'),
+                height = video.attr('height') * ratio;
+
+            container.css('padding-bottom', height);
+        }.bind(this);
+
+
+        $(document).ready(normalizer);
+        $(window).resize(normalizer);
+    }
 
 });
 
@@ -53,10 +70,22 @@ App.Views.Carts = Backbone.View.extend({
     className: 'row',
     render: function(){
         this.collection.each(this.addOne, this);
+        this.masonry();
         return this;
     },
     addOne: function(model){
         var cartView = new App.Views.Cart({model:model});
         this.$el.append(cartView.render().el);
+    },
+    masonry: function(){
+        $(window).load(function(){
+
+            this.$el.masonry({
+                columnWidth:this.$('.cart-item')[0],
+                itemSelector: '.cart-item',
+                percentPosition: true
+            });
+
+        }.bind(this));
     }
 });

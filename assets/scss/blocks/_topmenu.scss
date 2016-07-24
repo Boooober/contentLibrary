@@ -1,13 +1,8 @@
 .topmenu {
   position: relative;
-//  @include clearfix;
 
-  .navbar-left{
-    float: left;
-  }
-
-  .navbar-right{
-    float: right;
+  .navbar{
+    min-height: auto;
   }
 
   .navbar-links{

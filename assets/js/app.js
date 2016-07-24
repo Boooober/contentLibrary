@@ -71,13 +71,10 @@ var App = {
     Collections: {},
     Views: {},
 
+    Events: {},
+
     Helpers: {}
 };
-
-
-// Main wrapper of the page
-// Contains sidebar and page layout
-var wrapper;
 App.Helpers = {
 
     renderContent: function(content){
@@ -245,6 +242,18 @@ App.Models.Cart = Backbone.Model.extend({
 
         this.set('isFavorite', !favorite);
         this.set('favorites', favorite ? --count : ++count);
+    },
+
+    isImage: function(){
+        return this.get('type') === 0;
+    },
+
+    isVideo: function(){
+        return this.get('type') === 1;
+    },
+
+    isText: function(){
+        return this.get('type') === 2;
     }
 
 });
@@ -298,8 +307,25 @@ App.Views.Cart = App.Views.BaseView.extend({
         this.setElement($(template));
         this.assign(this.subviews);
 
+        if(this.model.isVideo()) this.scaleMedia();
+
         return this;
     },
+
+    scaleMedia: function(){
+        var normalizer = function(){
+            var video = this.$('.video-frame iframe'),
+                container = video.parent(),
+                ratio = container.width() / video.attr('width'),
+                height = video.attr('height') * ratio;
+
+            container.css('padding-bottom', height);
+        }.bind(this);
+
+
+        $(document).ready(normalizer);
+        $(window).resize(normalizer);
+    }
 
 });
 
@@ -307,21 +333,32 @@ App.Views.Carts = Backbone.View.extend({
     className: 'row',
     render: function(){
         this.collection.each(this.addOne, this);
+        this.masonry();
         return this;
     },
     addOne: function(model){
         var cartView = new App.Views.Cart({model:model});
         this.$el.append(cartView.render().el);
+    },
+    masonry: function(){
+        $(window).load(function(){
+
+            this.$el.masonry({
+                columnWidth:this.$('.cart-item')[0],
+                itemSelector: '.cart-item',
+                percentPosition: true
+            });
+
+        }.bind(this));
     }
 });
 (function(){
     var layoutModel = new App.Models.Layout(),
+        wrapper = new App.Views.Wrapper({model: layoutModel}),
         indexCarts = new App.Collections.Carts(indexData), //database
         carts = new App.Views.Carts({collection: indexCarts});
 
-    wrapper = new App.Views.Wrapper({model: layoutModel});
     wrapper.render();
-
     $(window).load(function(e){
         wrapper.trigger('loaded', {e:e});
     });

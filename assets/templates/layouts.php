@@ -45,7 +45,7 @@
 	<div class="row">
 		<div class="container-fluid">
 			<nav class="navbar">
-				<div class="navbar-header navbar-left">
+				<div class="navbar-header">
 					<p class="sidebar-toggle">Toggle sidebar</p>
 				</div>
 

@@ -219,6 +219,109 @@ html, body {
   width: 220px;
   background: lightgray; }
 
+.topmenu {
+  position: relative; }
+  .topmenu .navbar {
+    min-height: auto; }
+  .topmenu .navbar-links {
+    margin: 0 -15px; }
+    .topmenu .navbar-links::before, .topmenu .navbar-links::after {
+      display: block;
+      content: ''; }
+    .topmenu .navbar-links::after {
+      clear: both; }
+    .topmenu .navbar-links li {
+      float: left;
+      padding: 0 15px; }
+
+.cart-content {
+  overflow: hidden;
+  margin-bottom: 20px; }
+  .cart-content .cart-head, .cart-content .cart-body, .cart-content .cart-footer {
+    background: white; }
+  .cart-content .toolbox {
+    color: white;
+    z-index: 100; }
+    .cart-content .toolbox a {
+      color: inherit;
+      -webkit-transition: .3s;
+      transition: .3s;
+      margin-left: 10px;
+      display: inline-block; }
+      .cart-content .toolbox a:first-child {
+        margin-left: 0; }
+      .cart-content .toolbox a:hover {
+        color: #fd703a; }
+  .cart-content .hover-toolbox {
+    position: relative; }
+    .cart-content .hover-toolbox .toolbox {
+      bottom: 0;
+      opacity: 0;
+      width: 100%;
+      -webkit-transition: .3s;
+      transition: .3s;
+      position: absolute;
+      -webkit-transform: translateY(25%);
+              transform: translateY(25%);
+      background: rgba(0, 0, 0, 0.5);
+      /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+100&0+0,0.65+70,0.65+100 */
+      background: -webkit-linear-gradient(top, transparent 0%, rgba(0, 0, 0, 0.65) 100%);
+      background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.65) 100%);
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00000000', endColorstr='#a6000000', GradientType=0); }
+    .cart-content .hover-toolbox:hover .toolbox {
+      opacity: 1;
+      -webkit-transform: translateY(0);
+              transform: translateY(0); }
+  .cart-content .with-padding {
+    padding: 15px; }
+  .cart-content img, .cart-content iframe {
+    display: block;
+    margin: 0 auto; }
+
+.image-cart .cart-image {
+  display: block;
+  background-size: cover;
+  background-position: center; }
+
+.video-cart .video-frame {
+  height: 0;
+  display: block;
+  position: relative; }
+  .video-cart .video-frame iframe {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute; }
+
+.box {
+  position: relative;
+  border-radius: 3px;
+  background: #ffffff;
+  border-top: 3px solid #c4c4c4;
+  margin-bottom: 20px;
+  width: 100%;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); }
+  .box.box-flat {
+    border-radius: 0; }
+  .box .box-header, .box .box-body, .box .box-footer {
+    padding: 15px; }
+  .box .box-footer {
+    border-top: 1px solid #f3f3f4; }
+  .box .box-header.with-border {
+    border-bottom: 1px solid #f3f3f4; }
+
+.form-box {
+  max-width: 400px;
+  margin: 40px auto 0; }
+  .form-box .form-headline p {
+    font-size: 1.5em;
+    text-align: center;
+    line-height: 2em; }
+  .form-box .form-title, .form-box .form-subtitle {
+    margin: 1em 0;
+    text-align: center; }
+
 .preloader {
   position: fixed;
   top: 0;
@@ -275,60 +378,3 @@ html, body {
   to {
     -webkit-transform: rotate(360deg);
             transform: rotate(360deg); } }
-
-.cart-content {
-  background: white;
-  overflow: hidden; }
-  .cart-content .toolbox {
-    color: white;
-    z-index: 100; }
-    .cart-content .toolbox a {
-      color: inherit;
-      -webkit-transition: .3s;
-      transition: .3s;
-      margin-left: 10px;
-      display: inline-block; }
-      .cart-content .toolbox a:first-child {
-        margin-left: 0; }
-      .cart-content .toolbox a:hover {
-        color: #fd703a; }
-  .cart-content .hover-toolbox {
-    position: relative; }
-    .cart-content .hover-toolbox .toolbox {
-      bottom: 0;
-      opacity: 0;
-      width: 100%;
-      -webkit-transition: .3s;
-      transition: .3s;
-      position: absolute;
-      -webkit-transform: translateY(25%);
-              transform: translateY(25%);
-      background: rgba(0, 0, 0, 0.5);
-      /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+100&0+0,0.65+70,0.65+100 */
-      background: -webkit-linear-gradient(top, transparent 0%, rgba(0, 0, 0, 0.65) 100%);
-      background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.65) 100%);
-      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#a6000000',GradientType=0 ); }
-    .cart-content .hover-toolbox:hover .toolbox {
-      opacity: 1;
-      -webkit-transform: translateY(0);
-              transform: translateY(0); }
-  .cart-content .with-padding {
-    padding: 15px; }
-  .cart-content img, .cart-content iframe {
-    display: block; }
-
-.image-cart .cart-image {
-  display: block;
-  background-size: cover;
-  background-position: center; }
-
-.video-cart .video-frame {
-  height: 0;
-  display: block;
-  position: relative; }
-  .video-cart .video-frame iframe {
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    position: absolute; }

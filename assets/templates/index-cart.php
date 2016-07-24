@@ -1,6 +1,6 @@
 <!-- Video-cart template -->
 <script type="text/template" id="videoCart">
-	<div class="col-sm-4">
+	<div class="cart-item col-xs-12 col-sm-4">
 		<div class="cart-content video-cart">
 			<div class="cart-head"></div>
 
@@ -23,7 +23,7 @@
 
 <!-- Image-cart template -->
 <script type="text/template" id="imageCart">
-	<div class="col-sm-4">
+	<div class="cart-item col-xs-12 col-sm-4">
 		<div class="cart-content image-cart">
 			<div class="cart-head"></div>
 
@@ -46,7 +46,7 @@
 
 <!-- Test-type cart template -->
 <script type="text/template" id="textCart">
-	<div class="col-sm-4">
+	<div class="cart-item col-xs-12 col-sm-4">
 		<div class="cart-content text-cart">
 			<div class="cart-head">
 				<h3 class="post-title with-padding"><%= title %></h3>

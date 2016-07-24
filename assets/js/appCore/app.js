@@ -5,10 +5,7 @@ var App = {
     Collections: {},
     Views: {},
 
+    Events: {},
+
     Helpers: {}
 };
-
-
-// Main wrapper of the page
-// Contains sidebar and page layout
-var wrapper;
