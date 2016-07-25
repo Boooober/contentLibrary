@@ -50,26 +50,33 @@ App.Views.Cart = App.Views.BaseView.extend({
     },
 
     scaleMedia: function(){
+        var video = this.$('.video-frame iframe'),
+            container = video.parent();
         var scaleMedia = function(){
-            var video = this.$('.video-frame iframe'),
-                container = video.parent(),
-                ratio = container.width() / video.attr('width'),
+            var ratio = container.width() / video.attr('width'),
                 height = video.attr('height') * ratio;
 
             container.css('padding-bottom', height);
         }.bind(this);
 
-        $(document).ready(scaleMedia);
+        video.load(scaleMedia);
         $(window).resize(scaleMedia);
-        App.Events.on('layoutResize', scaleMedia);
+        this.listenTo(App.Vent, 'layoutResize', scaleMedia);
     }
 
 });
 
 App.Views.Carts = Backbone.View.extend({
     className: 'row',
-    render: function(){
-        this.collection.each(this.addOne, this);
+
+    initialize: function(){
+        this.listenTo(App.Vent, 'collectionFilter', this.search);
+
+
+    },
+    render: function(collection){
+        collection = collection || this.collection;
+        collection.each(this.addOne, this);
         this.masonry();
         return this;
     },
@@ -77,16 +84,39 @@ App.Views.Carts = Backbone.View.extend({
         var cartView = new App.Views.Cart({model:model});
         this.$el.append(cartView.render().el);
     },
-    masonry: function(){
-        var masonry = function(){
-            this.$el.masonry({
-                columnWidth:this.$('.cart-item')[0],
-                itemSelector: '.cart-item',
-                percentPosition: true
-            });
-        }.bind(this);
 
-        $(window).load(masonry);
-        App.Events.on('layoutResize', masonry);
+    reset: function(){
+        this.$el.html('')
+            .masonry('destroy');
+        //this.undelegateEvents();
+    },
+
+    masonry: function(){
+        //Find all external media resources
+        var items = this.$('iframe, img, video'),
+            l = items.length, count = 0,
+
+            //Init masonry event handler function
+            masonry = function () {
+                this.$el.masonry({
+                    columnWidth: this.$('.cart-item')[0],
+                    itemSelector: '.cart-item',
+                    percentPosition: true
+                });
+            }.bind(this);
+
+        //Fire masonry init when all resourses are loaded
+        items.load(function(){
+            if(++count < l) return;
+            console.log('all resourses are loaded! init masonry...');
+            masonry();
+        });
+        this.listenTo(App.Vent, 'layoutResize', masonry);
+    },
+
+    search: function(options){
+        this.reset();
+        this.render( this.collection.search(options.s) );
     }
+
 });

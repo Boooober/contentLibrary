@@ -5,7 +5,7 @@ var App = {
     Collections: {},
     Views: {},
 
-    Events: {},
+    Vent: {},
 
     Helpers: {}
 };

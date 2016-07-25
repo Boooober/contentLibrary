@@ -71,7 +71,7 @@ var App = {
     Collections: {},
     Views: {},
 
-    Events: {},
+    Vent: {},
 
     Helpers: {}
 };
@@ -100,13 +100,17 @@ App.Helpers = {
         return '';
     }
 };
-_.extend(App.Events, Backbone.Events);
+_.extend(App.Vent, Backbone.Events);
 
 /**
  *
  * - layoutResize: event fires when layout sizes changed.
  *   For example, sidebar toggle needs to reinit masonry
  *   and video scale.
+ *
+ * - collectionFilter: event fires when collection needs to be filtered.
+ *   Accepts options object.
+ *   For example, search, pagination, filter categories
  */
 
 // BaseView for views with subviews.
@@ -147,6 +151,11 @@ App.Models.Layout = Backbone.Model.extend({
     },
     toggleSidebar: function(){
         this.set('sidebarCollapsed', !this.get('sidebarCollapsed'));
+
+        //After end of toggle animation
+        setTimeout(function(){
+            App.Vent.trigger('layoutResize');
+        }, 400);
     }
 });
 // Navigation menu
@@ -241,23 +250,30 @@ App.Views.Wrapper = App.Views.BaseView.extend({
     // Resize layouts width
     toggleSidebar: function(){
         this.$el.toggleClass('sidebar-hide');
-
-        setTimeout(function(){
-            App.Events.trigger('layoutResize');
-        }, 400);
-
     }
 });
 App.Models.SearchForm = Backbone.Model.extend({
     defaults: {
         s: App.Helpers.getQueryParam('s')
+    },
+    search: function(s){
+        this.set('s', s);
+        App.Vent.trigger('collectionFilter', this.toJSON());
     }
 });
 App.Views.SearchForm = App.Views.BaseView.extend({
+    events: {
+        'submit form': 'submit'
+    },
     template: App.Helpers.getTemplate('#searchform'),
     render: function(){
         this.$el.html( this.template( this.model.toJSON() ) );
         return this;
+    },
+    submit: function(e){
+        e.preventDefault();
+        var s = $(e.target).find("input[name='s']").val();
+        this.model.search(s);
     }
 });
 /**
@@ -299,7 +315,20 @@ App.Models.Cart = Backbone.Model.extend({
 
 });
 App.Collections.Carts = Backbone.Collection.extend({
-    model:App.Models.Cart
+    //initialize: function(){
+    //    this.listenTo(App.Vent, 'collectionFilter', this.search);
+    //},
+    model:App.Models.Cart,
+
+    search: function(query){
+        if(!query) return this;
+        var result = this.filter(function(model){
+            return model.get('title').search(query) !== -1 ||
+                model.get('content').search(query) !== -1
+        });
+        return new App.Collections.Carts(result);
+    }
+
 });
 
 // Cart toolbox view
@@ -354,26 +383,33 @@ App.Views.Cart = App.Views.BaseView.extend({
     },
 
     scaleMedia: function(){
+        var video = this.$('.video-frame iframe'),
+            container = video.parent();
         var scaleMedia = function(){
-            var video = this.$('.video-frame iframe'),
-                container = video.parent(),
-                ratio = container.width() / video.attr('width'),
+            var ratio = container.width() / video.attr('width'),
                 height = video.attr('height') * ratio;
 
             container.css('padding-bottom', height);
         }.bind(this);
 
-        $(document).ready(scaleMedia);
+        video.load(scaleMedia);
         $(window).resize(scaleMedia);
-        App.Events.on('layoutResize', scaleMedia);
+        this.listenTo(App.Vent, 'layoutResize', scaleMedia);
     }
 
 });
 
 App.Views.Carts = Backbone.View.extend({
     className: 'row',
-    render: function(){
-        this.collection.each(this.addOne, this);
+
+    initialize: function(){
+        this.listenTo(App.Vent, 'collectionFilter', this.search);
+
+
+    },
+    render: function(collection){
+        collection = collection || this.collection;
+        collection.each(this.addOne, this);
         this.masonry();
         return this;
     },
@@ -381,18 +417,41 @@ App.Views.Carts = Backbone.View.extend({
         var cartView = new App.Views.Cart({model:model});
         this.$el.append(cartView.render().el);
     },
-    masonry: function(){
-        var masonry = function(){
-            this.$el.masonry({
-                columnWidth:this.$('.cart-item')[0],
-                itemSelector: '.cart-item',
-                percentPosition: true
-            });
-        }.bind(this);
 
-        $(window).load(masonry);
-        App.Events.on('layoutResize', masonry);
+    reset: function(){
+        this.$el.html('')
+            .masonry('destroy');
+        //this.undelegateEvents();
+    },
+
+    masonry: function(){
+        //Find all external media resources
+        var items = this.$('iframe, img, video'),
+            l = items.length, count = 0,
+
+            //Init masonry event handler function
+            masonry = function () {
+                this.$el.masonry({
+                    columnWidth: this.$('.cart-item')[0],
+                    itemSelector: '.cart-item',
+                    percentPosition: true
+                });
+            }.bind(this);
+
+        //Fire masonry init when all resourses are loaded
+        items.load(function(){
+            if(++count < l) return;
+            console.log('all resourses are loaded! init masonry...');
+            masonry();
+        });
+        this.listenTo(App.Vent, 'layoutResize', masonry);
+    },
+
+    search: function(options){
+        this.reset();
+        this.render( this.collection.search(options.s) );
     }
+
 });
 (function(){
     var layoutModel = new App.Models.Layout(),

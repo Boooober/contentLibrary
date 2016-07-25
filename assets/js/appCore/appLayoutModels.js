@@ -11,5 +11,10 @@ App.Models.Layout = Backbone.Model.extend({
     },
     toggleSidebar: function(){
         this.set('sidebarCollapsed', !this.get('sidebarCollapsed'));
+
+        //After end of toggle animation
+        setTimeout(function(){
+            App.Vent.trigger('layoutResize');
+        }, 400);
     }
 });

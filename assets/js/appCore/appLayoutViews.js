@@ -90,10 +90,5 @@ App.Views.Wrapper = App.Views.BaseView.extend({
     // Resize layouts width
     toggleSidebar: function(){
         this.$el.toggleClass('sidebar-hide');
-
-        setTimeout(function(){
-            App.Events.trigger('layoutResize');
-        }, 400);
-
     }
 });
