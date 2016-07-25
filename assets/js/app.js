@@ -84,8 +84,20 @@ App.Helpers = {
         return _.template($(selector).html());
     },
 
-    getTypeTemplate:function(type){
+    getTypeTemplate: function(type){
         return this.getTemplate('#'+type+'Cart');
+    },
+    getQueryParam: function(param, source){
+        var params, i, l, data;
+        source = source || window.location.search.substring(1);
+        if(!source) return '';
+
+        params = source.split('&');
+        for(i = 0, l = params.length; i<l; i++){
+            data = params[i].split('=');
+            if(data[0] === param) return data[1];
+        }
+        return '';
     }
 };
 _.extend(App.Events, Backbone.Events);
@@ -125,7 +137,7 @@ App.Views.BaseView = Backbone.View.extend({
 App.Models.Layout = Backbone.Model.extend({
     defaults: {
         layout: 'withSidebar', //'withSidebar' or 'single'
-        sidebarCollapsed: false
+        sidebarCollapsed: true
     },
     withSidebar: function(){
         return this.get('layout') === 'withSidebar';
@@ -152,10 +164,19 @@ App.Views.Topmenu = App.Views.BaseView.extend({
 // Sidebar layout
 
 App.Views.SidebarLayout = App.Views.BaseView.extend({
+    initialize: function(){
+        this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
+        this.subviews['.searchform'] = new App.Views.SearchForm({model: new App.Models.SearchForm});
+    },
+    subviews: {},
     template: App.Helpers.getTemplate('#sidebarLayout'),
     render: function(){
         this.setElement( this.template() );
+        this.assign( this.subviews );
         return this;
+    },
+    toggleSidebar: function(){
+        this.$('.side-content').fadeToggle(150);
     }
 });
 
@@ -227,14 +248,18 @@ App.Views.Wrapper = App.Views.BaseView.extend({
 
     }
 });
-/**
- * Created by Boooober on 22.07.2016.
- */
-
-/**
- * Created by Boooober on 22.07.2016.
- */
-
+App.Models.SearchForm = Backbone.Model.extend({
+    defaults: {
+        s: App.Helpers.getQueryParam('s')
+    }
+});
+App.Views.SearchForm = App.Views.BaseView.extend({
+    template: App.Helpers.getTemplate('#searchform'),
+    render: function(){
+        this.$el.html( this.template( this.model.toJSON() ) );
+        return this;
+    }
+});
 /**
  * Cart model
  */
@@ -304,8 +329,6 @@ App.Views.Cart = App.Views.BaseView.extend({
     initialize: function(){
         //this.model.on('change:favorite', this.render, this);
         this.subviews['.toolbox'] = new App.Views.CartToolbox({model: this.model});
-
-        if(this.model.isVideo()) App.Events.on('layoutResize', this.scaleMedia, this);
     },
     subviews: {},
 
@@ -342,6 +365,7 @@ App.Views.Cart = App.Views.BaseView.extend({
 
         $(document).ready(scaleMedia);
         $(window).resize(scaleMedia);
+        App.Events.on('layoutResize', scaleMedia);
     }
 
 });

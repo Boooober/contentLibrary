@@ -178,7 +178,7 @@ table {
 img {
   max-width: 100%; }
 
-a {
+a:hover {
   text-decoration: none; }
 
 html, body {
@@ -215,9 +215,42 @@ html, body {
   position: fixed;
   -webkit-transition: .4s;
   transition: .4s;
-  overflow: hidden;
-  width: 220px;
+  width: 220px; }
+
+.sidebar {
+  overflow-x: hidden;
   background: lightgray; }
+  .sidebar .side-wrapper {
+    position: relative;
+    min-height: 100%; }
+  .sidebar .side-content {
+    padding: 0 15px 80px; }
+    .sidebar .side-content .cat-list {
+      margin: 0 -15px; }
+      .sidebar .side-content .cat-list li a {
+        display: block;
+        padding: 0 15px;
+        line-height: 2.2em; }
+        .sidebar .side-content .cat-list li a:hover, .sidebar .side-content .cat-list li a .current-item {
+          background: #c4c4c4; }
+  .sidebar .side-footer {
+    left: 0;
+    width: 100%;
+    bottom: 25px;
+    position: absolute; }
+    .sidebar .side-footer .soc-icons {
+      text-align: center;
+      font-size: 0; }
+      .sidebar .side-footer .soc-icons > li {
+        display: inline-block;
+        font-size: 16px; }
+      .sidebar .side-footer .soc-icons li {
+        padding: 0 5px; }
+        .sidebar .side-footer .soc-icons li a {
+          display: block;
+          line-height: 2.2em; }
+          .sidebar .side-footer .soc-icons li a:hover {
+            background: #c4c4c4; }
 
 .topmenu {
   position: relative; }

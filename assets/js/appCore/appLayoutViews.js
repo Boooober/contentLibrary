@@ -13,10 +13,19 @@ App.Views.Topmenu = App.Views.BaseView.extend({
 // Sidebar layout
 
 App.Views.SidebarLayout = App.Views.BaseView.extend({
+    initialize: function(){
+        this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
+        this.subviews['.searchform'] = new App.Views.SearchForm({model: new App.Models.SearchForm});
+    },
+    subviews: {},
     template: App.Helpers.getTemplate('#sidebarLayout'),
     render: function(){
         this.setElement( this.template() );
+        this.assign( this.subviews );
         return this;
+    },
+    toggleSidebar: function(){
+        this.$('.side-content').fadeToggle(150);
     }
 });
 

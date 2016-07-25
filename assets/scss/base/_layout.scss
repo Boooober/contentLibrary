@@ -27,16 +27,13 @@ html, body {
   display: none;
 }
 
-//Sidebar
+//Sidebar layout
 $sidebarWidth: 220px;
-
 .with-sidebar{
-
   .page-layout{
     transition: .4s;
     margin-left: $sidebarWidth;
   }
-
   .sidebar{
     top: 0;
     left: 0;
@@ -45,11 +42,8 @@ $sidebarWidth: 220px;
     display: block;
     position: fixed;
     transition: .4s;
-    overflow: hidden;
     width: $sidebarWidth;
-    background: lightgray;
   }
-
 }
 
 

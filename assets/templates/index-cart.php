@@ -48,12 +48,12 @@
 <script type="text/template" id="textCart">
 	<div class="cart-item col-xs-12 col-sm-4">
 		<div class="cart-content text-cart">
-			<div class="cart-head">
-				<h3 class="post-title with-padding"><%= title %></h3>
+			<div class="cart-head with-padding">
+				<h3 class="post-title"><%= title %></h3>
 				<div class="toolbox"></div>
 			</div>
-			<div class="cart-body">
-				<div class="post-content with-padding"><%= content %></div>
+			<div class="cart-body with-padding">
+				<div class="post-content"><%= content %></div>
 			</div>
 			<div class="cart-footer"></div>
 		</div>

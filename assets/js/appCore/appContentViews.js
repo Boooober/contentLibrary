@@ -25,8 +25,6 @@ App.Views.Cart = App.Views.BaseView.extend({
     initialize: function(){
         //this.model.on('change:favorite', this.render, this);
         this.subviews['.toolbox'] = new App.Views.CartToolbox({model: this.model});
-
-        if(this.model.isVideo()) App.Events.on('layoutResize', this.scaleMedia, this);
     },
     subviews: {},
 
@@ -63,6 +61,7 @@ App.Views.Cart = App.Views.BaseView.extend({
 
         $(document).ready(scaleMedia);
         $(window).resize(scaleMedia);
+        App.Events.on('layoutResize', scaleMedia);
     }
 
 });

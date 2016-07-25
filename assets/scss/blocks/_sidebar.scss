@@ -1,0 +1,49 @@
+.sidebar{
+  overflow-x: hidden;
+  background: lightgray;
+
+
+  .side-wrapper{
+    position: relative;
+    min-height: 100%;
+  }
+
+  .side-content{
+    padding: 0 15px 80px;
+    .cat-list{
+      margin: 0 -15px;
+      li{
+        a{
+          display: block;
+          padding: 0 15px;
+          line-height: 2.2em;
+
+          &:hover, .current-item{
+            background: $gray;
+          }
+        }
+      }
+    }
+  }
+
+  .side-footer{
+    left: 0;
+    width: 100%;
+    bottom: 25px;
+    position: absolute;
+    .soc-icons{
+      text-align: center;
+      @include inlineList();
+      li{
+        a{
+          display: block;
+          line-height: 2.2em;
+          &:hover{
+            background: $gray;
+          }
+        }
+        padding: 0 5px;
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 App.Models.Layout = Backbone.Model.extend({
     defaults: {
         layout: 'withSidebar', //'withSidebar' or 'single'
-        sidebarCollapsed: false
+        sidebarCollapsed: true
     },
     withSidebar: function(){
         return this.get('layout') === 'withSidebar';

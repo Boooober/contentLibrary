@@ -2,16 +2,52 @@
 <script type="text/template" id="sidebarLayout">
 
 	<nav class="sidebar navbar-primary">
-		<div class="container-fluid">
-			Search bar
-			<form action="">
-				<input type="text"/>
-			</form>
+		<div class="side-wrapper">
+			<div class="side-content">
+				Sidebar
+				<div class="searchform"></div>
+
+				<ul class="cat-list">
+					<li><a href="#">Category 1</a></li>
+					<li><a href="#">Category 2</a></li>
+					<li><a href="#">Category 3</a></li>
+					<li><a href="#">Category 4</a></li>
+					<li><a href="#">Category 5</a></li>
+				</ul>
+			</div>
+
+			<div class="side-footer">
+				<ul class="soc-icons">
+					<li><a href="#">FB</a></li>
+					<li><a href="#">GP</a></li>
+					<li><a href="#">TW</a></li>
+					<li><a href="#">PIN</a></li>
+					<li><a href="#">VK</a></li>
+				</ul>
+			</div>
 		</div>
 	</nav>
-
 </script>
 <!-- ./Sidebar -->
+
+<!-- Searchform -->
+<script type="text/template" id="searchform">
+
+	<form method="post">
+		<div class="form-group">
+			<label for="s" class="sr-only">Search</label>
+			<div class="input-group">
+				<input id="s" name="s" type="text" class="form-control" placeholder="Search" value="<%= s %>"/>
+				<span class="input-group-btn" id="basic-addon3">
+					<button class="btn btn-primary">s</button>
+				</span>
+			</div>
+		</div>
+	</form>
+
+</script>
+<!-- ./Searchform -->
+
 
 <!-- Page layout -->
 <script type="text/template" id="pageLayout">
@@ -50,13 +86,15 @@
 				</div>
 
 				<ul class="navbar-links navbar-right">
-					<li><a href="/signin.html">Login</a></li>
+					<li><a href="/signin.html">Add media</a></li>
 					<li><a href="/login.html">Login</a></li>
 					<li><a href="/logout.html">Login</a></li>
 					<li><a href="#">Messages</a></li>
 					<li><a href="#">Other</a></li>
 					<li><a href="/account.html">Account</a></li>
 				</ul>
+
+
 			</nav>
 		</div>
 

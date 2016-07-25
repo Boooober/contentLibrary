@@ -1,3 +1,7 @@
-/**
- * Created by Boooober on 22.07.2016.
- */
+App.Views.SearchForm = App.Views.BaseView.extend({
+    template: App.Helpers.getTemplate('#searchform'),
+    render: function(){
+        this.$el.html( this.template( this.model.toJSON() ) );
+        return this;
+    }
+});

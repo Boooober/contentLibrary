@@ -1,3 +1,5 @@
-/**
- * Created by Boooober on 22.07.2016.
- */
+App.Models.SearchForm = Backbone.Model.extend({
+    defaults: {
+        s: App.Helpers.getQueryParam('s')
+    }
+});
