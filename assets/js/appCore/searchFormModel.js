@@ -8,11 +8,12 @@ App.Models.SearchForm = Backbone.Model.extend({
 
         collection.fetch({
             success: function(){
+                var pattern;
 
                 if(s){
+                    pattern = new RegExp(s, 'i');
                     collection.reset(collection.filter(function(model){
-                        return model.get('title').search(s) !== -1 ||
-                        model.get('content').search(s) !== -1
+                        return pattern.test(model.get('title')) || pattern.test(model.get('content'));
                     }));
                 }
 

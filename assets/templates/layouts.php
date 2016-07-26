@@ -2,28 +2,31 @@
 <script type="text/template" id="sidebarLayout">
 
 	<nav class="sidebar navbar-primary">
+
 		<div class="side-wrapper">
-			<div class="side-content">
-				Sidebar
-				<div class="searchform"></div>
+			<div class="side-container">
+				<div class="side-content">
+					Sidebar
+					<div class="searchform"></div>
 
-				<ul class="cat-list">
-					<li><a href="#">Category 1</a></li>
-					<li><a href="#">Category 2</a></li>
-					<li><a href="#">Category 3</a></li>
-					<li><a href="#">Category 4</a></li>
-					<li><a href="#">Category 5</a></li>
-				</ul>
-			</div>
+					<ul class="cat-list">
+						<li><a href="#">Category 1</a></li>
+						<li><a href="#">Category 2</a></li>
+						<li><a href="#">Category 3</a></li>
+						<li><a href="#">Category 4</a></li>
+						<li><a href="#">Category 5</a></li>
+					</ul>
+				</div>
 
-			<div class="side-footer">
-				<ul class="soc-icons">
-					<li><a href="#">FB</a></li>
-					<li><a href="#">GP</a></li>
-					<li><a href="#">TW</a></li>
-					<li><a href="#">PIN</a></li>
-					<li><a href="#">VK</a></li>
-				</ul>
+				<div class="side-footer">
+					<ul class="soc-icons">
+						<li><a href="#">FB</a></li>
+						<li><a href="#">GP</a></li>
+						<li><a href="#">TW</a></li>
+						<li><a href="#">PIN</a></li>
+						<li><a href="#">VK</a></li>
+					</ul>
+				</div>
 			</div>
 		</div>
 	</nav>
@@ -86,8 +89,9 @@
 				</div>
 
 				<ul class="navbar-links navbar-right">
-					<li><a href="/signin.html">Add media</a></li>
-					<li><a href="/login.html">Login</a></li>
+					<li><a href="#">Index</a></li>
+					<li><a href="#!/signin">Add media</a></li>
+					<li><a href="#!/login">Login</a></li>
 					<li><a href="/logout.html">Login</a></li>
 					<li><a href="#">Messages</a></li>
 					<li><a href="#">Other</a></li>
@@ -112,8 +116,7 @@
 </script>
 <!-- ./Content topline/header -->
 
-<script type="text/template" id="wrapperAppends">
-	<div class="preloader">
-		<div class="loader"></div>
-	</div>
-</script>
+<script type="text/template" id="wrapperAppends"></script>
+<!--	<div class="preloader">-->
+<!--		<div class="loader"></div>-->
+<!--	</div>-->

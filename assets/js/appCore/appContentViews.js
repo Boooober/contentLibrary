@@ -106,10 +106,10 @@ App.Views.Carts = Backbone.View.extend({
     masonry: function(){
         //Find all external media resources
         var items = this.$('iframe, img, video'),
-            l = items.length, count = 0,
+            l = items.length, count = 0;
 
             //Init masonry event handler function
-            masonry = function () {
+        var masonry = function () {
                 this.$el.masonry({
                     columnWidth: this.$('.cart-item')[0],
                     itemSelector: '.cart-item',
@@ -123,11 +123,6 @@ App.Views.Carts = Backbone.View.extend({
             masonry();
         });
         this.listenTo(App.Vent, 'layoutResize', masonry);
-    },
-
-    //search: function(options){
-    //    //this.reset();
-    //    this.update( this.collection.search(options.s) );
-    //}
+    }
 
 });

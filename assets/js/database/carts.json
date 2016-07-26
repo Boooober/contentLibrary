@@ -1,50 +1,65 @@
 [{
     "id": 1,
     "type": 0,
-    "title": "Image post 1",
+    "title": "Snail on a dewy moss",
+    "description": "A little snail in the morning light",
     "author": "Nikita",
-    "mediaLink": "/assets/images/image_01.jpg",
+    "mediaLink": "/assets/images/snail.jpg",
     "favorites": 15
 }, {
     "id": 2,
     "type": 0,
-    "title": "Image post 2",
+    "title": "Night and day",
+    "description": "A girl running with a starry veil",
     "author": "Nikita",
-    "mediaLink": "/assets/images/image_02.jpg",
+    "mediaLink": "/assets/images/night_day.jpg",
     "favorites": 23
 }, {
     "id": 3,
     "type": 1,
-    "title": "Video post 3",
+    "title": "Norway",
+	"description": "Beautiful timelapse adventure",
     "author": "Nikita",
     "mediaLink": "//www.youtube.com/embed/Scxs7L0vhZ4?rel=0&controls=0&showinfo=0&feature=oembed",
     "favorites": 12
 }, {
     "id": 4,
     "type": 2,
-    "title": "Lorem ipsum",
-    "content": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pellentesque in nulla sit amet elementum. Nunc quis egestas tellus, vel aliquam mauris. Duis consectetur quam et diam mattis, at maximus lacus venenatis. Fusce vel neque imperdiet, varius metus eget, pharetra orci. Quisque tempus nunc et interdum sollicitudin. Nulla mattis dolor eu elit commodo, at egestas ipsum ultrices. Cras vel metus efficitur, aliquam purus sed, facilisis arcu.</p>",
+    "title": "Three Men in a Boat: To Say Nothing of the Dog",
+    "description": "<p>Throw the lumber over, man! Let your boat of life be light, packed with only what you need – a homely home and simple pleasures, one or two friends, worth the name, someone to love and someone to love you, a cat, a dog, and a pipe or two, enough to eat and enough to wear, and a little more than enough to drink; for thirst is a dangerous thing.</p>",
     "author": "Nikita",
     "favorites": 16
 }, {
     "id": 5,
     "type": 0,
-    "title": "Image post 4",
+    "title": "Galaxy",
+	"description": "Horsehead Nebula",
     "author": "Nikita",
-    "mediaLink": "/assets/images/image_04.jpg",
+    "mediaLink": "/assets/images/galaxy.jpg",
     "favorites": 23
 }, {
     "id": 6,
     "type": 0,
-    "title": "Image post 6",
-    "author": "Nikita",
-    "mediaLink": "/assets/images/image_05.png",
+    "title": "In the Heart of the Wood and What I Found There",
+	"description": "Lots of birds are waiting for you behind the trees",
+    "author": "Richard",
+    "mediaLink": "/assets/images/birds.jpg",
     "favorites": 20
 }, {
     "id": 7,
-    "type": 0,
-    "title": "Image post 6",
-    "author": "Nikita",
-    "mediaLink": "/assets/images/image_05.png",
+    "type": 1,
+    "title": "Orange Milkshake",
+	"description": "Tasty milkshake for 4 persons",
+    "author": "Tasty",
+    "mediaLink": "//www.youtube.com/embed/CVuGZzxwTTM?rel=0&amp;controls=0&amp;showinfo=0",
     "favorites": 20
-}]
+}, {
+    "id": 8,
+    "type": 2,
+    "title": "Three Men in a Boat: To Say Nothing of the Dog",
+    "description": "<p>Throw the lumber over, man! Let your boat of life be light, packed with only what you need – a homely home and simple pleasures, one or two friends, worth the name, someone to love and someone to love you, a cat, a dog, and a pipe or two, enough to eat and enough to wear, and a little more than enough to drink; for thirst is a dangerous thing.</p>",
+    "author": "Nikita",
+    "favorites": 16
+}
+
+]

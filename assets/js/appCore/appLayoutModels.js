@@ -1,10 +1,13 @@
 App.Models.Layout = Backbone.Model.extend({
+    initialize: function(){
+        this.listenTo(App.Vent, 'layoutRedraw', this.redraw);
+    },
     defaults: {
-        layout: 'withSidebar', //'withSidebar' or 'single'
+        sidebar: true,
         sidebarCollapsed: true
     },
     withSidebar: function(){
-        return this.get('layout') === 'withSidebar';
+        return this.get('sidebar');
     },
     sidebarCollapsed: function(){
         return this.get('sidebarCollapsed');
@@ -16,5 +19,11 @@ App.Models.Layout = Backbone.Model.extend({
         setTimeout(function(){
             App.Vent.trigger('layoutResize');
         }, 400);
+    },
+
+    redraw: function(options){
+        this.set(options);
+        this.trigger('redraw');
     }
+
 });

@@ -53,7 +53,7 @@
 				<div class="toolbox"></div>
 			</div>
 			<div class="cart-body with-padding">
-				<div class="post-content"><%= content %></div>
+				<div class="post-content"><%= description %></div>
 			</div>
 			<div class="cart-footer"></div>
 		</div>

@@ -3,15 +3,12 @@
  */
 App.Models.Cart = Backbone.Model.extend({
     defaults: {
-        id: '',
-        type: '',
-
+        type: 0,
         title: '',
-        content: '',
+        description: '',
         author: '',
         mediaLink: '',
         favorites: 0,
-
         isFavorite: false
     },
 

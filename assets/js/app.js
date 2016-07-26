@@ -9,6 +9,23 @@ var App = {
 
     Helpers: {}
 };
+_.extend(App.Vent, Backbone.Events);
+
+/**
+ *
+ * - layoutResize: event fires when layout sizes changed.
+ *   For example, sidebar toggle needs to reinit masonry
+ *   and video scale.
+ *
+ *  - layoutRedraw: event fires when layout elements changed.
+ *   For example, remove sidebar.
+ *
+ *
+ * - collectionLoad: event fires when collection needs to be reloaded.
+ *   Accepts collection data.
+ *   For example, search, pagination, filter categories
+ */
+
 App.Helpers = {
 
     renderContent: function(content){
@@ -34,19 +51,6 @@ App.Helpers = {
         return '';
     }
 };
-_.extend(App.Vent, Backbone.Events);
-
-/**
- *
- * - layoutResize: event fires when layout sizes changed.
- *   For example, sidebar toggle needs to reinit masonry
- *   and video scale.
- *
- * - collectionLoad: event fires when collection needs to be reloaded.
- *   Accepts collection data.
- *   For example, search, pagination, filter categories
- */
-
 // BaseView for views with subviews.
 // Extended with helpful methods for rendering DOM
 App.Views.BaseView = Backbone.View.extend({
@@ -73,12 +77,15 @@ App.Views.BaseView = Backbone.View.extend({
     }
 });
 App.Models.Layout = Backbone.Model.extend({
+    initialize: function(){
+        this.listenTo(App.Vent, 'layoutRedraw', this.redraw);
+    },
     defaults: {
-        layout: 'withSidebar', //'withSidebar' or 'single'
+        sidebar: true,
         sidebarCollapsed: true
     },
     withSidebar: function(){
-        return this.get('layout') === 'withSidebar';
+        return this.get('sidebar');
     },
     sidebarCollapsed: function(){
         return this.get('sidebarCollapsed');
@@ -90,7 +97,13 @@ App.Models.Layout = Backbone.Model.extend({
         setTimeout(function(){
             App.Vent.trigger('layoutResize');
         }, 400);
+    },
+
+    redraw: function(options){
+        this.set(options);
+        this.trigger('redraw');
     }
+
 });
 // Navigation menu
 
@@ -116,10 +129,15 @@ App.Views.SidebarLayout = App.Views.BaseView.extend({
     render: function(){
         this.setElement( this.template() );
         this.assign( this.subviews );
+        this.$('.side-wrapper').slimScroll({
+            height: '100%'
+        });
         return this;
     },
     toggleSidebar: function(){
-        this.$('.side-content').fadeToggle(150);
+        this.model.get('sidebarCollapsed') ?
+            this.$('.side-content').fadeOut(150) :
+            this.$('.side-content').hide().delay(300).fadeIn(150);
     }
 });
 
@@ -158,19 +176,21 @@ App.Views.Wrapper = App.Views.BaseView.extend({
 
         this.on('loaded', this.loaded, this);
         this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
+        this.model.on('redraw', this.render, this);
 
         if(this.model.withSidebar()){
             this.$el.addClass('with-sidebar');
             this.subviews[0] = new App.Views.SidebarLayout({model: this.model});
 
             if(this.model.sidebarCollapsed())
-                this.$el.addClass('sidebarCollapsed');
+                this.$el.addClass('sidebar-collapsed');
         }
         this.subviews[1] = new App.Views.ContentLayout({model: this.model});
     },
     subviews: {},
     template: App.Helpers.getTemplate('#wrapperAppends'),
     render: function(){
+        this.$el.html('');
         _.each(this.subviews, function(subview){
             this.$el.append(subview.render().el);
         }, this);
@@ -183,7 +203,7 @@ App.Views.Wrapper = App.Views.BaseView.extend({
 
     // Resize layouts width
     toggleSidebar: function(){
-        this.$el.toggleClass('sidebar-hide');
+        this.$el.toggleClass('sidebar-collapsed');
     }
 });
 App.Models.SearchForm = Backbone.Model.extend({
@@ -196,11 +216,12 @@ App.Models.SearchForm = Backbone.Model.extend({
 
         collection.fetch({
             success: function(){
+                var pattern;
 
                 if(s){
+                    pattern = new RegExp(s, 'i');
                     collection.reset(collection.filter(function(model){
-                        return model.get('title').search(s) !== -1 ||
-                        model.get('content').search(s) !== -1
+                        return pattern.test(model.get('title')) || pattern.test(model.get('content'));
                     }));
                 }
 
@@ -211,17 +232,29 @@ App.Models.SearchForm = Backbone.Model.extend({
 });
 App.Views.SearchForm = App.Views.BaseView.extend({
     events: {
-        'submit form': 'submit'
+        "submit form": 'submit',
+        "keyup [name='s']": 'keyup'
     },
     template: App.Helpers.getTemplate('#searchform'),
     render: function(){
         this.$el.html( this.template( this.model.toJSON() ) );
         return this;
     },
+    keyup: function(e){
+        var s = $(e.target).val();
+        if(s.length > 2) this.search(s);
+    },
+
     submit: function(e){
         e.preventDefault();
         var s = $(e.target).find("input[name='s']").val();
+        this.search(s);
+
+    },
+
+    search: function(s){
         this.model.search(s);
+        App.Vent.trigger('searching');
     }
 });
 /**
@@ -229,15 +262,12 @@ App.Views.SearchForm = App.Views.BaseView.extend({
  */
 App.Models.Cart = Backbone.Model.extend({
     defaults: {
-        id: '',
-        type: '',
-
+        type: 0,
         title: '',
-        content: '',
+        description: '',
         author: '',
         mediaLink: '',
         favorites: 0,
-
         isFavorite: false
     },
 
@@ -263,21 +293,8 @@ App.Models.Cart = Backbone.Model.extend({
 
 });
 App.Collections.Carts = Backbone.Collection.extend({
-    //initialize: function(){
-    //    this.listenTo(App.Vent, 'collectionLoad', this.search);
-    //},
     url: 'assets/js/database/carts.json',
-    model:App.Models.Cart,
-
-    search: function(query){
-        if(!query) return this;
-        var result = this.filter(function(model){
-            return model.get('title').search(query) !== -1 ||
-                model.get('content').search(query) !== -1
-        });
-        return new App.Collections.Carts(result);
-    }
-
+    model:App.Models.Cart
 });
 
 // Cart toolbox view
@@ -388,10 +405,10 @@ App.Views.Carts = Backbone.View.extend({
     masonry: function(){
         //Find all external media resources
         var items = this.$('iframe, img, video'),
-            l = items.length, count = 0,
+            l = items.length, count = 0;
 
             //Init masonry event handler function
-            masonry = function () {
+        var masonry = function () {
                 this.$el.masonry({
                     columnWidth: this.$('.cart-item')[0],
                     itemSelector: '.cart-item',
@@ -405,37 +422,55 @@ App.Views.Carts = Backbone.View.extend({
             masonry();
         });
         this.listenTo(App.Vent, 'layoutResize', masonry);
-    },
-
-    //search: function(options){
-    //    //this.reset();
-    //    this.update( this.collection.search(options.s) );
-    //}
+    }
 
 });
 (function(){
     var layoutModel = new App.Models.Layout(),
-        wrapper = new App.Views.Wrapper({model: layoutModel}),
-        collection = new App.Collections.Carts,
-        carts = new App.Views.Carts;
-
-    collection.fetch({
-        success: success,
-        error: error
-    });
+        wrapper = new App.Views.Wrapper({model: layoutModel});
 
     wrapper.render();
-    $(window).load(function(e){
-        wrapper.trigger('loaded', {e:e});
-    });
-
-    function success(){
-        App.Vent.trigger('collectionLoad', collection);
-        App.Helpers.renderContent(carts.render().el);
-    }
-    function error(collection, response){
-        console.log(response.responseText);
-        //MyApp.vent.trigger("search:error", response);
-    }
+    //$(window).load(function(e){
+    //    wrapper.trigger('loaded', {e:e});
+    //});
 
 })();
+App.Router = Backbone.Router.extend({
+    routes: {
+        '': 'index',
+        '!/': 'index',
+        '!/login': 'login',
+        '!/sigin': 'sigin',
+        '!/page-:id': 'page',
+        '!/category-:id': 'category',
+        '!/add-media': 'addMedia'
+    },
+
+    index: function(){
+        console.log('index');
+        var collection = new App.Collections.Carts,
+            carts = new App.Views.Carts;
+        collection.fetch({
+            success: success,
+            error: error
+        });
+
+        function success(){
+            App.Vent.trigger('collectionLoad', collection);
+            App.Helpers.renderContent(carts.render().el);
+        }
+        function error(collection, response){
+            console.log(response.responseText);
+            //MyApp.vent.trigger("search:error", response);
+        }
+    },
+
+    login: function(){
+        App.Vent.trigger('layoutRedraw', {sidebar: false});
+        console.log('login');
+    }
+
+
+});
+new App.Router;
+Backbone.history.start();

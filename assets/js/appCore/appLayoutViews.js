@@ -22,10 +22,15 @@ App.Views.SidebarLayout = App.Views.BaseView.extend({
     render: function(){
         this.setElement( this.template() );
         this.assign( this.subviews );
+        this.$('.side-wrapper').slimScroll({
+            height: '100%'
+        });
         return this;
     },
     toggleSidebar: function(){
-        this.$('.side-content').fadeToggle(150);
+        this.model.get('sidebarCollapsed') ?
+            this.$('.side-content').fadeOut(150) :
+            this.$('.side-content').hide().delay(300).fadeIn(150);
     }
 });
 
@@ -64,19 +69,21 @@ App.Views.Wrapper = App.Views.BaseView.extend({
 
         this.on('loaded', this.loaded, this);
         this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
+        this.model.on('redraw', this.render, this);
 
         if(this.model.withSidebar()){
             this.$el.addClass('with-sidebar');
             this.subviews[0] = new App.Views.SidebarLayout({model: this.model});
 
             if(this.model.sidebarCollapsed())
-                this.$el.addClass('sidebarCollapsed');
+                this.$el.addClass('sidebar-collapsed');
         }
         this.subviews[1] = new App.Views.ContentLayout({model: this.model});
     },
     subviews: {},
     template: App.Helpers.getTemplate('#wrapperAppends'),
     render: function(){
+        this.$el.html('');
         _.each(this.subviews, function(subview){
             this.$el.append(subview.render().el);
         }, this);
@@ -89,6 +96,6 @@ App.Views.Wrapper = App.Views.BaseView.extend({
 
     // Resize layouts width
     toggleSidebar: function(){
-        this.$el.toggleClass('sidebar-hide');
+        this.$el.toggleClass('sidebar-collapsed');
     }
 });

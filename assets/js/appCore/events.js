@@ -6,6 +6,10 @@ _.extend(App.Vent, Backbone.Events);
  *   For example, sidebar toggle needs to reinit masonry
  *   and video scale.
  *
+ *  - layoutRedraw: event fires when layout elements changed.
+ *   For example, remove sidebar.
+ *
+ *
  * - collectionLoad: event fires when collection needs to be reloaded.
  *   Accepts collection data.
  *   For example, search, pagination, filter categories
