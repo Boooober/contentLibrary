@@ -51,30 +51,64 @@ App.Helpers = {
         return '';
     }
 };
-// BaseView for views with subviews.
-// Extended with helpful methods for rendering DOM
-App.Views.BaseView = Backbone.View.extend({
+App.Models.SearchForm = Backbone.Model.extend({
+    defaults: {
+        s: App.Helpers.getQueryParam('s')
+    },
+    search: function(s){
+        var collection = new App.Collections.Carts;
+        this.set('s', s);
 
-    //https://ianstormtaylor.com/assigning-backbone-subviews-made-even-cleaner
-    //https://ianstormtaylor.com/rendering-views-in-backbonejs-isnt-always-simple
-    //Render subviews with delegating events;
-    assign: function(selector, view){
-        var selectors;
+        collection.fetch({
+            success: function(){
+                var pattern;
 
-        if(_.isObject(selector)){
-            selectors = selector;
-        } else {
-            selectors = {};
-            selectors[selector] = view;
-        }
+                if(s){
+                    pattern = new RegExp(s, 'i');
+                    collection.reset(collection.filter(function(model){
+                        return pattern.test(model.get('title')) || pattern.test(model.get('content'));
+                    }));
+                }
 
-        if(!selectors) return;
-
-        _.each(selectors, function(view, selector){
-            //this.$(selector) -> save as this.$el.find(selector);
-            view.setElement(this.$(selector)).render();
-        }, this);
+                App.Vent.trigger('collectionLoad', collection);
+            }
+        });
     }
+});
+/**
+ * Cart model
+ */
+App.Models.Cart = Backbone.Model.extend({
+    defaults: {
+        type: 0,
+        title: '',
+        description: '',
+        author: '',
+        mediaLink: '',
+        favorites: 0,
+        isFavorite: false
+    },
+
+    favoriteToggle: function(){
+        var count = this.get('favorites'),
+            favorite = this.get('isFavorite');
+
+        this.set('isFavorite', !favorite);
+        this.set('favorites', favorite ? --count : ++count);
+    },
+
+    isImage: function(){
+        return this.get('type') === 0;
+    },
+
+    isVideo: function(){
+        return this.get('type') === 1;
+    },
+
+    isText: function(){
+        return this.get('type') === 2;
+    }
+
 });
 App.Models.Layout = Backbone.Model.extend({
     initialize: function(){
@@ -105,6 +139,132 @@ App.Models.Layout = Backbone.Model.extend({
     }
 
 });
+App.Collections.Carts = Backbone.Collection.extend({
+    url: 'assets/js/database/carts.json',
+    model:App.Models.Cart
+});
+
+// BaseView for views with subviews.
+// Extended with helpful methods for rendering DOM
+App.Views.BaseView = Backbone.View.extend({
+
+    //https://ianstormtaylor.com/assigning-backbone-subviews-made-even-cleaner
+    //https://ianstormtaylor.com/rendering-views-in-backbonejs-isnt-always-simple
+    //Render subviews with delegating events;
+    assign: function(selector, view){
+        var selectors;
+
+        if(_.isObject(selector)){
+            selectors = selector;
+        } else {
+            selectors = {};
+            selectors[selector] = view;
+        }
+
+        if(!selectors) return;
+
+        _.each(selectors, function(view, selector){
+            //this.$(selector) -> save as this.$el.find(selector);
+            view.setElement(this.$(selector)).render();
+        }, this);
+    }
+});
+App.Views.SearchForm = App.Views.BaseView.extend({
+    events: {
+        "submit form": 'submit',
+        "keyup [name='s']": 'keyup'
+    },
+    template: App.Helpers.getTemplate('#searchform'),
+    render: function(){
+        this.$el.html( this.template( this.model.toJSON() ) );
+        return this;
+    },
+    keyup: function(e){
+        var s = $(e.target).val();
+        if(s.length > 2) this.search(s);
+    },
+
+    submit: function(e){
+        e.preventDefault();
+        var s = $(e.target).find("input[name='s']").val();
+        this.search(s);
+
+    },
+
+    search: function(s){
+        this.model.search(s);
+        App.Vent.trigger('searching');
+    }
+});
+// Cart toolbox view
+App.Views.CartToolbox = App.Views.BaseView.extend({
+
+    initialize: function() {
+        this.model.on('change:favorites', this.render, this);
+    },
+    events: {
+        'click .rate-button': 'toggleRate'
+    },
+    template: App.Helpers.getTemplate('#cartToolbox'),
+
+    render: function(){
+        this.$el.html( this.template( this.model.toJSON() ) );
+        return this;
+    },
+
+    toggleRate: function(e){
+        e.preventDefault();
+        this.model.favoriteToggle();
+    }
+});
+
+
+App.Views.Cart = App.Views.BaseView.extend({
+    initialize: function(){
+        //this.model.on('change:favorite', this.render, this);
+        this.subviews['.toolbox'] = new App.Views.CartToolbox({model: this.model});
+    },
+    subviews: {},
+
+    //There are three content types:
+    //0 => image, 1 => video, 3 => text
+    //They are stored in array by indexes
+    templates: [
+        App.Helpers.getTypeTemplate('image'),
+        App.Helpers.getTypeTemplate('video'),
+        App.Helpers.getTypeTemplate('text')
+    ],
+
+    render: function(){
+        var model = this.model.toJSON(),
+            template = this.templates[model.type](model);
+
+        this.setElement($(template));
+        this.assign(this.subviews);
+
+        if(this.model.isVideo()) this.scaleMedia();
+
+        return this;
+    },
+
+    scaleMedia: function(){
+        var video = this.$('.video-frame iframe'),
+            container = video.parent();
+        var scaleMedia = function(){
+            var ratio = container.width() / video.attr('width'),
+                height = video.attr('height') * ratio;
+
+            container.css('padding-bottom', height);
+        }.bind(this);
+
+        video.load(scaleMedia);
+        $(window).resize(scaleMedia);
+        this.listenTo(App.Vent, 'layoutResize', scaleMedia);
+    }
+
+});
+
+
 // Navigation menu
 
 App.Views.Topmenu = App.Views.BaseView.extend({
@@ -206,165 +366,6 @@ App.Views.Wrapper = App.Views.BaseView.extend({
         this.$el.toggleClass('sidebar-collapsed');
     }
 });
-App.Models.SearchForm = Backbone.Model.extend({
-    defaults: {
-        s: App.Helpers.getQueryParam('s')
-    },
-    search: function(s){
-        var collection = new App.Collections.Carts;
-        this.set('s', s);
-
-        collection.fetch({
-            success: function(){
-                var pattern;
-
-                if(s){
-                    pattern = new RegExp(s, 'i');
-                    collection.reset(collection.filter(function(model){
-                        return pattern.test(model.get('title')) || pattern.test(model.get('content'));
-                    }));
-                }
-
-                App.Vent.trigger('collectionLoad', collection);
-            }
-        });
-    }
-});
-App.Views.SearchForm = App.Views.BaseView.extend({
-    events: {
-        "submit form": 'submit',
-        "keyup [name='s']": 'keyup'
-    },
-    template: App.Helpers.getTemplate('#searchform'),
-    render: function(){
-        this.$el.html( this.template( this.model.toJSON() ) );
-        return this;
-    },
-    keyup: function(e){
-        var s = $(e.target).val();
-        if(s.length > 2) this.search(s);
-    },
-
-    submit: function(e){
-        e.preventDefault();
-        var s = $(e.target).find("input[name='s']").val();
-        this.search(s);
-
-    },
-
-    search: function(s){
-        this.model.search(s);
-        App.Vent.trigger('searching');
-    }
-});
-/**
- * Cart model
- */
-App.Models.Cart = Backbone.Model.extend({
-    defaults: {
-        type: 0,
-        title: '',
-        description: '',
-        author: '',
-        mediaLink: '',
-        favorites: 0,
-        isFavorite: false
-    },
-
-    favoriteToggle: function(){
-        var count = this.get('favorites'),
-            favorite = this.get('isFavorite');
-
-        this.set('isFavorite', !favorite);
-        this.set('favorites', favorite ? --count : ++count);
-    },
-
-    isImage: function(){
-        return this.get('type') === 0;
-    },
-
-    isVideo: function(){
-        return this.get('type') === 1;
-    },
-
-    isText: function(){
-        return this.get('type') === 2;
-    }
-
-});
-App.Collections.Carts = Backbone.Collection.extend({
-    url: 'assets/js/database/carts.json',
-    model:App.Models.Cart
-});
-
-// Cart toolbox view
-App.Views.CartToolbox = App.Views.BaseView.extend({
-
-    initialize: function() {
-        this.model.on('change:favorites', this.render, this);
-    },
-    events: {
-        'click .rate-button': 'toggleRate'
-    },
-    template: App.Helpers.getTemplate('#cartToolbox'),
-
-    render: function(){
-        this.$el.html( this.template( this.model.toJSON() ) );
-        return this;
-    },
-
-    toggleRate: function(e){
-        e.preventDefault();
-        this.model.favoriteToggle();
-    }
-});
-
-
-App.Views.Cart = App.Views.BaseView.extend({
-    initialize: function(){
-        //this.model.on('change:favorite', this.render, this);
-        this.subviews['.toolbox'] = new App.Views.CartToolbox({model: this.model});
-    },
-    subviews: {},
-
-    //There are three content types:
-    //0 => image, 1 => video, 3 => text
-    //They are stored in array by indexes
-    templates: [
-        App.Helpers.getTypeTemplate('image'),
-        App.Helpers.getTypeTemplate('video'),
-        App.Helpers.getTypeTemplate('text')
-    ],
-
-    render: function(){
-        var model = this.model.toJSON(),
-            template = this.templates[model.type](model);
-
-        this.setElement($(template));
-        this.assign(this.subviews);
-
-        if(this.model.isVideo()) this.scaleMedia();
-
-        return this;
-    },
-
-    scaleMedia: function(){
-        var video = this.$('.video-frame iframe'),
-            container = video.parent();
-        var scaleMedia = function(){
-            var ratio = container.width() / video.attr('width'),
-                height = video.attr('height') * ratio;
-
-            container.css('padding-bottom', height);
-        }.bind(this);
-
-        video.load(scaleMedia);
-        $(window).resize(scaleMedia);
-        this.listenTo(App.Vent, 'layoutResize', scaleMedia);
-    }
-
-});
-
 App.Views.Carts = Backbone.View.extend({
     className: 'row',
 
@@ -407,14 +408,14 @@ App.Views.Carts = Backbone.View.extend({
         var items = this.$('iframe, img, video'),
             l = items.length, count = 0;
 
-            //Init masonry event handler function
+        //Init masonry event handler function
         var masonry = function () {
-                this.$el.masonry({
-                    columnWidth: this.$('.cart-item')[0],
-                    itemSelector: '.cart-item',
-                    percentPosition: true
-                });
-            }.bind(this);
+            this.$el.masonry({
+                columnWidth: this.$('.cart-item')[0],
+                itemSelector: '.cart-item',
+                percentPosition: true
+            });
+        }.bind(this);
 
         //Fire masonry init when all resourses are loaded
         items.load(function(){
@@ -425,16 +426,6 @@ App.Views.Carts = Backbone.View.extend({
     }
 
 });
-(function(){
-    var layoutModel = new App.Models.Layout(),
-        wrapper = new App.Views.Wrapper({model: layoutModel});
-
-    wrapper.render();
-    //$(window).load(function(e){
-    //    wrapper.trigger('loaded', {e:e});
-    //});
-
-})();
 App.Router = Backbone.Router.extend({
     routes: {
         '': 'index',
@@ -474,3 +465,14 @@ App.Router = Backbone.Router.extend({
 });
 new App.Router;
 Backbone.history.start();
+
+(function(){
+    var layoutModel = new App.Models.Layout(),
+        wrapper = new App.Views.Wrapper({model: layoutModel});
+
+    wrapper.render();
+    //$(window).load(function(e){
+    //    wrapper.trigger('loaded', {e:e});
+    //});
+
+})();
