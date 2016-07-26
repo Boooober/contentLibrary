@@ -3,7 +3,21 @@ App.Models.SearchForm = Backbone.Model.extend({
         s: App.Helpers.getQueryParam('s')
     },
     search: function(s){
+        var collection = new App.Collections.Carts;
         this.set('s', s);
-        App.Vent.trigger('collectionFilter', this.toJSON());
+
+        collection.fetch({
+            success: function(){
+
+                if(s){
+                    collection.reset(collection.filter(function(model){
+                        return model.get('title').search(s) !== -1 ||
+                        model.get('content').search(s) !== -1
+                    }));
+                }
+
+                App.Vent.trigger('collectionLoad', collection);
+            }
+        });
     }
 });

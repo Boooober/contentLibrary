@@ -1,7 +1,8 @@
 App.Collections.Carts = Backbone.Collection.extend({
     //initialize: function(){
-    //    this.listenTo(App.Vent, 'collectionFilter', this.search);
+    //    this.listenTo(App.Vent, 'collectionLoad', this.search);
     //},
+    url: 'assets/js/database/carts.json',
     model:App.Models.Cart,
 
     search: function(query){

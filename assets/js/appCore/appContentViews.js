@@ -70,13 +70,20 @@ App.Views.Carts = Backbone.View.extend({
     className: 'row',
 
     initialize: function(){
-        this.listenTo(App.Vent, 'collectionFilter', this.search);
-
-
+        this.listenTo(App.Vent, 'collectionLoad', this.setCollection);
     },
-    render: function(collection){
-        collection = collection || this.collection;
-        collection.each(this.addOne, this);
+
+    setCollection: function(collection){
+        if(!this.collection){
+            this.collection = collection;
+            this.listenTo(this.collection, 'reset', this.redraw);
+        }else{
+            this.collection.reset(collection.models);
+        }
+    },
+
+    render: function(){
+        this.collection.each(this.addOne, this);
         this.masonry();
         return this;
     },
@@ -85,10 +92,15 @@ App.Views.Carts = Backbone.View.extend({
         this.$el.append(cartView.render().el);
     },
 
+    redraw: function(){
+        this.reset().render();
+    },
+
     reset: function(){
-        this.$el.html('')
+        this.$el
+            .html('')
             .masonry('destroy');
-        //this.undelegateEvents();
+        return this;
     },
 
     masonry: function(){
@@ -108,15 +120,14 @@ App.Views.Carts = Backbone.View.extend({
         //Fire masonry init when all resourses are loaded
         items.load(function(){
             if(++count < l) return;
-            console.log('all resourses are loaded! init masonry...');
             masonry();
         });
         this.listenTo(App.Vent, 'layoutResize', masonry);
     },
 
-    search: function(options){
-        this.reset();
-        this.render( this.collection.search(options.s) );
-    }
+    //search: function(options){
+    //    //this.reset();
+    //    this.update( this.collection.search(options.s) );
+    //}
 
 });

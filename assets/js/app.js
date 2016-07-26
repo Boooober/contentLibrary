@@ -1,69 +1,3 @@
-/*
-    Content types:
-    0 - image
-    1 - video
-    2 - text
-*/
-
-var indexData = [
-    {
-        id: 1,
-        type: 0,
-        title: 'Image post 1',
-        author: 'Nikita',
-        mediaLink: '/assets/images/image_01.jpg',
-        favorites: 15
-    },
-    {
-        id: 2,
-        type: 0,
-        title: 'Image post 2',
-        author: 'Nikita',
-        mediaLink: '/assets/images/image_02.jpg',
-        favorites: 23
-    },
-    {
-        id: 3,
-        type: 1,
-        title: 'Video post 3',
-        author: 'Nikita',
-        mediaLink: '//www.youtube.com/embed/Scxs7L0vhZ4?rel=0&controls=0&showinfo=0&feature=oembed',
-        favorites: 12
-    },
-    {
-        id: 4,
-        type: 2,
-        title: 'Lorem ipsum',
-        content: '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pellentesque in nulla sit amet elementum. Nunc quis egestas tellus, vel aliquam mauris. Duis consectetur quam et diam mattis, at maximus lacus venenatis. Fusce vel neque imperdiet, varius metus eget, pharetra orci. Quisque tempus nunc et interdum sollicitudin. Nulla mattis dolor eu elit commodo, at egestas ipsum ultrices. Cras vel metus efficitur, aliquam purus sed, facilisis arcu.</p>',
-        author: 'Nikita',
-        //mediaLink: '',
-        favorites: 16
-    },
-    {
-        id: 5,
-        type: 0,
-        title: 'Image post 4',
-        author: 'Nikita',
-        mediaLink: '/assets/images/image_04.jpg',
-        favorites: 23
-    },
-    {
-        id: 6,
-        type: 0,
-        title: 'Image post 6',
-        author: 'Nikita',
-        mediaLink: '/assets/images/image_05.png',
-        favorites: 20
-    },
-    {
-        id: 7,
-        type: 0,
-        title: 'Image post 6',
-        author: 'Nikita',
-        mediaLink: '/assets/images/image_05.png',
-        favorites: 20
-    }
-];
 'use strict';
 
 var App = {
@@ -108,8 +42,8 @@ _.extend(App.Vent, Backbone.Events);
  *   For example, sidebar toggle needs to reinit masonry
  *   and video scale.
  *
- * - collectionFilter: event fires when collection needs to be filtered.
- *   Accepts options object.
+ * - collectionLoad: event fires when collection needs to be reloaded.
+ *   Accepts collection data.
  *   For example, search, pagination, filter categories
  */
 
@@ -257,8 +191,22 @@ App.Models.SearchForm = Backbone.Model.extend({
         s: App.Helpers.getQueryParam('s')
     },
     search: function(s){
+        var collection = new App.Collections.Carts;
         this.set('s', s);
-        App.Vent.trigger('collectionFilter', this.toJSON());
+
+        collection.fetch({
+            success: function(){
+
+                if(s){
+                    collection.reset(collection.filter(function(model){
+                        return model.get('title').search(s) !== -1 ||
+                        model.get('content').search(s) !== -1
+                    }));
+                }
+
+                App.Vent.trigger('collectionLoad', collection);
+            }
+        });
     }
 });
 App.Views.SearchForm = App.Views.BaseView.extend({
@@ -316,8 +264,9 @@ App.Models.Cart = Backbone.Model.extend({
 });
 App.Collections.Carts = Backbone.Collection.extend({
     //initialize: function(){
-    //    this.listenTo(App.Vent, 'collectionFilter', this.search);
+    //    this.listenTo(App.Vent, 'collectionLoad', this.search);
     //},
+    url: 'assets/js/database/carts.json',
     model:App.Models.Cart,
 
     search: function(query){
@@ -403,13 +352,20 @@ App.Views.Carts = Backbone.View.extend({
     className: 'row',
 
     initialize: function(){
-        this.listenTo(App.Vent, 'collectionFilter', this.search);
-
-
+        this.listenTo(App.Vent, 'collectionLoad', this.setCollection);
     },
-    render: function(collection){
-        collection = collection || this.collection;
-        collection.each(this.addOne, this);
+
+    setCollection: function(collection){
+        if(!this.collection){
+            this.collection = collection;
+            this.listenTo(this.collection, 'reset', this.redraw);
+        }else{
+            this.collection.reset(collection.models);
+        }
+    },
+
+    render: function(){
+        this.collection.each(this.addOne, this);
         this.masonry();
         return this;
     },
@@ -418,10 +374,15 @@ App.Views.Carts = Backbone.View.extend({
         this.$el.append(cartView.render().el);
     },
 
+    redraw: function(){
+        this.reset().render();
+    },
+
     reset: function(){
-        this.$el.html('')
+        this.$el
+            .html('')
             .masonry('destroy');
-        //this.undelegateEvents();
+        return this;
     },
 
     masonry: function(){
@@ -441,28 +402,40 @@ App.Views.Carts = Backbone.View.extend({
         //Fire masonry init when all resourses are loaded
         items.load(function(){
             if(++count < l) return;
-            console.log('all resourses are loaded! init masonry...');
             masonry();
         });
         this.listenTo(App.Vent, 'layoutResize', masonry);
     },
 
-    search: function(options){
-        this.reset();
-        this.render( this.collection.search(options.s) );
-    }
+    //search: function(options){
+    //    //this.reset();
+    //    this.update( this.collection.search(options.s) );
+    //}
 
 });
 (function(){
     var layoutModel = new App.Models.Layout(),
         wrapper = new App.Views.Wrapper({model: layoutModel}),
-        indexCarts = new App.Collections.Carts(indexData), //database
-        carts = new App.Views.Carts({collection: indexCarts});
+        collection = new App.Collections.Carts,
+        carts = new App.Views.Carts;
+
+    collection.fetch({
+        success: success,
+        error: error
+    });
 
     wrapper.render();
     $(window).load(function(e){
         wrapper.trigger('loaded', {e:e});
     });
 
-    App.Helpers.renderContent(carts.render().el);
+    function success(){
+        App.Vent.trigger('collectionLoad', collection);
+        App.Helpers.renderContent(carts.render().el);
+    }
+    function error(collection, response){
+        console.log(response.responseText);
+        //MyApp.vent.trigger("search:error", response);
+    }
+
 })();
