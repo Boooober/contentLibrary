@@ -13,5 +13,4 @@ App.Models.Forms.Sigin = App.Models.Forms.BaseForm.extend({
     signin: function(){
 
     }
-
 });

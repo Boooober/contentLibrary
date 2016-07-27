@@ -1,18 +1,50 @@
+/**
+ * This object implemets useful methods for validating form inputs
+ * (c) 2016 Nikita Slobodian
+ */
+
 App.Views.Forms.BaseForm = Backbone.View.extend({
+    // Validation events
     events: {
-        'submit form': 'submit',
-        'blur input[name]': 'validate'
-    },
-    render: function(){
-        this.setElement( this.template() );
-        return this;
+        'submit form': 'submitForm',
+        'blur input[name]': 'validateInput'
     },
 
-    validate: function(e){
-        this.validateOne(e.target);
+    // Validation on submitting form event handler
+    // Submittion of this form should be implemented in successor object
+    // If no errors occures on validation, fires submit method.
+    submitForm: function(e){
+        e.preventDefault();
+        var $form = $(e.target),
+            $inputs = $form.find(':input[name]'),
+            noErrors = true;
+
+        // Loop over form inputs and return general form validation flag.
+        // On every iteration check current input to set/remove error messages
+        // Reduce general form error status. If error flag is already set, continue
+        // inputs validation and return same flag. If there are still to errors, try
+        // to set them from current input validation.
+        noErrors = _.reduce($inputs, function(flag, item){
+            var result = this.validateOne(item);
+            return flag === true ? result : flag;
+        }, noErrors, this);
+
+        if(noErrors && this['submit']){
+            // Submitting method fires in successor object
+            this['submit'].call(this, e);
+        }
     },
 
+    // Validation of one current input
+    validateInput: function(e){
+        return this.validateOne(e.target);
+    },
 
+    /**
+     *
+     * @param {Object} target - DOM object
+     * @returns {boolean}
+     */
     validateOne: function(target){
         var $target = $(target),
             value = $target.val().trim(),
@@ -46,12 +78,12 @@ App.Views.Forms.BaseForm = Backbone.View.extend({
         }, this);
 
         this.toggleError($target, error);
-
         return isValid;
     },
 
     // Validating functions should not return enything if input is correct.
     // If validation fail, return error message.
+    // Every validator accept input value and rule that input should match
     validators: {
         min: function(rule, value){
             if( !(value.length >= rule) )
@@ -74,9 +106,10 @@ App.Views.Forms.BaseForm = Backbone.View.extend({
                 return 'Field value is required';
         },
         email: function(rule, value){
-            var pattern = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+            var pattern = /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i;
+            ///^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
             if( !(pattern.test(value)) )
-                return 'Wrong email';
+                return 'Incorrect email format';
         },
         number: function(rule, value){
             // In some reason, underscore _.isNumber() not working...
@@ -89,9 +122,13 @@ App.Views.Forms.BaseForm = Backbone.View.extend({
             if( !($twink.val() === value) )
                 return 'Field value must match '+name;
         }
-
     },
 
+    /**
+     *
+     * @param {Object} $target - jQuery DOM object
+     * @param {(undefined|string)} error
+     */
     toggleError: function($target, error){
         var $helpBlock = $target.next(),
             $container = $target.closest('.form-group'),
