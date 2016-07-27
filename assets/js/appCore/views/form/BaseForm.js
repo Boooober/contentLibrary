@@ -8,20 +8,18 @@ App.Views.Forms.BaseForm = Backbone.View.extend({
         return this;
     },
 
-    setError: function(target, message){
-        var $template = $('');
-
-    },
-    removeError: function(){
-
-    },
-
     validate: function(e){
-        var target = $(e.target),
-            value = target.val().trim(),
-            rules = target.data('validate') || {};
-        rules.type = target.attr('type') || 'text';
-        rules.required = !!target.attr('required');
+        this.validateOne(e.target);
+    },
+
+
+    validateOne: function(target){
+        var $target = $(target),
+            value = $target.val().trim(),
+            rules = $target.data('validate') || {},
+            isValid, error;
+        rules.type = $target.attr('type') || 'text';
+        rules.required = !!$target.attr('required');
 
         // If current target type is number, than max and min validators behavior is different.
         // Validators should compare number value, not number string length.
@@ -34,45 +32,79 @@ App.Views.Forms.BaseForm = Backbone.View.extend({
         }
 
         // If input value satisfied every validating rule, return true
-        _.every(rules, function(rule, validator){
-            if(!_.isUndefined(rule)){
+        isValid = _.every(rules, function(rule, validator){
+            if(rule !== 0 && !!rule){
                 // If curret validator is 'type', check validation functions by value: 'email', 'number'
                 if(validator === 'type') validator = rule;
 
-                if(this.validators[validator]){
-                    return this.validators[validator].call(this, rule, value);
-                }
+                // If function return something, this is fail
+                if(this.validators[validator])
+                    error = this.validators[validator].call(this, rule, value);
+
             }
-            return true;
+            return !error;
         }, this);
 
+        this.toggleError($target, error);
+
+        return isValid;
     },
 
-    // Validating functions
-    // Must be function predicate
+    // Validating functions should not return enything if input is correct.
+    // If validation fail, return error message.
     validators: {
         min: function(rule, value){
-            return value.length >= rule;
+            if( !(value.length >= rule) )
+                return 'Value length must be greater than '+rule+' symbols.'
         },
         max: function(rule, value){
-            return value.length <= rule;
+            if( !(value.length <= rule) )
+                return 'Value length must be less than '+rule+' symbols.';
         },
         numMin: function(rule, value){
-            return value >= rule;
+            if( !(value >= rule) )
+                return 'Number must be greater than '+rule+'.';
         },
         numMax: function(rule, value){
-            return value <= rule;
+            if( !(value <= rule) )
+                return 'Number must be less than '+rule+'.';
         },
         required: function(rule, value){
-            return value.length !== 0;
+            if( !(value.length !== 0) )
+                return 'Field value is required';
         },
         email: function(rule, value){
             var pattern = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-            return pattern.test(value);
+            if( !(pattern.test(value)) )
+                return 'Wrong email';
         },
         number: function(rule, value){
             // In some reason, underscore _.isNumber() not working...
-            return $.isNumeric(value);
+            if( !($.isNumeric(value)) )
+                return 'Field value must be numeric';
+        },
+        equals: function(rule, value){
+            var $twink = $(rule),
+                name = $twink.attr('placeholder') || $("label[for='"+$twink.attr('id')+'"]').html();
+            if( !($twink.val() === value) )
+                return 'Field value must match '+name;
+        }
+
+    },
+
+    toggleError: function($target, error){
+        var $helpBlock = $target.next(),
+            $container = $target.closest('.form-group'),
+            $template = error ? $('<span class="help-block">'+error+'</span>') : '';
+
+        if(error){
+            $container.addClass('has-error').removeClass('has-success');
+            $helpBlock.length !== 0 ?
+                $helpBlock.replaceWith($template) :
+                $target.after($template);
+        } else {
+            $container.addClass('has-success').removeClass('has-error');
+            if($helpBlock) $helpBlock.remove();
         }
     }
 });

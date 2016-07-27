@@ -69,18 +69,13 @@
 					</div>
 
 					<div class="form-group">
-						<label for="signEmail" class="sr-only">Age:</label>
-						<input id="signEmail" name="email" type="number" class="form-control" placeholder="Age" data-validate='{"min":0,"max":15}' required/>
-					</div>
-
-					<div class="form-group">
 						<label for="signPassword" class="sr-only">Your password:</label>
 						<input id="signPassword" name="password" type="password" class="form-control" placeholder="Your password" data-validate='{"min":5}'/>
 					</div>
 
 					<div class="form-group">
 						<label for="signPassword2" class="sr-only">Repeat your password:</label>
-						<input id="signPassword2" name="password2" type="password" class="form-control" placeholder="Repeat your password" data-validate='{"min":5}' required/>
+						<input id="signPassword2" name="password2" type="password" class="form-control" placeholder="Repeat your password" data-validate='{"equals":"#signPassword"}' required/>
 					</div>
 
 					<button type="submit" class="btn btn-block btn-primary">Sign in</button>
