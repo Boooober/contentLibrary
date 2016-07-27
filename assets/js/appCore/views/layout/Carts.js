@@ -63,6 +63,10 @@ App.Views.Carts = Backbone.View.extend({
 
         })(models[i]);
 
+        this.listenTo(App.Vent, 'layoutResize', function(){
+            $root.masonry();
+        });
+
         return this;
     },
 

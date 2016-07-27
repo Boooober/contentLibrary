@@ -35,24 +35,36 @@ App.Helpers = {
                     }
                 }());
 
+            function getArgs(){
+                var name, value;
+                switch (arguments.length){
+                    case 1:
+                        name = storeName;
+                        value = JSON.stringify(arguments[0]);
+                        break;
+                    case 2:
+                        name = arguments[0];
+                        value = JSON.stringify(arguments[1]);
+                        break;
+                    default:
+                        return false;
+                }
+                return {
+                    name: name,
+                    value: value
+                };
+            }
+
             if(hasStorage)
+                // Local storage get/set API
                 storeAPI = {
                     set: function(){
-                        var name, value;
-                        switch (arguments.length){
-                            case 1:
-                                name = storeName;
-                                value = JSON.stringify(arguments[0]);
-                                break;
-                            case 2:
-                                name = arguments[0];
-                                value = JSON.stringify(arguments[1]);
-                                break;
-                            default:
-                                return false;
+                        var args = getArgs.apply(this, arguments);
+                        if(args){
+                            localStorage[args.name] = args.value;
+                            return true;
                         }
-                        localStorage[name] = value;
-                        return true;
+                        return false;
                     },
                     get: function(option){
                         option = option || storeName;
@@ -60,29 +72,20 @@ App.Helpers = {
                     }
                 };
             else
+                // Cookie get/set API
                 storeAPI = {
                     set: function(){
-                        var name, value,
+                        var args = getArgs.apply(this, arguments),
                             date = new Date(new Date().getTime() + 30 * 24 * 3600 * 1000);
-
-                        switch (arguments.length){
-                            case 1:
-                                name = storeName;
-                                value = JSON.stringify(arguments[0]);
-                                break;
-                            case 2:
-                                name = arguments[0];
-                                value = JSON.stringify(arguments[1]);
-                                break;
-                            default:
-                                return false;
+                        if(args){
+                            document.cookie = args.name+'='+args.value+'; path=/; expires='+date.toUTCString();
+                            return true;
                         }
-                        document.cookie = name+'='+value+'; path=/; expires='+date.toUTCString();
-                        return true;
+                        return false;
                     },
                     get: function(option){
                         option = option || storeName;
-                        return JSON.parse(App.Helpers.getQueryParam(option, document.cookie || '{}'));
+                        return JSON.parse(App.Helpers.getQueryParam(option, document.cookie) || '{}');
                     }
                 };
             return storeAPI;

@@ -1,9 +1,13 @@
 'use strict';
 
 var App = {
-    Models: {},
+    Models: {
+        Forms: {}
+    },
     Collections: {},
-    Views: {},
+    Views: {
+        Forms: {}
+    },
 
     Vent: {},
 
