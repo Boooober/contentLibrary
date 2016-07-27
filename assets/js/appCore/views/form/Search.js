@@ -1,4 +1,4 @@
-App.Views.SearchForm = App.Views.BaseView.extend({
+App.Views.SearchForm = Backbone.View.extend({
     events: {
         "submit form": 'submit',
         "keyup [name='s']": 'keyup'

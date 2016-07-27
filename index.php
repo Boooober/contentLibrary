@@ -12,7 +12,7 @@
 
 <div id="wrapper"></div>
 
-<?php get_templates(['layouts', 'index-cart', 'login-form']); ?>
+<?php get_templates(['layouts', 'index-cart', 'forms']); ?>
 
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>

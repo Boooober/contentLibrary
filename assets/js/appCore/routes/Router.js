@@ -2,8 +2,10 @@ App.Router = Backbone.Router.extend({
     routes: {
         '': 'index',
         '!/': 'index',
-        '!/login': 'login',
-        //'!/sigin': 'sigin',
+        '!/account/signin': 'signin',
+        '!/account/login': 'login',
+        '!/account/logout': 'logout',
+        '!/account/recover': 'recover',
         //'!/page-:id': 'page',
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
@@ -11,11 +13,8 @@ App.Router = Backbone.Router.extend({
 
     index: function(){
         App.Vent.trigger('layoutUpdate');
-        console.log('index route');
-
-        //console.log('index');
         var collection = new App.Collections.Carts,
-            carts = new App.Views.Carts;
+            view = new App.Views.Carts;
         collection.fetch({
             success: success,
             error: error
@@ -23,7 +22,7 @@ App.Router = Backbone.Router.extend({
 
         function success(){
             App.Vent.trigger('collectionLoad', collection);
-            App.Helpers.renderContent(carts.render().el);
+            App.Helpers.renderContent(view.render().el);
         }
         function error(collection, response){
             console.log(response.responseText);
@@ -33,8 +32,37 @@ App.Router = Backbone.Router.extend({
 
     login: function(){
         App.Vent.trigger('layoutUpdateForce', {sidebar: false});
-        console.log('login route');
+        var model = new App.Models.Forms.Login,
+            view  = new App.Views.Forms.Login({model: model});
+
+        App.Helpers.renderContent(view.render().el);
+    },
+
+    logout: function(){
+        //delete session and navigate to index
+        this.navigate('', {trigger: true, replace: true});
+    },
+
+    signin: function(){
+        App.Vent.trigger('layoutUpdateForce', {sidebar: false});
+        var model = new App.Models.Forms.Sigin,
+            view  = new App.Views.Forms.Sigin({model: model});
+
+        App.Helpers.renderContent(view.render().el);
+    },
+
+    recover: function(){
+        App.Vent.trigger('layoutUpdateForce', {sidebar: false});
+        var model = new App.Models.Forms.Recover,
+            view  = new App.Views.Forms.Recover({model: model});
+
+        App.Helpers.renderContent(view.render().el);
+    },
+
+    addMedia: function(){
+
     }
+
 
 
 });

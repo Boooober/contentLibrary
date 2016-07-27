@@ -49,10 +49,10 @@
 	<div class="cart-item col-xs-12 col-sm-4">
 		<div class="cart-content text-cart">
 			<div class="cart-head with-padding">
-				<h3 class="post-title"><%= title %></h3>
 				<div class="toolbox"></div>
 			</div>
 			<div class="cart-body with-padding">
+				<h3 class="post-title"><a href="#"><%= title %></a></h3>
 				<div class="post-content"><%= description %></div>
 			</div>
 			<div class="cart-footer"></div>

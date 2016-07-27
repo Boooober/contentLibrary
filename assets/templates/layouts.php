@@ -90,12 +90,11 @@
 
 				<ul class="navbar-links navbar-right">
 					<li><a href="#">Index</a></li>
-					<li><a href="#!/signin">Add media</a></li>
-					<li><a href="#!/login">Login</a></li>
-					<li><a href="/logout.html">Login</a></li>
-					<li><a href="#">Messages</a></li>
-					<li><a href="#">Other</a></li>
-					<li><a href="/account.html">Account</a></li>
+					<li><a href="#!/account/signin">Sign in</a></li>
+					<li><a href="#!/account/login">Login</a></li>
+					<li><a href="#!/account/logout">Logout</a></li>
+					<li><a href="#!/add-media">Add media</a></li>
+					<li><a href="#!/account">Account</a></li>
 				</ul>
 
 

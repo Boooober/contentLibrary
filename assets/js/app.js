@@ -138,19 +138,39 @@ App.Helpers = {
         })();
     }
 };
-App.Models.Forms.Search = Backbone.Model.extend({
+App.Models.Forms.BaseForm = Backbone.Model.extend({
+
+});
+App.Models.Forms.Login = App.Models.Forms.BaseForm.extend({
     defaults: {
         login: '',
         password: ''
     },
 
     validate: function(attributes){
+        console.log(attributes);
+    },
+
+    login: function(data){
+        this.set(data);
+
+        if (!this.isValid()) {
+            console.log(this.validationError);
+        }
+    }
+});
+App.Models.Forms.Recover = App.Models.Forms.BaseForm.extend({
+    defaults: {
+        email: ''
+    },
+
+    validate: function(attributes){
 
     },
 
-    login: function(){
+    recover: function(){
 
-    },
+    }
 
 });
 App.Models.SearchForm = Backbone.Model.extend({
@@ -176,6 +196,23 @@ App.Models.SearchForm = Backbone.Model.extend({
             }
         });
     }
+});
+App.Models.Forms.Sigin = App.Models.Forms.BaseForm.extend({
+    defaults: {
+        login: '',
+        email: '',
+        password: '',
+        password2: ''
+    },
+
+    validate: function(attributes){
+
+    },
+
+    signin: function(){
+
+    }
+
 });
 /**
  * Cart model
@@ -302,7 +339,93 @@ App.Views.BaseView = Backbone.View.extend({
         }, this);
     }
 });
-App.Views.SearchForm = App.Views.BaseView.extend({
+App.Views.Forms.BaseForm = Backbone.View.extend({
+    events: {
+        'submit form': 'submit',
+        'blur input[name]': 'validate'
+    },
+    render: function(){
+        this.setElement( this.template() );
+        return this;
+    },
+
+    setError: function(target, message){
+        var $template = $('');
+
+    },
+    removeError: function(){
+
+    },
+
+    validate: function(e){
+        var target = $(e.target),
+            value = target.val().trim(),
+            rules = target.data('validate') || {};
+        rules.type = target.attr('type') || 'text';
+        rules.required = !!target.attr('required');
+
+        // If current target type is number, than max and min validators behavior is different.
+        // Validators should compare number value, not number string length.
+        if( rules.type === 'number' && ($.isNumeric(rules.min) || $.isNumeric(rules.max))){
+            rules.numMin = rules.min;
+            rules.numMax = rules.max;
+
+            // Set undefined value to skip them in validating loop
+            rules.min = rules.max = undefined;
+        }
+
+        // If input value satisfied every validating rule, return true
+        _.every(rules, function(rule, validator){
+            if(!_.isUndefined(rule)){
+                // If curret validator is 'type', check validation functions by value: 'email', 'number'
+                if(validator === 'type') validator = rule;
+
+                if(this.validators[validator]){
+                    return this.validators[validator].call(this, rule, value);
+                }
+            }
+            return true;
+        }, this);
+
+    },
+
+    // Validating functions
+    // Must be function predicate
+    validators: {
+        min: function(rule, value){
+            return value.length >= rule;
+        },
+        max: function(rule, value){
+            return value.length <= rule;
+        },
+        numMin: function(rule, value){
+            return value >= rule;
+        },
+        numMax: function(rule, value){
+            return value <= rule;
+        },
+        required: function(rule, value){
+            return value.length !== 0;
+        },
+        email: function(rule, value){
+            var pattern = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+            return pattern.test(value);
+        },
+        number: function(rule, value){
+            // In some reason, underscore _.isNumber() not working...
+            return $.isNumeric(value);
+        }
+    }
+});
+App.Views.Forms.Login = App.Views.Forms.BaseForm.extend({
+    initialize: function(){},
+    template: App.Helpers.getTemplate('#loginForm')
+});
+App.Views.Forms.Recover = App.Views.Forms.BaseForm.extend({
+    initialize: function(){},
+    template: App.Helpers.getTemplate('#recoverForm'),
+});
+App.Views.SearchForm = Backbone.View.extend({
     events: {
         "submit form": 'submit',
         "keyup [name='s']": 'keyup'
@@ -329,6 +452,10 @@ App.Views.SearchForm = App.Views.BaseView.extend({
         this.model.search(s);
         //App.Vent.trigger('searching');
     }
+});
+App.Views.Forms.Sigin = App.Views.Forms.BaseForm.extend({
+    initialize: function(){},
+    template: App.Helpers.getTemplate('#signinForm'),
 });
 // Cart toolbox view
 App.Views.CartToolbox = App.Views.BaseView.extend({
@@ -416,58 +543,8 @@ App.Views.Carts = Backbone.View.extend({
     },
 
     render: function(){
-        var models = this.collection.models,
-            $root = this.$el, items,
-            view, $el, i, l;
-
-        //$root.masonry({
-        //    itemSelector: '.cart-item',
-        //    columnWidth: $el[0],
-        //    percentPosition: true
-        //});
-
-
-        i = 0;
-        l = models.length;
-        (function addByOne(model){
-            view = new App.Views.Cart({model: model});
-            $el = view.render().$el;
-            $root.append($el);
-
-            //Init masonry layout
-            if(i === 0){
-
-
-                setTimeout(function(){
-                    $root.masonry({
-                        itemSelector: '.cart-item',
-                        columnWidth: $el[0],
-                        percentPosition: true
-                    });
-                },0);
-
-            }
-
-
-
-            if((items = $el.find('img, iframe, video')).length !== 0){
-                items.on('load', masonryItem);
-            }else{
-                masonryItem();
-            }
-
-            // Recursion load next item
-            function masonryItem(){
-                $root.masonry('appended', $el);
-                if(++i < l) addByOne(models[i]);
-            }
-
-        })(models[i]);
-
-        this.listenTo(App.Vent, 'layoutResize', function(){
-            $root.masonry();
-        });
-
+        this.collection.each(this.addOne, this);
+        this.masonry();
         return this;
     },
 
@@ -479,29 +556,35 @@ App.Views.Carts = Backbone.View.extend({
     reset: function(){
         this.$el.html('');
         return this;
-    }
+    },
 
-    //masonry: function(){
-    //    //Find all external media resources
-    //    var items = this.$('iframe, img, video'),
-    //        l = items.length, count = 0;
-    //
-    //    //Init masonry event handler function
-    //    var masonry = function () {
-    //        this.$el.masonry({
-    //            columnWidth: this.$('.cart-item')[0],
-    //            itemSelector: '.cart-item',
-    //            percentPosition: true
-    //        });
-    //    }.bind(this);
-    //
-    //    //Fire masonry init when all resourses are loaded
-    //    items.load(function(){
-    //        if(++count < l) return;
-    //        masonry();
-    //    });
-    //    this.listenTo(App.Vent, 'layoutResize', masonry);
-    //}
+    addOne: function(model){
+        var view = new App.Views.Cart({model: model});
+        this.$el.append(view.render().el);
+    },
+
+
+    masonry: function(){
+        //Find all external media resources
+        var items = this.$('iframe, img, video'),
+            l = items.length, count = 0;
+
+        //Init masonry event handler function
+        var masonry = function () {
+            this.$el.masonry({
+                columnWidth: this.$('.cart-item')[0],
+                itemSelector: '.cart-item',
+                percentPosition: true
+            });
+        }.bind(this);
+
+        //Fire masonry init when all resourses are loaded
+        items.load(function(){
+            if(++count < l) return;
+            masonry();
+        });
+        this.listenTo(App.Vent, 'layoutResize', masonry);
+    }
 
 });
 
@@ -615,8 +698,10 @@ App.Router = Backbone.Router.extend({
     routes: {
         '': 'index',
         '!/': 'index',
-        '!/login': 'login',
-        //'!/sigin': 'sigin',
+        '!/account/signin': 'signin',
+        '!/account/login': 'login',
+        '!/account/logout': 'logout',
+        '!/account/recover': 'recover',
         //'!/page-:id': 'page',
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
@@ -624,11 +709,8 @@ App.Router = Backbone.Router.extend({
 
     index: function(){
         App.Vent.trigger('layoutUpdate');
-        console.log('index route');
-
-        //console.log('index');
         var collection = new App.Collections.Carts,
-            carts = new App.Views.Carts;
+            view = new App.Views.Carts;
         collection.fetch({
             success: success,
             error: error
@@ -636,7 +718,7 @@ App.Router = Backbone.Router.extend({
 
         function success(){
             App.Vent.trigger('collectionLoad', collection);
-            App.Helpers.renderContent(carts.render().el);
+            App.Helpers.renderContent(view.render().el);
         }
         function error(collection, response){
             console.log(response.responseText);
@@ -646,8 +728,37 @@ App.Router = Backbone.Router.extend({
 
     login: function(){
         App.Vent.trigger('layoutUpdateForce', {sidebar: false});
-        console.log('login route');
+        var model = new App.Models.Forms.Login,
+            view  = new App.Views.Forms.Login({model: model});
+
+        App.Helpers.renderContent(view.render().el);
+    },
+
+    logout: function(){
+        //delete session and navigate to index
+        this.navigate('', {trigger: true, replace: true});
+    },
+
+    signin: function(){
+        App.Vent.trigger('layoutUpdateForce', {sidebar: false});
+        var model = new App.Models.Forms.Sigin,
+            view  = new App.Views.Forms.Sigin({model: model});
+
+        App.Helpers.renderContent(view.render().el);
+    },
+
+    recover: function(){
+        App.Vent.trigger('layoutUpdateForce', {sidebar: false});
+        var model = new App.Models.Forms.Recover,
+            view  = new App.Views.Forms.Recover({model: model});
+
+        App.Helpers.renderContent(view.render().el);
+    },
+
+    addMedia: function(){
+
     }
+
 
 
 });

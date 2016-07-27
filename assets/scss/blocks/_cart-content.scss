@@ -13,8 +13,6 @@
   }
 
   .toolbox {
-    color: white;
-    z-index: 100;
     a {
       color: inherit;
       transition: .3s;
@@ -30,8 +28,11 @@
   }
 
   .hover-toolbox {
+
     position: relative;
     .toolbox {
+      color: white;
+      z-index: 100;
       bottom: 0;
       opacity: 0;
       width: 100%;
@@ -87,6 +88,10 @@
       position: absolute;
     }
   }
+}
+
+.text-cart{
+  @include boxStyle;
 }
 
 .rate-button{

@@ -172,9 +172,6 @@ table {
   border-collapse: collapse;
   border-spacing: 0; }
 
-.gray-bg {
-  background-color: #f3f3f4; }
-
 img {
   max-width: 100%; }
 
@@ -218,8 +215,7 @@ html, body {
   width: 220px; }
 
 .sidebar {
-  overflow-x: hidden;
-  background: #2a2a2a; }
+  overflow-x: hidden; }
   .sidebar .side-container {
     position: relative;
     min-height: 100%; }
@@ -272,22 +268,21 @@ html, body {
   margin-bottom: 20px; }
   .cart-content .cart-head, .cart-content .cart-body, .cart-content .cart-footer {
     background: white; }
-  .cart-content .toolbox {
-    color: white;
-    z-index: 100; }
-    .cart-content .toolbox a {
-      color: inherit;
-      -webkit-transition: .3s;
-      transition: .3s;
-      margin-left: 10px;
-      display: inline-block; }
-      .cart-content .toolbox a:first-child {
-        margin-left: 0; }
-      .cart-content .toolbox a:hover {
-        color: #fd703a; }
+  .cart-content .toolbox a {
+    color: inherit;
+    -webkit-transition: .3s;
+    transition: .3s;
+    margin-left: 10px;
+    display: inline-block; }
+    .cart-content .toolbox a:first-child {
+      margin-left: 0; }
+    .cart-content .toolbox a:hover {
+      color: #fd703a; }
   .cart-content .hover-toolbox {
     position: relative; }
     .cart-content .hover-toolbox .toolbox {
+      color: white;
+      z-index: 100;
       bottom: 0;
       opacity: 0;
       width: 100%;
@@ -328,13 +323,19 @@ html, body {
     height: 100%;
     position: absolute; }
 
-.box {
-  position: relative;
+.text-cart {
   border-radius: 3px;
   background: #ffffff;
   border-top: 3px solid #c4c4c4;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); }
+
+.box {
+  position: relative;
   margin-bottom: 20px;
   width: 100%;
+  border-radius: 3px;
+  background: #ffffff;
+  border-top: 3px solid #c4c4c4;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); }
   .box.box-flat {
     border-radius: 0; }
@@ -412,3 +413,8 @@ html, body {
   to {
     -webkit-transform: rotate(360deg);
             transform: rotate(360deg); } }
+
+.blue-theme {
+  background: #f3f3f4; }
+  .blue-theme .sidebar {
+    background: #2a2a2a; }
