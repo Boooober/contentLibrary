@@ -65,37 +65,41 @@ App.Views.ContentLayout = App.Views.BaseView.extend({
 
 App.Views.Wrapper = App.Views.BaseView.extend({
     el: '#wrapper',
+
+
     initialize: function(){
-
-        this.on('loaded', this.loaded, this);
+        this.listenTo(App.Vent, 'layoutRender', this.render);
         this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
-        this.model.on('redraw', this.render, this);
+    },
 
+
+    initSubviews: function(){
+        this.subviews = [];
         if(this.model.withSidebar()){
             this.$el.addClass('with-sidebar');
-            this.subviews[0] = new App.Views.SidebarLayout({model: this.model});
+            this.subviews.push(new App.Views.SidebarLayout({model: this.model}));
 
             if(this.model.sidebarCollapsed())
                 this.$el.addClass('sidebar-collapsed');
         }
-        this.subviews[1] = new App.Views.ContentLayout({model: this.model});
+        this.subviews.push( new App.Views.ContentLayout({model: this.model}));
     },
-    subviews: {},
+
     template: App.Helpers.getTemplate('#wrapperAppends'),
+
     render: function(){
-        this.$el.html('');
+        this.$el.html('').removeClass();
+        this.initSubviews();
+
         _.each(this.subviews, function(subview){
             this.$el.append(subview.render().el);
         }, this);
         this.$el.append( this.template() );
     },
 
-    loaded: function(e){
-        this.$('.preloader').fadeOut();
-    },
-
     // Resize layouts width
     toggleSidebar: function(){
         this.$el.toggleClass('sidebar-collapsed');
     }
+
 });

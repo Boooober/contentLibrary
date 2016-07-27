@@ -13,15 +13,29 @@ _.extend(App.Vent, Backbone.Events);
 
 /**
  *
- * - layoutResize: event fires when layout sizes changed.
- *   For example, sidebar toggle needs to reinit masonry
- *   and video scale.
+ * Layout events
+ * -------------
  *
- *  - layoutRedraw: event fires when layout elements changed.
- *   For example, remove sidebar.
+ *** layoutResize: event fires when layout sizes changed.
+ *   For example, sidebar toggle needs to reinit masonry and video scale.
  *
+ *** layoutUpdate: fire this event to change users layout options.
+ *   After success update, this event triggers layoutRender.
+ *   For example, to hide sidebar from display and save this option to localStorage.
  *
- * - collectionLoad: event fires when collection needs to be reloaded.
+ *** layoutForceUpdate: change layout options, but do not save them anywhere.
+ *   After success update, this event triggers layoutRender.
+ *   Fire this event to change layout for current page.
+ *   For example, {sidebar: false} to remove sidebar.
+ *
+ *** layoutRender: event fires from router to create page layout.
+ *   If you need to change layout options before render, use
+ *   layoutUpdate or layoutForceUpdate
+ *
+ * Collection events
+ * -----------------
+ *
+ *** collectionLoad: event fires when collection needs to be reloaded.
  *   Accepts collection data.
  *   For example, search, pagination, filter categories
  */
@@ -43,12 +57,78 @@ App.Helpers = {
         source = source || window.location.search.substring(1);
         if(!source) return '';
 
-        params = source.split('&');
+        params = source.search('&') !== -1 ? source.split('&') : source.split('; ');
         for(i = 0, l = params.length; i<l; i++){
             data = params[i].split('=');
-            if(data[0] === param) return data[1];
+            if(new RegExp(param, 'i').test(data[0])) return data[1];
         }
         return '';
+    },
+    storage: function(storeName){
+        return (function(){
+            var storeAPI,
+                hasStorage = (function() {
+                    try {
+                        localStorage.setItem('test', 'hello');
+                        localStorage.removeItem('test');
+                        return true;
+                    } catch (exception) {
+                        return false;
+                    }
+                }());
+
+            if(hasStorage)
+                storeAPI = {
+                    set: function(){
+                        var name, value;
+                        switch (arguments.length){
+                            case 1:
+                                name = storeName;
+                                value = JSON.stringify(arguments[0]);
+                                break;
+                            case 2:
+                                name = arguments[0];
+                                value = JSON.stringify(arguments[1]);
+                                break;
+                            default:
+                                return false;
+                        }
+                        localStorage[name] = value;
+                        return true;
+                    },
+                    get: function(option){
+                        option = option || storeName;
+                        return JSON.parse(localStorage[option] || '{}');
+                    }
+                };
+            else
+                storeAPI = {
+                    set: function(){
+                        var name, value,
+                            date = new Date(new Date().getTime() + 30 * 24 * 3600 * 1000);
+
+                        switch (arguments.length){
+                            case 1:
+                                name = storeName;
+                                value = JSON.stringify(arguments[0]);
+                                break;
+                            case 2:
+                                name = arguments[0];
+                                value = JSON.stringify(arguments[1]);
+                                break;
+                            default:
+                                return false;
+                        }
+                        document.cookie = name+'='+value+'; path=/; expires='+date.toUTCString();
+                        return true;
+                    },
+                    get: function(option){
+                        option = option || storeName;
+                        return JSON.parse(App.Helpers.getQueryParam(option, document.cookie || '{}'));
+                    }
+                };
+            return storeAPI;
+        })();
     }
 };
 App.Models.SearchForm = Backbone.Model.extend({
@@ -66,7 +146,7 @@ App.Models.SearchForm = Backbone.Model.extend({
                 if(s){
                     pattern = new RegExp(s, 'i');
                     collection.reset(collection.filter(function(model){
-                        return pattern.test(model.get('title')) || pattern.test(model.get('content'));
+                        return pattern.test(model.get('title')) || pattern.test(model.get('description'));
                     }));
                 }
 
@@ -111,33 +191,66 @@ App.Models.Cart = Backbone.Model.extend({
 
 });
 App.Models.Layout = Backbone.Model.extend({
+    storage: App.Helpers.storage('Layout'),
+
     initialize: function(){
-        this.listenTo(App.Vent, 'layoutRedraw', this.redraw);
+        this.loadOptions();
+        this.listenTo(App.Vent, 'layoutUpdate', this.update);
+        this.listenTo(App.Vent, 'layoutUpdateForce', this.updateForce);
     },
     defaults: {
         sidebar: true,
         sidebarCollapsed: true
     },
+
+    // Save model options
+    // and save it to localStorage/cookie
+    update: function(options, render){
+        this.updateOptions(options);
+        this.updateForce(options, render);
+    },
+
+    // Set layout options for current view
+    updateForce: function(options, render){
+        render = _.isBoolean(render) ? render : true;
+        if(options) this.set(options);
+        if(render) App.Vent.trigger('layoutRender');
+    },
+
+    //Functions predicates
     withSidebar: function(){
         return this.get('sidebar');
     },
     sidebarCollapsed: function(){
         return this.get('sidebarCollapsed');
     },
-    toggleSidebar: function(){
-        this.set('sidebarCollapsed', !this.get('sidebarCollapsed'));
 
-        //After end of toggle animation
+    //Trigger function
+    toggleSidebar: function(){
+        this.update({sidebarCollapsed: !this.get('sidebarCollapsed')}, false);
+        //this.set('sidebarCollapsed', );
+
+        //After end of css toggle animation
         setTimeout(function(){
             App.Vent.trigger('layoutResize');
         }, 400);
     },
 
-    redraw: function(options){
-        this.set(options);
-        this.trigger('redraw');
-    }
+    loadOptions: function(){
+        this.set( this.storage.get() );
+    },
 
+    saveOptions: function(options){
+        this.set(options);
+        this.storage.set(this.toJSON());
+    },
+
+    updateOptions: function(options){
+        // load default options from storage
+        this.loadOptions();
+        // save new options to storage and model
+        this.saveOptions(options);
+    }
 });
 App.Collections.Carts = Backbone.Collection.extend({
     url: 'assets/js/database/carts.json',
@@ -160,11 +273,9 @@ App.Views.BaseView = Backbone.View.extend({
             selectors = {};
             selectors[selector] = view;
         }
-
         if(!selectors) return;
 
         _.each(selectors, function(view, selector){
-            //this.$(selector) -> save as this.$el.find(selector);
             view.setElement(this.$(selector)).render();
         }, this);
     }
@@ -175,6 +286,7 @@ App.Views.SearchForm = App.Views.BaseView.extend({
         "keyup [name='s']": 'keyup'
     },
     template: App.Helpers.getTemplate('#searchform'),
+
     render: function(){
         this.$el.html( this.template( this.model.toJSON() ) );
         return this;
@@ -193,7 +305,7 @@ App.Views.SearchForm = App.Views.BaseView.extend({
 
     search: function(s){
         this.model.search(s);
-        App.Vent.trigger('searching');
+        //App.Vent.trigger('searching');
     }
 });
 // Cart toolbox view
@@ -220,11 +332,11 @@ App.Views.CartToolbox = App.Views.BaseView.extend({
 
 
 App.Views.Cart = App.Views.BaseView.extend({
-    initialize: function(){
-        //this.model.on('change:favorite', this.render, this);
+    initSubviews: function(){
+        this.subviews = {};
         this.subviews['.toolbox'] = new App.Views.CartToolbox({model: this.model});
+        return this.subviews;
     },
-    subviews: {},
 
     //There are three content types:
     //0 => image, 1 => video, 3 => text
@@ -240,7 +352,7 @@ App.Views.Cart = App.Views.BaseView.extend({
             template = this.templates[model.type](model);
 
         this.setElement($(template));
-        this.assign(this.subviews);
+        this.assign( this.initSubviews() );
 
         if(this.model.isVideo()) this.scaleMedia();
 
@@ -261,6 +373,109 @@ App.Views.Cart = App.Views.BaseView.extend({
         $(window).resize(scaleMedia);
         this.listenTo(App.Vent, 'layoutResize', scaleMedia);
     }
+
+});
+
+
+App.Views.Carts = Backbone.View.extend({
+    className: 'row',
+
+    initialize: function(){
+        this.listenTo(App.Vent, 'collectionLoad', this.setCollection);
+    },
+
+    setCollection: function(collection){
+        if(!this.collection){
+            this.collection = collection;
+            this.listenTo(this.collection, 'reset', this.redraw);
+        }else{
+            this.collection.reset(collection.models);
+        }
+    },
+
+    render: function(){
+        var models = this.collection.models,
+            $root = this.$el, items,
+            view, $el, i, l;
+
+        //$root.masonry({
+        //    itemSelector: '.cart-item',
+        //    columnWidth: $el[0],
+        //    percentPosition: true
+        //});
+
+
+        i = 0;
+        l = models.length;
+        (function addByOne(model){
+            view = new App.Views.Cart({model: model});
+            $el = view.render().$el;
+            $root.append($el);
+
+            //Init masonry layout
+            if(i === 0){
+
+
+                setTimeout(function(){
+                    $root.masonry({
+                        itemSelector: '.cart-item',
+                        columnWidth: $el[0],
+                        percentPosition: true
+                    });
+                },0);
+
+            }
+
+
+
+            if((items = $el.find('img, iframe, video')).length !== 0){
+                items.on('load', masonryItem);
+            }else{
+                masonryItem();
+            }
+
+            // Recursion load next item
+            function masonryItem(){
+                $root.masonry('appended', $el);
+                if(++i < l) addByOne(models[i]);
+            }
+
+        })(models[i]);
+
+        return this;
+    },
+
+
+    redraw: function(){
+        this.reset().render();
+    },
+
+    reset: function(){
+        this.$el.html('');
+        return this;
+    }
+
+    //masonry: function(){
+    //    //Find all external media resources
+    //    var items = this.$('iframe, img, video'),
+    //        l = items.length, count = 0;
+    //
+    //    //Init masonry event handler function
+    //    var masonry = function () {
+    //        this.$el.masonry({
+    //            columnWidth: this.$('.cart-item')[0],
+    //            itemSelector: '.cart-item',
+    //            percentPosition: true
+    //        });
+    //    }.bind(this);
+    //
+    //    //Fire masonry init when all resourses are loaded
+    //    items.load(function(){
+    //        if(++count < l) return;
+    //        masonry();
+    //    });
+    //    this.listenTo(App.Vent, 'layoutResize', masonry);
+    //}
 
 });
 
@@ -332,97 +547,41 @@ App.Views.ContentLayout = App.Views.BaseView.extend({
 
 App.Views.Wrapper = App.Views.BaseView.extend({
     el: '#wrapper',
+
+
     initialize: function(){
-
-        this.on('loaded', this.loaded, this);
+        this.listenTo(App.Vent, 'layoutRender', this.render);
         this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
-        this.model.on('redraw', this.render, this);
+    },
 
+
+    initSubviews: function(){
+        this.subviews = [];
         if(this.model.withSidebar()){
             this.$el.addClass('with-sidebar');
-            this.subviews[0] = new App.Views.SidebarLayout({model: this.model});
+            this.subviews.push(new App.Views.SidebarLayout({model: this.model}));
 
             if(this.model.sidebarCollapsed())
                 this.$el.addClass('sidebar-collapsed');
         }
-        this.subviews[1] = new App.Views.ContentLayout({model: this.model});
+        this.subviews.push( new App.Views.ContentLayout({model: this.model}));
     },
-    subviews: {},
+
     template: App.Helpers.getTemplate('#wrapperAppends'),
+
     render: function(){
-        this.$el.html('');
+        this.$el.html('').removeClass();
+        this.initSubviews();
+
         _.each(this.subviews, function(subview){
             this.$el.append(subview.render().el);
         }, this);
         this.$el.append( this.template() );
     },
 
-    loaded: function(e){
-        this.$('.preloader').fadeOut();
-    },
-
     // Resize layouts width
     toggleSidebar: function(){
         this.$el.toggleClass('sidebar-collapsed');
-    }
-});
-App.Views.Carts = Backbone.View.extend({
-    className: 'row',
-
-    initialize: function(){
-        this.listenTo(App.Vent, 'collectionLoad', this.setCollection);
-    },
-
-    setCollection: function(collection){
-        if(!this.collection){
-            this.collection = collection;
-            this.listenTo(this.collection, 'reset', this.redraw);
-        }else{
-            this.collection.reset(collection.models);
-        }
-    },
-
-    render: function(){
-        this.collection.each(this.addOne, this);
-        this.masonry();
-        return this;
-    },
-    addOne: function(model){
-        var cartView = new App.Views.Cart({model:model});
-        this.$el.append(cartView.render().el);
-    },
-
-    redraw: function(){
-        this.reset().render();
-    },
-
-    reset: function(){
-        this.$el
-            .html('')
-            .masonry('destroy');
-        return this;
-    },
-
-    masonry: function(){
-        //Find all external media resources
-        var items = this.$('iframe, img, video'),
-            l = items.length, count = 0;
-
-        //Init masonry event handler function
-        var masonry = function () {
-            this.$el.masonry({
-                columnWidth: this.$('.cart-item')[0],
-                itemSelector: '.cart-item',
-                percentPosition: true
-            });
-        }.bind(this);
-
-        //Fire masonry init when all resourses are loaded
-        items.load(function(){
-            if(++count < l) return;
-            masonry();
-        });
-        this.listenTo(App.Vent, 'layoutResize', masonry);
     }
 
 });
@@ -431,14 +590,17 @@ App.Router = Backbone.Router.extend({
         '': 'index',
         '!/': 'index',
         '!/login': 'login',
-        '!/sigin': 'sigin',
-        '!/page-:id': 'page',
-        '!/category-:id': 'category',
-        '!/add-media': 'addMedia'
+        //'!/sigin': 'sigin',
+        //'!/page-:id': 'page',
+        //'!/category-:id': 'category',
+        //'!/add-media': 'addMedia'
     },
 
     index: function(){
-        console.log('index');
+        App.Vent.trigger('layoutUpdate');
+        console.log('index route');
+
+        //console.log('index');
         var collection = new App.Collections.Carts,
             carts = new App.Views.Carts;
         collection.fetch({
@@ -457,22 +619,14 @@ App.Router = Backbone.Router.extend({
     },
 
     login: function(){
-        App.Vent.trigger('layoutRedraw', {sidebar: false});
-        console.log('login');
+        App.Vent.trigger('layoutUpdateForce', {sidebar: false});
+        console.log('login route');
     }
 
 
 });
+new App.Views.Wrapper({
+    model: new App.Models.Layout()
+});
 new App.Router;
 Backbone.history.start();
-
-(function(){
-    var layoutModel = new App.Models.Layout(),
-        wrapper = new App.Views.Wrapper({model: layoutModel});
-
-    wrapper.render();
-    //$(window).load(function(e){
-    //    wrapper.trigger('loaded', {e:e});
-    //});
-
-})();

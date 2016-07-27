@@ -308,6 +308,7 @@ html, body {
   .cart-content .with-padding {
     padding: 15px; }
   .cart-content img, .cart-content iframe {
+    width: 100%;
     display: block;
     margin: 0 auto; }
 

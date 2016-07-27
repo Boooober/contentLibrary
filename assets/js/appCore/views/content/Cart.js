@@ -22,11 +22,11 @@ App.Views.CartToolbox = App.Views.BaseView.extend({
 
 
 App.Views.Cart = App.Views.BaseView.extend({
-    initialize: function(){
-        //this.model.on('change:favorite', this.render, this);
+    initSubviews: function(){
+        this.subviews = {};
         this.subviews['.toolbox'] = new App.Views.CartToolbox({model: this.model});
+        return this.subviews;
     },
-    subviews: {},
 
     //There are three content types:
     //0 => image, 1 => video, 3 => text
@@ -42,7 +42,7 @@ App.Views.Cart = App.Views.BaseView.extend({
             template = this.templates[model.type](model);
 
         this.setElement($(template));
-        this.assign(this.subviews);
+        this.assign( this.initSubviews() );
 
         if(this.model.isVideo()) this.scaleMedia();
 

@@ -14,11 +14,9 @@ App.Views.BaseView = Backbone.View.extend({
             selectors = {};
             selectors[selector] = view;
         }
-
         if(!selectors) return;
 
         _.each(selectors, function(view, selector){
-            //this.$(selector) -> save as this.$el.find(selector);
             view.setElement(this.$(selector)).render();
         }, this);
     }

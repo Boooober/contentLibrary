@@ -3,14 +3,17 @@ App.Router = Backbone.Router.extend({
         '': 'index',
         '!/': 'index',
         '!/login': 'login',
-        '!/sigin': 'sigin',
-        '!/page-:id': 'page',
-        '!/category-:id': 'category',
-        '!/add-media': 'addMedia'
+        //'!/sigin': 'sigin',
+        //'!/page-:id': 'page',
+        //'!/category-:id': 'category',
+        //'!/add-media': 'addMedia'
     },
 
     index: function(){
-        console.log('index');
+        App.Vent.trigger('layoutUpdate');
+        console.log('index route');
+
+        //console.log('index');
         var collection = new App.Collections.Carts,
             carts = new App.Views.Carts;
         collection.fetch({
@@ -29,11 +32,9 @@ App.Router = Backbone.Router.extend({
     },
 
     login: function(){
-        App.Vent.trigger('layoutRedraw', {sidebar: false});
-        console.log('login');
+        App.Vent.trigger('layoutUpdateForce', {sidebar: false});
+        console.log('login route');
     }
 
 
 });
-new App.Router;
-Backbone.history.start();
