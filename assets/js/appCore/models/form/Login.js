@@ -1,4 +1,4 @@
-App.Models.Forms.Login = App.Models.Forms.BaseForm.extend({
+App.set('model/Login', 'form', App.Models.Forms.BaseForm.extend({
     defaults: {
         login: '',
         password: ''
@@ -15,4 +15,4 @@ App.Models.Forms.Login = App.Models.Forms.BaseForm.extend({
             console.log(this.validationError);
         }
     }
-});
+}));

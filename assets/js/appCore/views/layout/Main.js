@@ -1,21 +1,22 @@
 // Navigation menu
 
-App.Views.Topmenu = App.Views.BaseView.extend({
+App.set('view/Topmenu', 'layout', App.Views.BaseView.extend({
     template: App.Helpers.getTemplate('#topMenu'),
     render: function(){
         this.$el.html( this.template() );
         return this;
     }
-});
+}));
 
+console.log(App.set('view/Topmenu', {'name': 'value'}));
 
 
 // Sidebar layout
 
-App.Views.SidebarLayout = App.Views.BaseView.extend({
+App.set('view/Sidebar', 'layout', App.Views.BaseView.extend({
     initialize: function(){
         this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
-        this.subviews['.searchform'] = new App.Views.SearchForm({model: new App.Models.SearchForm});
+        this.subviews['.searchform'] = App.createForm('view/Search', {model: App.createForm('model/Search')});
     },
     subviews: {},
     template: App.Helpers.getTemplate('#sidebarLayout'),
@@ -32,16 +33,16 @@ App.Views.SidebarLayout = App.Views.BaseView.extend({
             this.$('.side-content').fadeOut(150) :
             this.$('.side-content').hide().delay(300).fadeIn(150);
     }
-});
+}));
 
 
 
 // Content layout
 // This layout includes top navigation menu, dynamic content wrapper and footer
 
-App.Views.ContentLayout = App.Views.BaseView.extend({
+App.set('view/MainContent', 'layout', App.Views.BaseView.extend({
     initialize: function(){
-        this.subviews['.topmenu'] = new App.Views.Topmenu;
+        this.subviews['.topmenu'] = App.createLayout('view/Topmenu');// new App.Views.Layout.Topmenu()
     },
     events: {
         'click .sidebar-toggle': 'toggleSidebar'
@@ -58,14 +59,14 @@ App.Views.ContentLayout = App.Views.BaseView.extend({
     toggleSidebar: function(){
         this.model.toggleSidebar();
     }
-});
+}));
 
 
 // Main wrapper
 
-App.Views.Wrapper = App.Views.BaseView.extend({
-    el: '#wrapper',
+App.set('view/Wapper', 'layout',  App.Views.BaseView.extend({
 
+    el: '#wrapper',
 
     initialize: function(){
         this.listenTo(App.Vent, 'layoutRender', this.render);
@@ -77,12 +78,14 @@ App.Views.Wrapper = App.Views.BaseView.extend({
         this.subviews = [];
         if(this.model.withSidebar()){
             this.$el.addClass('with-sidebar');
-            this.subviews.push(new App.Views.SidebarLayout({model: this.model}));
+            this.subviews.push( App.createLayout('view/Sidebar', {model: this.model}) );
+
+            console.log(this.subviews);
 
             if(this.model.sidebarCollapsed())
                 this.$el.addClass('sidebar-collapsed');
         }
-        this.subviews.push( new App.Views.ContentLayout({model: this.model}));
+        this.subviews.push( App.createLayout('view/MainContent', {model: this.model}) );
     },
 
     template: App.Helpers.getTemplate('#wrapperAppends'),
@@ -102,4 +105,4 @@ App.Views.Wrapper = App.Views.BaseView.extend({
         this.$el.toggleClass('sidebar-collapsed');
     }
 
-});
+}));

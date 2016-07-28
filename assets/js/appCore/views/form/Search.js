@@ -1,4 +1,4 @@
-App.Views.SearchForm = Backbone.View.extend({
+App.set('view/Search', 'form', Backbone.View.extend({
     events: {
         "submit form": 'submit',
         "keyup [name='s']": 'keyup'
@@ -25,4 +25,4 @@ App.Views.SearchForm = Backbone.View.extend({
         this.model.search(s);
         //App.Vent.trigger('searching');
     }
-});
+}));

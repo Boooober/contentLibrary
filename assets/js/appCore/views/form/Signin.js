@@ -1,4 +1,4 @@
-App.Views.Forms.Sigin = App.Views.Forms.BaseForm.extend({
+App.set('view/Sigin', 'form', App.Views.Forms.BaseForm.extend({
     initialize: function(){},
     template: App.Helpers.getTemplate('#signinForm'),
     render: function(){
@@ -8,4 +8,4 @@ App.Views.Forms.Sigin = App.Views.Forms.BaseForm.extend({
     submit: function(e){
         console.log('Form is submitting');
     }
-});
+}));

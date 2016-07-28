@@ -1,4 +1,4 @@
-App.Views.Carts = Backbone.View.extend({
+App.set('view/Carts', 'layout', Backbone.View.extend({
     className: 'row',
 
     initialize: function(){
@@ -58,5 +58,5 @@ App.Views.Carts = Backbone.View.extend({
         this.listenTo(App.Vent, 'layoutResize', masonry);
     }
 
-});
+}));
 

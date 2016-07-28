@@ -1,4 +1,4 @@
-App.Models.SearchForm = Backbone.Model.extend({
+App.set('model/Search', 'form', Backbone.Model.extend({
     defaults: {
         s: App.Helpers.getQueryParam('s')
     },
@@ -21,4 +21,4 @@ App.Models.SearchForm = Backbone.Model.extend({
             }
         });
     }
-});
+}));

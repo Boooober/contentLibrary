@@ -1,4 +1,4 @@
-App.Models.Layout = Backbone.Model.extend({
+App.set('model/Main', 'layout', Backbone.Model.extend({
     storage: App.Helpers.storage('Layout'),
 
     initialize: function(){
@@ -59,4 +59,4 @@ App.Models.Layout = Backbone.Model.extend({
         // save new options to storage and model
         this.saveOptions(options);
     }
-});
+}));

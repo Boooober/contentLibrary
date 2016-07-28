@@ -1,17 +1,144 @@
 'use strict';
 
 var App = {
-    Models: {
-        Forms: {}
-    },
-    Collections: {},
-    Views: {
-        Forms: {}
-    },
 
+    //Namespace app structure
+    //Models: {
+    //    Forms: {},
+    //    Content: {},
+    //    Layouts: {}
+    //},
+    //Collections: {},
+    //Views: {
+    //    Forms: {},
+    //    Content: {},
+    //    Layouts: {}
+    //},
     Vent: {},
+    Helpers: {},
 
-    Helpers: {}
+    /**
+     * Methods below are shortcuts for App namespase structure
+     * @param namespace - string which contains type/name of object. Example: Model/Sidebar
+     * @param {Object} config - attributes/properties that will be set to new object instance
+     * @returns {(Object|undefined)}
+     */
+    createForm: function(namespace, config){
+        return this.create(namespace, 'Forms', config)
+    },
+    createLayout: function(namespace, config){
+        return this.create(namespace, 'Layouts', config)
+    },
+    createContent: function(namespace, config){
+        return this.create(namespace, 'Content', config)
+    },
+
+    /**
+     * This method designed for simple creating new object instances from App namespace.
+     *
+     * Accept three paramets in arguments object:
+     *
+     * {string} arguments[0] = namespace of object - Model/[name of the object];
+     * {string} arguments[1] = type of object (optional) - Layout/[optional namespace]
+     * {Object} arguments[2] = Object constructor params
+     *
+     * First two params define object namespace, so thay must be the save as params from declaration this object
+     *
+     */
+    create: function(/*namespace, [type], config*/){
+        var args = [].slice.call(arguments);
+        if(args.length === 2) args.splice(1,0,undefined);
+
+        //var object = this.get.apply(this, args);
+        //if(object) return new object(args[2]);
+    },
+
+    /**
+     * This method designed for simple getting objects from App namespace.
+     *
+     * Accept three paramets in arguments object:
+     *
+     * {string} arguments[0] = namespace of object - Model/[name of the object];
+     * {string} arguments[1] = type of object (optional) - Layout/[optional namespace]
+     *
+     * This two params define object namespace, so thay must be the same as params from declaration this object
+     *
+     */
+    get: function(/*namespace, [type], config*/){
+        var args = [].slice.call(arguments),
+            path;
+
+        if(args.length === 2) args.splice(1,0,undefined);
+        path = this.getNamespace(args[0], args[1]);
+
+        try{
+            // Loop deep into App object with namespace array
+            return (function deep(app, i){
+                return path[i+1] ? deep(app[path[i]], ++i) : app[path[i]];
+            })(this, 0);
+        } catch(e) {
+            console.log('No objects at '+path.join('/')+' exists');
+        }
+    },
+
+    /**
+     * This method designed for simple declaration objects in appropriative namespace of App.
+     *
+     * Accept three paramets in arguments object:
+     *
+     * {string} arguments[0] = namespace of object - Model/Sidebar;
+     * {string} arguments[1] = type of object (optional) - Layout/[optional namespace]
+     * {Object} arguments[2] = Object to set in current namespace
+     *
+     */
+    set: function(/*namespace, [type], object*/){
+        var args = [].slice.call(arguments),
+            path, lvl;
+        if(args.length === 2) args.splice(1,0,undefined);
+        path = this.getNamespace(args[0], args[1]);
+
+        return (function deep(app, i){
+            lvl = path[i];
+            // If current namespace lvl is not the last...
+            return path[i+1] ?
+                // Go deeper if already exists...   Or create new namespace
+                (app[lvl] ? deep(app[lvl], ++i) : deep( (app[lvl] = {}), ++i) ) :
+                //Last level, and it is already exists...   Create new object in namespace
+                (app[lvl] ? 'Object is already created.' : ( app[lvl] = args[2] ) );
+        })(this, 0);
+    },
+
+
+    /**
+     *
+     * @param {string} namespace
+     * @param {string} [type]
+     * @returns {Array} - namespace of requested object in App
+     */
+    getNamespace: function(namespace, type) {
+        var path = namespace.split('/'), i, l;
+
+        console.log(type);
+        if(type){
+            // Check if type is a multilevel namespace
+            type.search('/') !== 1 ?
+                path.splice(1, 0, type) :
+                path.splice(1, 0, this.getNamespace(type));
+        }
+
+        // Add 's' to all namespase element, except the last one,
+        // so we can use 'model', 'view' in singular form.
+        for(i = 0, l = path.length; i < l-1; i++){
+            path[i] = path[i].replace(/([^s])$/, "$1s");
+        }
+
+        // Convers all first letters to uppercase
+        path = _.map(path, function (letters) {
+            return letters[0].toUpperCase() + letters.slice(1);
+        });
+
+        return path;
+    }
 };
 _.extend(App.Vent, Backbone.Events);
 
@@ -138,10 +265,10 @@ App.Helpers = {
         })();
     }
 };
-App.Models.Forms.BaseForm = Backbone.Model.extend({
+App.set('model/BaseForm', 'form', Backbone.Model.extend({
 
-});
-App.Models.Forms.Login = App.Models.Forms.BaseForm.extend({
+}));
+App.set('model/Login', 'form', App.Models.Forms.BaseForm.extend({
     defaults: {
         login: '',
         password: ''
@@ -158,8 +285,8 @@ App.Models.Forms.Login = App.Models.Forms.BaseForm.extend({
             console.log(this.validationError);
         }
     }
-});
-App.Models.Forms.Recover = App.Models.Forms.BaseForm.extend({
+}));
+App.set('model/Recover', 'form', App.Models.Forms.BaseForm.extend({
     defaults: {
         email: ''
     },
@@ -172,8 +299,8 @@ App.Models.Forms.Recover = App.Models.Forms.BaseForm.extend({
 
     }
 
-});
-App.Models.SearchForm = Backbone.Model.extend({
+}));
+App.set('model/Search', 'form', Backbone.Model.extend({
     defaults: {
         s: App.Helpers.getQueryParam('s')
     },
@@ -196,8 +323,8 @@ App.Models.SearchForm = Backbone.Model.extend({
             }
         });
     }
-});
-App.Models.Forms.Sigin = App.Models.Forms.BaseForm.extend({
+}));
+App.set('model/Signin', 'form', App.Models.Forms.BaseForm.extend({
     defaults: {
         login: '',
         email: '',
@@ -212,11 +339,11 @@ App.Models.Forms.Sigin = App.Models.Forms.BaseForm.extend({
     signin: function(){
 
     }
-});
+}));
 /**
  * Cart model
  */
-App.Models.Cart = Backbone.Model.extend({
+App.set('model/Cart', 'content', Backbone.Model.extend({
     defaults: {
         type: 0,
         title: '',
@@ -247,8 +374,8 @@ App.Models.Cart = Backbone.Model.extend({
         return this.get('type') === 2;
     }
 
-});
-App.Models.Layout = Backbone.Model.extend({
+}));
+App.set('model/Main', 'layout', Backbone.Model.extend({
     storage: App.Helpers.storage('Layout'),
 
     initialize: function(){
@@ -309,15 +436,14 @@ App.Models.Layout = Backbone.Model.extend({
         // save new options to storage and model
         this.saveOptions(options);
     }
-});
-App.Collections.Carts = Backbone.Collection.extend({
+}));
+App.set('collection/Carts', Backbone.Collection.extend({
     url: 'assets/js/database/carts.json',
-    model:App.Models.Cart
-});
-
+    model: App.Models.Cart
+}));
 // BaseView for views with subviews.
 // Extended with helpful methods for rendering DOM
-App.Views.BaseView = Backbone.View.extend({
+App.set('view/BaseView', Backbone.View.extend({
 
     //https://ianstormtaylor.com/assigning-backbone-subviews-made-even-cleaner
     //https://ianstormtaylor.com/rendering-views-in-backbonejs-isnt-always-simple
@@ -337,13 +463,13 @@ App.Views.BaseView = Backbone.View.extend({
             view.setElement(this.$(selector)).render();
         }, this);
     }
-});
+}));
 /**
  * This object implemets useful methods for validating form inputs
  * (c) 2016 Nikita Slobodian
  */
 
-App.Views.Forms.BaseForm = Backbone.View.extend({
+App.set('view/BaseForm', 'form', Backbone.View.extend({
     // Validation events
     events: {
         'submit form': 'submitForm',
@@ -484,24 +610,40 @@ App.Views.Forms.BaseForm = Backbone.View.extend({
             if($helpBlock) $helpBlock.remove();
         }
     }
-});
-App.Views.Forms.Login = App.Views.Forms.BaseForm.extend({
+}));
+App.set('view/Contact', 'form', App.Views.Forms.BaseForm.extend({
+    initialize: function(){
+
+    },
+    template: App.Helpers.getTemplate('#contactForm'),
+    successMessage: App.Helpers.getTemplate('#contactFormSuccess'),
+    errorMessage: App.Helpers.getTemplate('#contactFormError'),
+
+    render: function(){
+        //this.$el.html( this.template() );
+        //return this;
+    },
+    submit: function(){
+        console.log('Contact form is submitting');
+    }
+}));
+App.set('view/Login', 'form', App.Views.Forms.BaseForm.extend({
     initialize: function(){},
     template: App.Helpers.getTemplate('#loginForm'),
     render: function(){
         this.setElement( this.template() );
         return this;
     }
-});
-App.Views.Forms.Recover = App.Views.Forms.BaseForm.extend({
+}));
+App.set('view/Recover', 'form', App.Views.Forms.BaseForm.extend({
     initialize: function(){},
     template: App.Helpers.getTemplate('#recoverForm'),
     render: function(){
         this.setElement( this.template() );
         return this;
     }
-});
-App.Views.SearchForm = Backbone.View.extend({
+}));
+App.set('view/Search', 'form', Backbone.View.extend({
     events: {
         "submit form": 'submit',
         "keyup [name='s']": 'keyup'
@@ -528,8 +670,8 @@ App.Views.SearchForm = Backbone.View.extend({
         this.model.search(s);
         //App.Vent.trigger('searching');
     }
-});
-App.Views.Forms.Sigin = App.Views.Forms.BaseForm.extend({
+}));
+App.set('view/Sigin', 'form', App.Views.Forms.BaseForm.extend({
     initialize: function(){},
     template: App.Helpers.getTemplate('#signinForm'),
     render: function(){
@@ -539,9 +681,10 @@ App.Views.Forms.Sigin = App.Views.Forms.BaseForm.extend({
     submit: function(e){
         console.log('Form is submitting');
     }
-});
+}));
 // Cart toolbox view
-App.Views.CartToolbox = App.Views.BaseView.extend({
+
+App.set('view/CartToolbox', 'content', App.Views.BaseView.extend({
 
     initialize: function() {
         this.model.on('change:favorites', this.render, this);
@@ -560,10 +703,10 @@ App.Views.CartToolbox = App.Views.BaseView.extend({
         e.preventDefault();
         this.model.favoriteToggle();
     }
-});
+}));
 
 
-App.Views.Cart = App.Views.BaseView.extend({
+App.set('view/Cart', 'content', App.Views.BaseView.extend({
     initSubviews: function(){
         this.subviews = {};
         this.subviews['.toolbox'] = new App.Views.CartToolbox({model: this.model});
@@ -606,10 +749,10 @@ App.Views.Cart = App.Views.BaseView.extend({
         this.listenTo(App.Vent, 'layoutResize', scaleMedia);
     }
 
-});
+}));
 
 
-App.Views.Carts = Backbone.View.extend({
+App.set('view/Carts', 'layout', Backbone.View.extend({
     className: 'row',
 
     initialize: function(){
@@ -669,27 +812,31 @@ App.Views.Carts = Backbone.View.extend({
         this.listenTo(App.Vent, 'layoutResize', masonry);
     }
 
-});
+}));
 
 
+App.set('view/Contacts', 'layout', App.Views.BaseView.extend({
+
+}));
 // Navigation menu
 
-App.Views.Topmenu = App.Views.BaseView.extend({
+App.set('view/Topmenu', 'layout', App.Views.BaseView.extend({
     template: App.Helpers.getTemplate('#topMenu'),
     render: function(){
         this.$el.html( this.template() );
         return this;
     }
-});
+}));
 
+console.log(App.set('view/Topmenu', {'name': 'value'}));
 
 
 // Sidebar layout
 
-App.Views.SidebarLayout = App.Views.BaseView.extend({
+App.set('view/Sidebar', 'layout', App.Views.BaseView.extend({
     initialize: function(){
         this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
-        this.subviews['.searchform'] = new App.Views.SearchForm({model: new App.Models.SearchForm});
+        this.subviews['.searchform'] = App.createForm('view/Search', {model: App.createForm('model/Search')});
     },
     subviews: {},
     template: App.Helpers.getTemplate('#sidebarLayout'),
@@ -706,16 +853,16 @@ App.Views.SidebarLayout = App.Views.BaseView.extend({
             this.$('.side-content').fadeOut(150) :
             this.$('.side-content').hide().delay(300).fadeIn(150);
     }
-});
+}));
 
 
 
 // Content layout
 // This layout includes top navigation menu, dynamic content wrapper and footer
 
-App.Views.ContentLayout = App.Views.BaseView.extend({
+App.set('view/MainContent', 'layout', App.Views.BaseView.extend({
     initialize: function(){
-        this.subviews['.topmenu'] = new App.Views.Topmenu;
+        this.subviews['.topmenu'] = App.createLayout('view/Topmenu');// new App.Views.Layout.Topmenu()
     },
     events: {
         'click .sidebar-toggle': 'toggleSidebar'
@@ -732,14 +879,14 @@ App.Views.ContentLayout = App.Views.BaseView.extend({
     toggleSidebar: function(){
         this.model.toggleSidebar();
     }
-});
+}));
 
 
 // Main wrapper
 
-App.Views.Wrapper = App.Views.BaseView.extend({
-    el: '#wrapper',
+App.set('view/Wapper', 'layout',  App.Views.BaseView.extend({
 
+    el: '#wrapper',
 
     initialize: function(){
         this.listenTo(App.Vent, 'layoutRender', this.render);
@@ -751,12 +898,14 @@ App.Views.Wrapper = App.Views.BaseView.extend({
         this.subviews = [];
         if(this.model.withSidebar()){
             this.$el.addClass('with-sidebar');
-            this.subviews.push(new App.Views.SidebarLayout({model: this.model}));
+            this.subviews.push( App.createLayout('view/Sidebar', {model: this.model}) );
+
+            console.log(this.subviews);
 
             if(this.model.sidebarCollapsed())
                 this.$el.addClass('sidebar-collapsed');
         }
-        this.subviews.push( new App.Views.ContentLayout({model: this.model}));
+        this.subviews.push( App.createLayout('view/MainContent', {model: this.model}) );
     },
 
     template: App.Helpers.getTemplate('#wrapperAppends'),
@@ -776,7 +925,7 @@ App.Views.Wrapper = App.Views.BaseView.extend({
         this.$el.toggleClass('sidebar-collapsed');
     }
 
-});
+}));
 App.Router = Backbone.Router.extend({
     routes: {
         '': 'index',
@@ -785,6 +934,7 @@ App.Router = Backbone.Router.extend({
         '!/account/login': 'login',
         '!/account/logout': 'logout',
         '!/account/recover': 'recover',
+        '!/contacts': 'contacts',
         //'!/page-:id': 'page',
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
@@ -793,7 +943,7 @@ App.Router = Backbone.Router.extend({
     index: function(){
         App.Vent.trigger('layoutUpdate');
         var collection = new App.Collections.Carts,
-            view = new App.Views.Carts;
+            view = App.create('view/Carts');
         collection.fetch({
             success: success,
             error: error
@@ -811,8 +961,8 @@ App.Router = Backbone.Router.extend({
 
     login: function(){
         App.Vent.trigger('layoutUpdateForce', {sidebar: false});
-        var model = new App.Models.Forms.Login,
-            view  = new App.Views.Forms.Login({model: model});
+        var model = App.createForm('model/Login'),
+            view  = App.createForm('view/Login', {model: model});
 
         App.Helpers.renderContent(view.render().el);
     },
@@ -824,29 +974,39 @@ App.Router = Backbone.Router.extend({
 
     signin: function(){
         App.Vent.trigger('layoutUpdateForce', {sidebar: false});
-        var model = new App.Models.Forms.Sigin,
-            view  = new App.Views.Forms.Sigin({model: model});
+        var model = App.createForm('model/Sigin'),
+            view  = App.createForm('view/Sigin', {model: model});
+
 
         App.Helpers.renderContent(view.render().el);
     },
 
     recover: function(){
         App.Vent.trigger('layoutUpdateForce', {sidebar: false});
-        var model = new App.Models.Forms.Recover,
-            view  = new App.Views.Forms.Recover({model: model});
+        var model = App.createForm('model/Recover'),
+            view  = App.createForm('view/Recover', {model: model});
+
 
         App.Helpers.renderContent(view.render().el);
     },
 
     addMedia: function(){
 
+    },
+
+    contacts: function(){
+        App.Vent.trigger('layoutUpdateForce', {sidebar: false});
+        var model = App.createForm('model/Contacts'),
+            view  = App.createForm('view/Contacts', {model: model});
+
+
+        App.Helpers.renderContent(view.render().el);
     }
 
-
-
 });
-new App.Views.Wrapper({
-    model: new App.Models.Layout()
+App.create('view/Wrapper', 'layout', {
+    model: App.create('model/Main', 'layout')
 });
+
 new App.Router;
 Backbone.history.start();

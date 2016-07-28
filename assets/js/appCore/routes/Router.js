@@ -6,6 +6,7 @@ App.Router = Backbone.Router.extend({
         '!/account/login': 'login',
         '!/account/logout': 'logout',
         '!/account/recover': 'recover',
+        '!/contacts': 'contacts',
         //'!/page-:id': 'page',
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
@@ -14,7 +15,7 @@ App.Router = Backbone.Router.extend({
     index: function(){
         App.Vent.trigger('layoutUpdate');
         var collection = new App.Collections.Carts,
-            view = new App.Views.Carts;
+            view = App.create('view/Carts');
         collection.fetch({
             success: success,
             error: error
@@ -32,8 +33,8 @@ App.Router = Backbone.Router.extend({
 
     login: function(){
         App.Vent.trigger('layoutUpdateForce', {sidebar: false});
-        var model = new App.Models.Forms.Login,
-            view  = new App.Views.Forms.Login({model: model});
+        var model = App.createForm('model/Login'),
+            view  = App.createForm('view/Login', {model: model});
 
         App.Helpers.renderContent(view.render().el);
     },
@@ -45,24 +46,33 @@ App.Router = Backbone.Router.extend({
 
     signin: function(){
         App.Vent.trigger('layoutUpdateForce', {sidebar: false});
-        var model = new App.Models.Forms.Sigin,
-            view  = new App.Views.Forms.Sigin({model: model});
+        var model = App.createForm('model/Sigin'),
+            view  = App.createForm('view/Sigin', {model: model});
+
 
         App.Helpers.renderContent(view.render().el);
     },
 
     recover: function(){
         App.Vent.trigger('layoutUpdateForce', {sidebar: false});
-        var model = new App.Models.Forms.Recover,
-            view  = new App.Views.Forms.Recover({model: model});
+        var model = App.createForm('model/Recover'),
+            view  = App.createForm('view/Recover', {model: model});
+
 
         App.Helpers.renderContent(view.render().el);
     },
 
     addMedia: function(){
 
+    },
+
+    contacts: function(){
+        App.Vent.trigger('layoutUpdateForce', {sidebar: false});
+        var model = App.createForm('model/Contacts'),
+            view  = App.createForm('view/Contacts', {model: model});
+
+
+        App.Helpers.renderContent(view.render().el);
     }
-
-
 
 });

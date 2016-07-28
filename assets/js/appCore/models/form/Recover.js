@@ -1,4 +1,4 @@
-App.Models.Forms.Recover = App.Models.Forms.BaseForm.extend({
+App.set('model/Recover', 'form', App.Models.Forms.BaseForm.extend({
     defaults: {
         email: ''
     },
@@ -11,4 +11,4 @@ App.Models.Forms.Recover = App.Models.Forms.BaseForm.extend({
 
     }
 
-});
+}));

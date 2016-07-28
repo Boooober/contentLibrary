@@ -414,6 +414,129 @@ html, body {
     -webkit-transform: rotate(360deg);
             transform: rotate(360deg); } }
 
+.popup {
+  top: 0;
+  left: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  display: table; }
+  .popup.popup-bg-default {
+    background: rgba(0, 0, 0, 0.9); }
+  .popup .popup-container {
+    display: table-cell;
+    vertical-align: middle; }
+  @media (min-width: 620px) {
+    .popup.popup-md .popup-box {
+      width: 600px;
+      max-width: 600px; } }
+  @media (min-width: 420px) {
+    .popup.popup-sm .popup-box {
+      width: 400px;
+      max-width: 400px; } }
+  .popup .popup-box {
+    width: 100%;
+    margin: 0 auto;
+    background: white;
+    padding: 50px;
+    color: black; }
+  .popup .close-trigger {
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    top: -30px;
+    right: 0;
+    background: white;
+    -webkit-transition: .3s;
+    transition: .3s;
+    will-change: background;
+    cursor: pointer; }
+    .popup .close-trigger:before, .popup .close-trigger:after {
+      display: block;
+      position: absolute;
+      content: '';
+      width: 50%;
+      height: 2px;
+      background: #D8D8D9;
+      top: 49%;
+      left: 24%;
+      -webkit-transform: rotate(-45deg);
+              transform: rotate(-45deg); }
+    .popup .close-trigger:after {
+      -webkit-transform: rotate(45deg);
+              transform: rotate(45deg); }
+    .popup .close-trigger:hover {
+      background: #a0a0a0; }
+  .popup.open--popup {
+    -webkit-animation: fadeIn 0.7s forwards;
+            animation: fadeIn 0.7s forwards; }
+    .popup.open--popup .popup-box {
+      -webkit-animation: moveInDown 0.7s forwards;
+              animation: moveInDown 0.7s forwards; }
+  .popup.close--popup {
+    -webkit-animation: fadeOut 0.7s forwards;
+            animation: fadeOut 0.7s forwards; }
+    .popup.close--popup .popup-box {
+      -webkit-animation: moveOut 0.7s forwards;
+              animation: moveOut 0.7s forwards; }
+
+@-webkit-keyframes fadeIn {
+  from {
+    opacity: 0; }
+  to {
+    opacity: 1; } }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0; }
+  to {
+    opacity: 1; } }
+
+@-webkit-keyframes fadeOut {
+  from {
+    opacity: 1; }
+  to {
+    opacity: 0; } }
+
+@keyframes fadeOut {
+  from {
+    opacity: 1; }
+  to {
+    opacity: 0; } }
+
+@-webkit-keyframes moveIn {
+  from {
+    -webkit-transform: translateY(75%);
+            transform: translateY(75%); }
+  to {
+    -webkit-transform: translateY(0);
+            transform: translateY(0); } }
+
+@keyframes moveIn {
+  from {
+    -webkit-transform: translateY(75%);
+            transform: translateY(75%); }
+  to {
+    -webkit-transform: translateY(0);
+            transform: translateY(0); } }
+
+@-webkit-keyframes moveOut {
+  from {
+    -webkit-transform: translateY(0);
+            transform: translateY(0); }
+  to {
+    -webkit-transform: translateY(-75%);
+            transform: translateY(-75%); } }
+
+@keyframes moveOut {
+  from {
+    -webkit-transform: translateY(0);
+            transform: translateY(0); }
+  to {
+    -webkit-transform: translateY(-75%);
+            transform: translateY(-75%); } }
+
 .blue-theme {
   background: #f3f3f4; }
   .blue-theme .sidebar {

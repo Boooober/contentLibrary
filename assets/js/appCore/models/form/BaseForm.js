@@ -1,3 +1,3 @@
-App.Models.Forms.BaseForm = Backbone.Model.extend({
+App.set('model/BaseForm', 'form', Backbone.Model.extend({
 
-});
+}));

@@ -95,6 +95,7 @@
 					<li><a href="#!/account/logout">Logout</a></li>
 					<li><a href="#!/add-media">Add media</a></li>
 					<li><a href="#!/account">Account</a></li>
+					<li><a href="#!/contacts">Contacts</a></li>
 				</ul>
 
 
@@ -115,7 +116,17 @@
 </script>
 <!-- ./Content topline/header -->
 
-<script type="text/template" id="wrapperAppends"></script>
+<script type="text/template" id="wrapperAppends">
+
+<!--	<div class="popup popup-md">-->
+<!--		<div class="popup-container"></div>-->
+<!--	</div>-->
+<!---->
+<!--	<div class="popup popup-sm">-->
+<!--		<div class="popup-container"></div>-->
+<!--	</div>-->
+
+</script>
 <!--	<div class="preloader">-->
 <!--		<div class="loader"></div>-->
 <!--	</div>-->

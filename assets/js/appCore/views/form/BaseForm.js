@@ -3,7 +3,7 @@
  * (c) 2016 Nikita Slobodian
  */
 
-App.Views.Forms.BaseForm = Backbone.View.extend({
+App.set('view/BaseForm', 'form', Backbone.View.extend({
     // Validation events
     events: {
         'submit form': 'submitForm',
@@ -144,4 +144,4 @@ App.Views.Forms.BaseForm = Backbone.View.extend({
             if($helpBlock) $helpBlock.remove();
         }
     }
-});
+}));

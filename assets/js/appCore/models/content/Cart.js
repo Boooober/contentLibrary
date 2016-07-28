@@ -1,7 +1,7 @@
 /**
  * Cart model
  */
-App.Models.Cart = Backbone.Model.extend({
+App.set('model/Cart', 'content', Backbone.Model.extend({
     defaults: {
         type: 0,
         title: '',
@@ -32,4 +32,4 @@ App.Models.Cart = Backbone.Model.extend({
         return this.get('type') === 2;
     }
 
-});
+}));

@@ -1,6 +1,6 @@
 // BaseView for views with subviews.
 // Extended with helpful methods for rendering DOM
-App.Views.BaseView = Backbone.View.extend({
+App.set('view/BaseView', Backbone.View.extend({
 
     //https://ianstormtaylor.com/assigning-backbone-subviews-made-even-cleaner
     //https://ianstormtaylor.com/rendering-views-in-backbonejs-isnt-always-simple
@@ -20,4 +20,4 @@ App.Views.BaseView = Backbone.View.extend({
             view.setElement(this.$(selector)).render();
         }, this);
     }
-});
+}));

@@ -1,4 +1,4 @@
-App.Models.Forms.Sigin = App.Models.Forms.BaseForm.extend({
+App.set('model/Signin', 'form', App.Models.Forms.BaseForm.extend({
     defaults: {
         login: '',
         email: '',
@@ -13,4 +13,4 @@ App.Models.Forms.Sigin = App.Models.Forms.BaseForm.extend({
     signin: function(){
 
     }
-});
+}));
