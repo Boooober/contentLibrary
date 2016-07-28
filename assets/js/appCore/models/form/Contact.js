@@ -1,9 +1,9 @@
-App.set('model/Login', 'form', App.get('model/BaseForm', 'form').extend({
+App.set('model/Contact', 'form', App.get('model/BaseForm', 'form').extend({
     defaults: {
-        login: '',
-        password: ''
+        name: '',
+        email: '',
+        message: '',
     },
-
     validate: function(attributes){
         console.log(attributes);
     },

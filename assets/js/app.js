@@ -1,5 +1,5 @@
 'use strict';
-
+var debug = true;
 var App = {
 
     //Namespace app structure
@@ -17,6 +17,7 @@ var App = {
     Vent: {},
     Helpers: {},
 
+
     /**
      * Methods below are shortcuts for App namespase structure
      * @param namespace - string which contains type/name of object. Example: Model/Sidebar
@@ -24,13 +25,13 @@ var App = {
      * @returns {(Object|undefined)}
      */
     createForm: function(namespace, config){
-        return this.create(namespace, 'Forms', config)
+        return this.create(namespace, 'form', config)
     },
     createLayout: function(namespace, config){
-        return this.create(namespace, 'Layouts', config)
+        return this.create(namespace, 'layout', config)
     },
     createContent: function(namespace, config){
-        return this.create(namespace, 'Content', config)
+        return this.create(namespace, 'content', config)
     },
 
     /**
@@ -46,11 +47,18 @@ var App = {
      *
      */
     create: function(/*namespace, [type], config*/){
-        var args = [].slice.call(arguments);
-        if(args.length === 2) args.splice(1,0,undefined);
+        var args = [].slice.call(arguments), object;
 
-        //var object = this.get.apply(this, args);
-        //if(object) return new object(args[2]);
+        // argument[1] is optional, so splice if it`s empty;
+        if(args.length === 2 && _.isObject(args[1])) args.splice(1,0,undefined);
+
+        object = this.get.apply(this, args);
+        if(object){
+
+            if(debug) console.log('New instance of '+this.getNamespace(args[0], args[1]).join('/')+' successfuly created');
+
+            return new object(args[2]);
+        }
     },
 
     /**
@@ -64,20 +72,21 @@ var App = {
      * This two params define object namespace, so thay must be the same as params from declaration this object
      *
      */
-    get: function(/*namespace, [type], config*/){
+    get: function(/*namespace, [type]*/){
         var args = [].slice.call(arguments),
-            path;
+            path, obj;
 
-        if(args.length === 2) args.splice(1,0,undefined);
+        //if(args.length === 2) args.splice(1,0,undefined);
         path = this.getNamespace(args[0], args[1]);
 
         try{
-            // Loop deep into App object with namespace array
-            return (function deep(app, i){
+            obj = (function deep(app, i){
                 return path[i+1] ? deep(app[path[i]], ++i) : app[path[i]];
             })(this, 0);
+            if(obj) return obj;
+            if(debug) console.log('Path is correct, but object is missing... '+path.join('/'));
         } catch(e) {
-            console.log('No objects at '+path.join('/')+' exists');
+            if(debug) console.log('No objects at '+path.join('/')+' exists');
         }
     },
 
@@ -94,7 +103,9 @@ var App = {
     set: function(/*namespace, [type], object*/){
         var args = [].slice.call(arguments),
             path, lvl;
-        if(args.length === 2) args.splice(1,0,undefined);
+
+        // argument[1] is optional, so splice if it`s empty;
+        if(args.length === 2 && _.isObject(args[1])) args.splice(1,0,undefined);
         path = this.getNamespace(args[0], args[1]);
 
         return (function deep(app, i){
@@ -104,7 +115,7 @@ var App = {
                 // Go deeper if already exists...   Or create new namespace
                 (app[lvl] ? deep(app[lvl], ++i) : deep( (app[lvl] = {}), ++i) ) :
                 //Last level, and it is already exists...   Create new object in namespace
-                (app[lvl] ? 'Object is already created.' : ( app[lvl] = args[2] ) );
+                (app[lvl] ? 'Object is already exists.' : ( app[lvl] = args[2] ) );
         })(this, 0);
     },
 
@@ -117,8 +128,6 @@ var App = {
      */
     getNamespace: function(namespace, type) {
         var path = namespace.split('/'), i, l;
-
-        console.log(type);
         if(type){
             // Check if type is a multilevel namespace
             type.search('/') !== 1 ?
@@ -268,7 +277,25 @@ App.Helpers = {
 App.set('model/BaseForm', 'form', Backbone.Model.extend({
 
 }));
-App.set('model/Login', 'form', App.Models.Forms.BaseForm.extend({
+App.set('model/Contact', 'form', App.get('model/BaseForm', 'form').extend({
+    defaults: {
+        name: '',
+        email: '',
+        message: '',
+    },
+    validate: function(attributes){
+        console.log(attributes);
+    },
+
+    login: function(data){
+        this.set(data);
+
+        if (!this.isValid()) {
+            console.log(this.validationError);
+        }
+    }
+}));
+App.set('model/Login', 'form', App.get('model/BaseForm', 'form').extend({
     defaults: {
         login: '',
         password: ''
@@ -286,7 +313,7 @@ App.set('model/Login', 'form', App.Models.Forms.BaseForm.extend({
         }
     }
 }));
-App.set('model/Recover', 'form', App.Models.Forms.BaseForm.extend({
+App.set('model/Recover', 'form', App.get('model/BaseForm', 'form').extend({
     defaults: {
         email: ''
     },
@@ -305,7 +332,7 @@ App.set('model/Search', 'form', Backbone.Model.extend({
         s: App.Helpers.getQueryParam('s')
     },
     search: function(s){
-        var collection = new App.Collections.Carts;
+        var collection = App.create('collection/Carts');
         this.set('s', s);
 
         collection.fetch({
@@ -324,7 +351,7 @@ App.set('model/Search', 'form', Backbone.Model.extend({
         });
     }
 }));
-App.set('model/Signin', 'form', App.Models.Forms.BaseForm.extend({
+App.set('model/Signin', 'form', App.get('model/BaseForm', 'form').extend({
     defaults: {
         login: '',
         email: '',
@@ -439,7 +466,7 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
 }));
 App.set('collection/Carts', Backbone.Collection.extend({
     url: 'assets/js/database/carts.json',
-    model: App.Models.Cart
+    model: App.get('model/Cart', 'content')
 }));
 // BaseView for views with subviews.
 // Extended with helpful methods for rendering DOM
@@ -611,7 +638,7 @@ App.set('view/BaseForm', 'form', Backbone.View.extend({
         }
     }
 }));
-App.set('view/Contact', 'form', App.Views.Forms.BaseForm.extend({
+App.set('view/Contact', 'form', App.get('view/BaseForm', 'form').extend({
     initialize: function(){
 
     },
@@ -621,13 +648,13 @@ App.set('view/Contact', 'form', App.Views.Forms.BaseForm.extend({
 
     render: function(){
         //this.$el.html( this.template() );
-        //return this;
+        return this;
     },
     submit: function(){
         console.log('Contact form is submitting');
     }
 }));
-App.set('view/Login', 'form', App.Views.Forms.BaseForm.extend({
+App.set('view/Login', 'form', App.get('view/BaseForm', 'form').extend({
     initialize: function(){},
     template: App.Helpers.getTemplate('#loginForm'),
     render: function(){
@@ -635,7 +662,7 @@ App.set('view/Login', 'form', App.Views.Forms.BaseForm.extend({
         return this;
     }
 }));
-App.set('view/Recover', 'form', App.Views.Forms.BaseForm.extend({
+App.set('view/Recover', 'form', App.get('view/BaseForm', 'form').extend({
     initialize: function(){},
     template: App.Helpers.getTemplate('#recoverForm'),
     render: function(){
@@ -671,7 +698,7 @@ App.set('view/Search', 'form', Backbone.View.extend({
         //App.Vent.trigger('searching');
     }
 }));
-App.set('view/Sigin', 'form', App.Views.Forms.BaseForm.extend({
+App.set('view/Sigin', 'form', App.get('view/BaseForm', 'form').extend({
     initialize: function(){},
     template: App.Helpers.getTemplate('#signinForm'),
     render: function(){
@@ -684,7 +711,7 @@ App.set('view/Sigin', 'form', App.Views.Forms.BaseForm.extend({
 }));
 // Cart toolbox view
 
-App.set('view/CartToolbox', 'content', App.Views.BaseView.extend({
+App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
 
     initialize: function() {
         this.model.on('change:favorites', this.render, this);
@@ -706,10 +733,10 @@ App.set('view/CartToolbox', 'content', App.Views.BaseView.extend({
 }));
 
 
-App.set('view/Cart', 'content', App.Views.BaseView.extend({
+App.set('view/Cart', 'content', App.get('view/BaseView').extend({
     initSubviews: function(){
         this.subviews = {};
-        this.subviews['.toolbox'] = new App.Views.CartToolbox({model: this.model});
+        this.subviews['.toolbox'] = App.createContent('view/CartToolbox', {model: this.model});
         return this.subviews;
     },
 
@@ -748,7 +775,6 @@ App.set('view/Cart', 'content', App.Views.BaseView.extend({
         $(window).resize(scaleMedia);
         this.listenTo(App.Vent, 'layoutResize', scaleMedia);
     }
-
 }));
 
 
@@ -785,7 +811,7 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
     },
 
     addOne: function(model){
-        var view = new App.Views.Cart({model: model});
+        var view = App.create('view/Cart', 'content', {model: model});
         this.$el.append(view.render().el);
     },
 
@@ -827,9 +853,6 @@ App.set('view/Topmenu', 'layout', App.Views.BaseView.extend({
         return this;
     }
 }));
-
-console.log(App.set('view/Topmenu', {'name': 'value'}));
-
 
 // Sidebar layout
 
@@ -884,8 +907,7 @@ App.set('view/MainContent', 'layout', App.Views.BaseView.extend({
 
 // Main wrapper
 
-App.set('view/Wapper', 'layout',  App.Views.BaseView.extend({
-
+App.set('view/Wrapper', 'layout',  App.get('view/BaseView').extend({
     el: '#wrapper',
 
     initialize: function(){
@@ -893,14 +915,11 @@ App.set('view/Wapper', 'layout',  App.Views.BaseView.extend({
         this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
     },
 
-
     initSubviews: function(){
         this.subviews = [];
         if(this.model.withSidebar()){
             this.$el.addClass('with-sidebar');
             this.subviews.push( App.createLayout('view/Sidebar', {model: this.model}) );
-
-            console.log(this.subviews);
 
             if(this.model.sidebarCollapsed())
                 this.$el.addClass('sidebar-collapsed');
@@ -942,8 +961,8 @@ App.Router = Backbone.Router.extend({
 
     index: function(){
         App.Vent.trigger('layoutUpdate');
-        var collection = new App.Collections.Carts,
-            view = App.create('view/Carts');
+        var collection = App.create('collection/Carts'),
+            view = App.createLayout('view/Carts');
         collection.fetch({
             success: success,
             error: error
@@ -996,8 +1015,8 @@ App.Router = Backbone.Router.extend({
 
     contacts: function(){
         App.Vent.trigger('layoutUpdateForce', {sidebar: false});
-        var model = App.createForm('model/Contacts'),
-            view  = App.createForm('view/Contacts', {model: model});
+        var model = App.createForm('model/Contact'),
+            view  = App.createForm('view/Contact', {model: model});
 
 
         App.Helpers.renderContent(view.render().el);

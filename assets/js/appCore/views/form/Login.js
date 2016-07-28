@@ -1,4 +1,4 @@
-App.set('view/Login', 'form', App.Views.Forms.BaseForm.extend({
+App.set('view/Login', 'form', App.get('view/BaseForm', 'form').extend({
     initialize: function(){},
     template: App.Helpers.getTemplate('#loginForm'),
     render: function(){

@@ -31,7 +31,7 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
     },
 
     addOne: function(model){
-        var view = new App.Views.Cart({model: model});
+        var view = App.create('view/Cart', 'content', {model: model});
         this.$el.append(view.render().el);
     },
 

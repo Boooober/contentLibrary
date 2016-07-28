@@ -3,7 +3,7 @@ App.set('model/Search', 'form', Backbone.Model.extend({
         s: App.Helpers.getQueryParam('s')
     },
     search: function(s){
-        var collection = new App.Collections.Carts;
+        var collection = App.create('collection/Carts');
         this.set('s', s);
 
         collection.fetch({

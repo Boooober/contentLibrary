@@ -1,6 +1,6 @@
 // Cart toolbox view
 
-App.set('view/CartToolbox', 'content', App.Views.BaseView.extend({
+App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
 
     initialize: function() {
         this.model.on('change:favorites', this.render, this);
@@ -22,10 +22,10 @@ App.set('view/CartToolbox', 'content', App.Views.BaseView.extend({
 }));
 
 
-App.set('view/Cart', 'content', App.Views.BaseView.extend({
+App.set('view/Cart', 'content', App.get('view/BaseView').extend({
     initSubviews: function(){
         this.subviews = {};
-        this.subviews['.toolbox'] = new App.Views.CartToolbox({model: this.model});
+        this.subviews['.toolbox'] = App.createContent('view/CartToolbox', {model: this.model});
         return this.subviews;
     },
 
@@ -64,6 +64,5 @@ App.set('view/Cart', 'content', App.Views.BaseView.extend({
         $(window).resize(scaleMedia);
         this.listenTo(App.Vent, 'layoutResize', scaleMedia);
     }
-
 }));
 

@@ -1,4 +1,4 @@
-App.set('view/Contact', 'form', App.Views.Forms.BaseForm.extend({
+App.set('view/Contact', 'form', App.get('view/BaseForm', 'form').extend({
     initialize: function(){
 
     },
@@ -8,7 +8,7 @@ App.set('view/Contact', 'form', App.Views.Forms.BaseForm.extend({
 
     render: function(){
         //this.$el.html( this.template() );
-        //return this;
+        return this;
     },
     submit: function(){
         console.log('Contact form is submitting');

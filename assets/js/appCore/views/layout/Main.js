@@ -8,9 +8,6 @@ App.set('view/Topmenu', 'layout', App.Views.BaseView.extend({
     }
 }));
 
-console.log(App.set('view/Topmenu', {'name': 'value'}));
-
-
 // Sidebar layout
 
 App.set('view/Sidebar', 'layout', App.Views.BaseView.extend({
@@ -64,8 +61,7 @@ App.set('view/MainContent', 'layout', App.Views.BaseView.extend({
 
 // Main wrapper
 
-App.set('view/Wapper', 'layout',  App.Views.BaseView.extend({
-
+App.set('view/Wrapper', 'layout',  App.get('view/BaseView').extend({
     el: '#wrapper',
 
     initialize: function(){
@@ -73,14 +69,11 @@ App.set('view/Wapper', 'layout',  App.Views.BaseView.extend({
         this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
     },
 
-
     initSubviews: function(){
         this.subviews = [];
         if(this.model.withSidebar()){
             this.$el.addClass('with-sidebar');
             this.subviews.push( App.createLayout('view/Sidebar', {model: this.model}) );
-
-            console.log(this.subviews);
 
             if(this.model.sidebarCollapsed())
                 this.$el.addClass('sidebar-collapsed');

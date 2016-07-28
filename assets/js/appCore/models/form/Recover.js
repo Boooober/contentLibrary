@@ -1,4 +1,4 @@
-App.set('model/Recover', 'form', App.Models.Forms.BaseForm.extend({
+App.set('model/Recover', 'form', App.get('model/BaseForm', 'form').extend({
     defaults: {
         email: ''
     },

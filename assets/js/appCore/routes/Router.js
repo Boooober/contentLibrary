@@ -14,8 +14,8 @@ App.Router = Backbone.Router.extend({
 
     index: function(){
         App.Vent.trigger('layoutUpdate');
-        var collection = new App.Collections.Carts,
-            view = App.create('view/Carts');
+        var collection = App.create('collection/Carts'),
+            view = App.createLayout('view/Carts');
         collection.fetch({
             success: success,
             error: error
@@ -68,8 +68,8 @@ App.Router = Backbone.Router.extend({
 
     contacts: function(){
         App.Vent.trigger('layoutUpdateForce', {sidebar: false});
-        var model = App.createForm('model/Contacts'),
-            view  = App.createForm('view/Contacts', {model: model});
+        var model = App.createForm('model/Contact'),
+            view  = App.createForm('view/Contact', {model: model});
 
 
         App.Helpers.renderContent(view.render().el);

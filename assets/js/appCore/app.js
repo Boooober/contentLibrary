@@ -1,5 +1,5 @@
 'use strict';
-
+var debug = true;
 var App = {
 
     //Namespace app structure
@@ -17,6 +17,7 @@ var App = {
     Vent: {},
     Helpers: {},
 
+
     /**
      * Methods below are shortcuts for App namespase structure
      * @param namespace - string which contains type/name of object. Example: Model/Sidebar
@@ -24,13 +25,13 @@ var App = {
      * @returns {(Object|undefined)}
      */
     createForm: function(namespace, config){
-        return this.create(namespace, 'Forms', config)
+        return this.create(namespace, 'form', config)
     },
     createLayout: function(namespace, config){
-        return this.create(namespace, 'Layouts', config)
+        return this.create(namespace, 'layout', config)
     },
     createContent: function(namespace, config){
-        return this.create(namespace, 'Content', config)
+        return this.create(namespace, 'content', config)
     },
 
     /**
@@ -46,11 +47,18 @@ var App = {
      *
      */
     create: function(/*namespace, [type], config*/){
-        var args = [].slice.call(arguments);
-        if(args.length === 2) args.splice(1,0,undefined);
+        var args = [].slice.call(arguments), object;
 
-        //var object = this.get.apply(this, args);
-        //if(object) return new object(args[2]);
+        // argument[1] is optional, so splice if it`s empty;
+        if(args.length === 2 && _.isObject(args[1])) args.splice(1,0,undefined);
+
+        object = this.get.apply(this, args);
+        if(object){
+
+            if(debug) console.log('New instance of '+this.getNamespace(args[0], args[1]).join('/')+' successfuly created');
+
+            return new object(args[2]);
+        }
     },
 
     /**
@@ -64,20 +72,21 @@ var App = {
      * This two params define object namespace, so thay must be the same as params from declaration this object
      *
      */
-    get: function(/*namespace, [type], config*/){
+    get: function(/*namespace, [type]*/){
         var args = [].slice.call(arguments),
-            path;
+            path, obj;
 
-        if(args.length === 2) args.splice(1,0,undefined);
+        //if(args.length === 2) args.splice(1,0,undefined);
         path = this.getNamespace(args[0], args[1]);
 
         try{
-            // Loop deep into App object with namespace array
-            return (function deep(app, i){
+            obj = (function deep(app, i){
                 return path[i+1] ? deep(app[path[i]], ++i) : app[path[i]];
             })(this, 0);
+            if(obj) return obj;
+            if(debug) console.log('Path is correct, but object is missing... '+path.join('/'));
         } catch(e) {
-            console.log('No objects at '+path.join('/')+' exists');
+            if(debug) console.log('No objects at '+path.join('/')+' exists');
         }
     },
 
@@ -94,7 +103,9 @@ var App = {
     set: function(/*namespace, [type], object*/){
         var args = [].slice.call(arguments),
             path, lvl;
-        if(args.length === 2) args.splice(1,0,undefined);
+
+        // argument[1] is optional, so splice if it`s empty;
+        if(args.length === 2 && _.isObject(args[1])) args.splice(1,0,undefined);
         path = this.getNamespace(args[0], args[1]);
 
         return (function deep(app, i){
@@ -104,7 +115,7 @@ var App = {
                 // Go deeper if already exists...   Or create new namespace
                 (app[lvl] ? deep(app[lvl], ++i) : deep( (app[lvl] = {}), ++i) ) :
                 //Last level, and it is already exists...   Create new object in namespace
-                (app[lvl] ? 'Object is already created.' : ( app[lvl] = args[2] ) );
+                (app[lvl] ? 'Object is already exists.' : ( app[lvl] = args[2] ) );
         })(this, 0);
     },
 
@@ -117,8 +128,6 @@ var App = {
      */
     getNamespace: function(namespace, type) {
         var path = namespace.split('/'), i, l;
-
-        console.log(type);
         if(type){
             // Check if type is a multilevel namespace
             type.search('/') !== 1 ?
