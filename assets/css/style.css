@@ -194,6 +194,9 @@ html, body {
 .page-layout {
   height: 100%;
   padding: 0 15px; }
+  .page-layout .container, .page-layout .container-fluid {
+    padding-left: 0;
+    padding-right: 0; }
 
 .sidebar {
   display: none; }
@@ -213,6 +216,22 @@ html, body {
   -webkit-transition: .4s;
   transition: .4s;
   width: 220px; }
+
+.contact-page .map-wrapper {
+  margin: 0 -15px;
+  position: relative; }
+
+@media (min-width: 768px) {
+  .contact-page .contacts-box {
+    top: 50px;
+    left: 10px;
+    width: 300px;
+    z-index: 999;
+    position: absolute; } }
+
+.google-map {
+  width: 100%;
+  height: 500px; }
 
 .sidebar {
   overflow-x: hidden; }

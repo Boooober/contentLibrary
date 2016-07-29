@@ -59,7 +59,7 @@
 		<div class="topmenu"></div>
 
 		<!-- Dynamic content -->
-		<div class="page-content"></div>
+		<div class="main-content"></div>
 		<!-- ./Dynamic content -->
 		<div class="row">
 			<div class="footer">

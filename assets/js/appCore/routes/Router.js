@@ -68,11 +68,9 @@ App.Router = Backbone.Router.extend({
 
     contacts: function(){
         App.Vent.trigger('layoutUpdateForce', {sidebar: false});
-        var model = App.createForm('model/Contact'),
-            view  = App.createForm('view/Contact', {model: model});
+        //var model = App.createLayout('model/Contact'),
+        App.createLayout('view/Contacts').render();
 
-
-        App.Helpers.renderContent(view.render().el);
     }
 
 });

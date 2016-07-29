@@ -7,7 +7,7 @@ App.set('view/Contact', 'form', App.get('view/BaseForm', 'form').extend({
     errorMessage: App.Helpers.getTemplate('#contactFormError'),
 
     render: function(){
-        //this.$el.html( this.template() );
+        this.$el.html( this.template() );
         return this;
     },
     submit: function(){

@@ -55,10 +55,11 @@ var App = {
         object = this.get.apply(this, args);
         if(object){
 
-            if(debug) console.log('New instance of '+this.getNamespace(args[0], args[1]).join('/')+' successfuly created');
+            if(debug) console.log('New instance of '+this.getNamespace(args[0], args[1]).join('/')+' successfully created');
 
             return new object(args[2]);
         }
+        if(debug) console.log('No objects found at '+this.getNamespace(args[0], args[1]).join('/')+'.');
     },
 
     /**
@@ -183,7 +184,7 @@ _.extend(App.Vent, Backbone.Events);
 App.Helpers = {
 
     renderContent: function(content){
-        $('.page-content').html(content);
+        $('.main-content').html(content);
     },
     getTemplate: function(selector){
         return _.template($(selector).html());
@@ -464,6 +465,22 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
         this.saveOptions(options);
     }
 }));
+App.set('model/GoogleMap', 'widget', Backbone.Model.extend({
+    defaults: {
+        lat: 50.432014,
+        lng: 30.486093,
+        zoom: 18,
+        scrollwheel: false,
+        styles: [{"featureType":"water","elementType":"geometry","stylers":[{"color":"#e9e9e9"},{"lightness":17}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#f5f5f5"},{"lightness":20}]},{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#ffffff"},{"lightness":17}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#ffffff"},{"lightness":29},{"weight":0.2}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#ffffff"},{"lightness":18}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#ffffff"},{"lightness":16}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#f5f5f5"},{"lightness":21}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#dedede"},{"lightness":21}]},{"elementType":"labels.text.stroke","stylers":[{"visibility":"on"},{"color":"#ffffff"},{"lightness":16}]},{"elementType":"labels.text.fill","stylers":[{"saturation":36},{"color":"#333333"},{"lightness":40}]},{"elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"geometry","stylers":[{"color":"#f2f2f2"},{"lightness":19}]},{"featureType":"administrative","elementType":"geometry.fill","stylers":[{"color":"#fefefe"},{"lightness":20}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#fefefe"},{"lightness":17},{"weight":1.2}]}],
+        markers: [
+            {
+                lat: 50.432014,
+                lng: 30.486093,
+                title: 'Epam office!'
+            }
+        ]
+    }
+}));
 App.set('collection/Carts', Backbone.Collection.extend({
     url: 'assets/js/database/carts.json',
     model: App.get('model/Cart', 'content')
@@ -545,6 +562,7 @@ App.set('view/BaseForm', 'form', Backbone.View.extend({
             isValid, error;
         rules.type = $target.attr('type') || 'text';
         rules.required = !!$target.attr('required');
+        rules.pattern = $target.attr('pattern');
 
         // If current target type is number, than max and min validators behavior is different.
         // Validators should compare number value, not number string length.
@@ -647,7 +665,7 @@ App.set('view/Contact', 'form', App.get('view/BaseForm', 'form').extend({
     errorMessage: App.Helpers.getTemplate('#contactFormError'),
 
     render: function(){
-        //this.$el.html( this.template() );
+        this.$el.html( this.template() );
         return this;
     },
     submit: function(){
@@ -841,8 +859,21 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
 }));
 
 
-App.set('view/Contacts', 'layout', App.Views.BaseView.extend({
-
+App.set('view/Contacts', 'layout', App.get('view/BaseView').extend({
+    el: '.main-content',
+    template: App.Helpers.getTemplate('#contactPage'),
+    initSubviews: function(){
+        this.subviews = {
+            '.contact-form': App.createForm('view/Contact', App.createForm('model/Contact')),
+            '.google-map': App.create('view/GoogleMap', 'widget')
+        };
+        return this.subviews;
+    },
+    render: function(){
+        this.$el.html( this.template() );
+        this.assign( this.initSubviews() );
+        return this;
+    }
 }));
 // Navigation menu
 
@@ -945,6 +976,46 @@ App.set('view/Wrapper', 'layout',  App.get('view/BaseView').extend({
     }
 
 }));
+// Google map styled by Snazzy Maps
+App.set('view/GoogleMap', 'widget', Backbone.View.extend({
+
+    initialize: function(){
+        this.model = App.create('model/GoogleMap', 'widget');
+    },
+    apiKey: '',
+
+    render: function(){
+        (!window.google || !(window.google && window.google.maps)) ?
+            $.getScript('//maps.googleapis.com/maps/api/js?key='+this.apiKey, this.renderMap.bind(this)) :
+            this.renderMap();
+    },
+
+    renderMap: function(){
+        var options,
+            LatLng = new google.maps.LatLng(this.model.get('lat'), this.model.get('lng'));
+
+        options = {
+            center: LatLng,
+            zoom: this.model.get('zoom'),
+            styles: this.model.get('styles'),
+            scrollwheel: this.model.get('scrollwheel')
+        };
+
+        if(!this.map){
+            this.map = new google.maps.Map(this.el, options);
+
+            _.each(this.model.get('markers'), function(marker){
+                new google.maps.Marker({
+                    position: new google.maps.LatLng(marker.lat, marker.lng),
+                    map: this.map,
+                    title: marker.title
+                });
+            }, this);
+        }
+    }
+}));
+
+
 App.Router = Backbone.Router.extend({
     routes: {
         '': 'index',
@@ -1015,11 +1086,9 @@ App.Router = Backbone.Router.extend({
 
     contacts: function(){
         App.Vent.trigger('layoutUpdateForce', {sidebar: false});
-        var model = App.createForm('model/Contact'),
-            view  = App.createForm('view/Contact', {model: model});
+        //var model = App.createLayout('model/Contact'),
+        App.createLayout('view/Contacts').render();
 
-
-        App.Helpers.renderContent(view.render().el);
     }
 
 });

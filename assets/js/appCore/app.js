@@ -55,10 +55,11 @@ var App = {
         object = this.get.apply(this, args);
         if(object){
 
-            if(debug) console.log('New instance of '+this.getNamespace(args[0], args[1]).join('/')+' successfuly created');
+            if(debug) console.log('New instance of '+this.getNamespace(args[0], args[1]).join('/')+' successfully created');
 
             return new object(args[2]);
         }
+        if(debug) console.log('No objects found at '+this.getNamespace(args[0], args[1]).join('/')+'.');
     },
 
     /**

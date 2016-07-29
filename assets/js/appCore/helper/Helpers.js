@@ -1,7 +1,7 @@
 App.Helpers = {
 
     renderContent: function(content){
-        $('.page-content').html(content);
+        $('.main-content').html(content);
     },
     getTemplate: function(selector){
         return _.template($(selector).html());
