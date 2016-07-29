@@ -53,7 +53,7 @@
 	<form class="form">
 		<div class="form-group">
 			<label for="contactName" class="sr-only">Your name</label>
-			<input type="text" name="name" id="contactName" class="form-control" placeholder="Your name" min="2"/>
+			<input type="text" name="name" id="contactName" class="form-control" placeholder="Your name" />
 		</div>
 
 		<div class="form-group">

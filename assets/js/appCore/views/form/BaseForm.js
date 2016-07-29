@@ -122,6 +122,10 @@ App.set('view/BaseForm', 'form', Backbone.View.extend({
                 name = $twink.attr('placeholder') || $("label[for='"+$twink.attr('id')+'"]').html();
             if( !($twink.val() === value) )
                 return 'Field value must match '+name;
+        },
+        pattern: function(rule, value){
+            if( !(new RegExp(rule).test(value)) )
+                return 'Field value malformed';
         }
     },
 
