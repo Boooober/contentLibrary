@@ -443,7 +443,7 @@ html, body {
   position: fixed;
   display: table; }
   .popup.popup-bg-default {
-    background: rgba(0, 0, 0, 0.9); }
+    background: rgba(0, 0, 0, 0.85); }
   .popup .popup-container {
     display: table-cell;
     vertical-align: middle; }
@@ -466,13 +466,14 @@ html, body {
     width: 30px;
     height: 30px;
     position: absolute;
-    top: -30px;
-    right: 0;
+    top: -15px;
+    right: -15px;
     background: white;
     -webkit-transition: .3s;
     transition: .3s;
+    cursor: pointer;
     will-change: background;
-    cursor: pointer; }
+    box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3); }
     .popup .close-trigger:before, .popup .close-trigger:after {
       display: block;
       position: absolute;
@@ -488,7 +489,7 @@ html, body {
       -webkit-transform: rotate(45deg);
               transform: rotate(45deg); }
     .popup .close-trigger:hover {
-      background: #a0a0a0; }
+      background: blue; }
   .popup.open--popup {
     -webkit-animation: fadeIn 0.7s forwards;
             animation: fadeIn 0.7s forwards; }

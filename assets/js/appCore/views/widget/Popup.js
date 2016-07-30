@@ -28,7 +28,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
         // Popup size
         size: 'md',
         // Additional class names to the popup wrapper
-        className: '',
+        className: 'popup-bg-default',
         // Additional css options for wrapper
         css: {}
     },
@@ -46,9 +46,8 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
             switch (option){
                 case 'toggle':
                     // Set timeout to close popup
-                    console.log(option, value);
                     if (value === true){
-                        console.log('popup will close in '+options.toggleDelay+' ms');
+                        if(debug) console.log('popup will close in '+options.toggleDelay+' ms');
                         this.$el.data('timeout', setTimeout(_.bind(this.close, this), options.toggleDelay));
                     }
                     break;

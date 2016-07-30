@@ -1,19 +1,24 @@
 App.set('view/Contact', 'form', App.get('view/BaseForm', 'form').extend({
     initialize: function(){
-
+        this.model = App.createForm('model/Contact');
+        this.listenTo(this.model, 'change:success', this.showResponse);
     },
     template: App.Helpers.getTemplate('#contactForm'),
-    successMessage: App.Helpers.getTemplate('#contactFormSuccess'),
-    errorMessage: App.Helpers.getTemplate('#contactFormError'),
 
     render: function(){
         this.$el.html( this.template() );
         return this;
     },
     submit: function(e, data){
-        console.log('Contact form is submitting');
-        
-console.log(data);
-        App.create('view/Popup', 'widget').render('Contact form is submitting', {toggle: true, trigger: true});
+        this.model.set(_.reduce(data, function(attrs, input, name){
+            attrs[name] = input.value;
+            return attrs;
+        }, {}));
+        this.model.send();
+    },
+    showResponse: function(){
+        App.create('view/Popup', 'widget').render(this.model.response, {toggle: true, trigger: false});
+        if(this.model.get('success')) this.clearInputs();
+        this.model.clear({silent: true});
     }
 }));

@@ -282,18 +282,25 @@ App.set('model/Contact', 'form', App.get('model/BaseForm', 'form').extend({
     defaults: {
         name: '',
         email: '',
-        message: '',
+        message: ''
     },
-    validate: function(attributes){
-        console.log(attributes);
-    },
+    response: '',
 
-    login: function(data){
-        this.set(data);
+    send: function(){
+        // Ajax sending to the server...
+        console.log('Sending to server... Fake timeout 2s.', this.toJSON());
+        
+        // Do fake server response
+        setTimeout(_.bind(function(){
+            if(this.get('message') === 'error'){
+                this.response = 'Some error occures while sending your message. Please, try again later';
+                this.set('success', false);
+            } else{
+                this.response = 'Your message was successfully sent. We will contact you shortly';
+                this.set('success', true);
+            }
+        }, this), 2000);
 
-        if (!this.isValid()) {
-            console.log(this.validationError);
-        }
     }
 }));
 App.set('model/Login', 'form', App.get('model/BaseForm', 'form').extend({
@@ -513,7 +520,7 @@ App.set('view/BaseView', Backbone.View.extend({
  * (c) 2016 Nikita Slobodian
  */
 
-App.set('view/BaseForm', 'form', Backbone.View.extend({
+App.set('view/Validator', 'form', Backbone.View.extend({
     // Validation events
     events: {
         'submit form': 'submitForm',
@@ -683,23 +690,37 @@ App.set('view/BaseForm', 'form', Backbone.View.extend({
         }
     }
 }));
+App.set('view/BaseForm', 'form', App.get('view/Validator', 'form').extend({
+
+    // Clear all inputs values
+    clearInputs: function(){
+        this.$(':input[name]').each(function(){
+            $(this).val('');
+        });
+    }
+}));
 App.set('view/Contact', 'form', App.get('view/BaseForm', 'form').extend({
     initialize: function(){
-
+        this.model = App.createForm('model/Contact');
+        this.listenTo(this.model, 'change:success', this.showResponse);
     },
     template: App.Helpers.getTemplate('#contactForm'),
-    successMessage: App.Helpers.getTemplate('#contactFormSuccess'),
-    errorMessage: App.Helpers.getTemplate('#contactFormError'),
 
     render: function(){
         this.$el.html( this.template() );
         return this;
     },
     submit: function(e, data){
-        console.log('Contact form is submitting');
-        
-console.log(data);
-        App.create('view/Popup', 'widget').render('Contact form is submitting', {toggle: true, trigger: true});
+        this.model.set(_.reduce(data, function(attrs, input, name){
+            attrs[name] = input.value;
+            return attrs;
+        }, {}));
+        this.model.send();
+    },
+    showResponse: function(){
+        App.create('view/Popup', 'widget').render(this.model.response, {toggle: true, trigger: false});
+        if(this.model.get('success')) this.clearInputs();
+        this.model.clear({silent: true});
     }
 }));
 App.set('view/Login', 'form', App.get('view/BaseForm', 'form').extend({
@@ -1076,7 +1097,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
         // Popup size
         size: 'md',
         // Additional class names to the popup wrapper
-        className: '',
+        className: 'popup-bg-default',
         // Additional css options for wrapper
         css: {}
     },
@@ -1094,9 +1115,8 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
             switch (option){
                 case 'toggle':
                     // Set timeout to close popup
-                    console.log(option, value);
                     if (value === true){
-                        console.log('popup will close in '+options.toggleDelay+' ms');
+                        if(debug) console.log('popup will close in '+options.toggleDelay+' ms');
                         this.$el.data('timeout', setTimeout(_.bind(this.close, this), options.toggleDelay));
                     }
                     break;
