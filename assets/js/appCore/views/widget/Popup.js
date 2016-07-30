@@ -1,3 +1,8 @@
+/**
+ * Popup widget
+ * (c) 2016 Nikita Slobodian
+ */
+
 App.set('view/Popup', 'widget', Backbone.View.extend({
     initialize: function(){
         this.setElement( $(document).find('.popup') );

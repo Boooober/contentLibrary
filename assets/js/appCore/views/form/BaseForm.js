@@ -7,7 +7,7 @@ App.set('view/BaseForm', 'form', Backbone.View.extend({
     // Validation events
     events: {
         'submit form': 'submitForm',
-        'blur input[name]': 'validateInput'
+        'blur input[name]': 'validateHandler'
     },
 
     // Validation on submitting form event handler
@@ -16,38 +16,61 @@ App.set('view/BaseForm', 'form', Backbone.View.extend({
     submitForm: function(e){
         e.preventDefault();
         var $form = $(e.target),
-            $inputs = $form.find(':input[name]'),
-            noErrors = true;
+            noErrors = true,
+            data = this.processData($form.find(':input[name]'));
+
 
         // Loop over form inputs and return general form validation flag.
+        //
         // On every iteration check current input to set/remove error messages
         // Reduce general form error status. If error flag is already set, continue
         // inputs validation and return same flag. If there are still to errors, try
         // to set them from current input validation.
-        noErrors = _.reduce($inputs, function(flag, item){
+        noErrors = _.reduce(data, function(flag, item){
             var result = this.validateOne(item);
             return flag === true ? result : flag;
         }, noErrors, this);
 
         if(noErrors && this['submit']){
             // Submitting method fires in successor object
-            this['submit'].call(this, e);
+            this['submit'].call(this, e, data);
         }
     },
 
-    // Validation of one current input
-    validateInput: function(e){
-        return this.validateOne(e.target);
-    },
 
     /**
      *
-     * @param {Object} target - DOM object
-     * @returns {boolean}
+     * Process inputs data.
+     * @param {Array} inputs
+     * @returns {Object} indexed by input name attribute with values {{$target: Object, value: string}}
      */
-    validateOne: function(target){
-        var $target = $(target),
-            value = $target.val().trim(),
+    processData: function(inputs){
+        var data = {}, obj, $input;
+        _.each(inputs, function(input){
+            $input = $(input);
+            obj = {
+                $target: $input,
+                value: $input.val().trim()
+            };
+            data[$input.attr('name')] = obj;
+        });
+        return data;
+    },
+
+    // Validate one currently blured input
+    validateHandler: function(e){
+        var data = this.processData($(e.target));
+        _.each(data, this.validateOne, this);
+    },
+
+    /**
+     * Validate one input
+     * @param {{$target: Object, value: string}} data
+     * @returns {boolean|*}
+     */
+    validateOne: function(data){
+        var $target = data.$target,
+            value = data.value,
             rules = $target.data('validate') || {},
             isValid, error;
         rules.type = $target.attr('type') || 'text';
