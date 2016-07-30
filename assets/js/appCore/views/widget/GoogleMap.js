@@ -8,7 +8,7 @@ App.set('view/GoogleMap', 'widget', Backbone.View.extend({
 
     render: function(){
         (!window.google || !(window.google && window.google.maps)) ?
-            $.getScript('//maps.googleapis.com/maps/api/js?key='+this.apiKey, this.renderMap.bind(this)) :
+            $.getScript('//maps.googleapis.com/maps/api/js?key='+this.apiKey, _.bind(this.renderMap, this)) :
             this.renderMap();
     },
 

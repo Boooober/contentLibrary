@@ -437,6 +437,7 @@ html, body {
   top: 0;
   left: 0;
   opacity: 0;
+  z-index: -1;
   width: 100%;
   height: 100%;
   position: fixed;
@@ -455,6 +456,7 @@ html, body {
       width: 400px;
       max-width: 400px; } }
   .popup .popup-box {
+    position: relative;
     width: 100%;
     margin: 0 auto;
     background: white;

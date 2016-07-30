@@ -12,5 +12,6 @@ App.set('view/Contact', 'form', App.get('view/BaseForm', 'form').extend({
     },
     submit: function(){
         console.log('Contact form is submitting');
+        App.create('view/Popup', 'widget').render('Contact form is submitting', {toggle: true, trigger: true});
     }
 }));

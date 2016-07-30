@@ -118,13 +118,9 @@
 
 <script type="text/template" id="wrapperAppends">
 
-<!--	<div class="popup popup-md">-->
-<!--		<div class="popup-container"></div>-->
-<!--	</div>-->
-<!---->
-<!--	<div class="popup popup-sm">-->
-<!--		<div class="popup-container"></div>-->
-<!--	</div>-->
+	<div class="popup">
+		<div class="popup-container"></div>
+	</div>
 
 </script>
 <!--	<div class="preloader">-->
