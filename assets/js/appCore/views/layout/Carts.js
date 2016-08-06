@@ -1,5 +1,8 @@
 App.set('view/Carts', 'layout', Backbone.View.extend({
-    className: 'row',
+    //className: 'row',
+    el: '.main-content',
+
+
 
     initialize: function(){
         this.listenTo(App.Vent, 'collectionLoad', this.setCollection);
@@ -8,31 +11,28 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
     setCollection: function(collection){
         if(!this.collection){
             this.collection = collection;
-            this.listenTo(this.collection, 'reset', this.redraw);
+            this.listenTo(this.collection, 'reset', this.render);
         }else{
             this.collection.reset(collection.models);
         }
     },
 
     render: function(){
+        this.reset();
         this.collection.each(this.addOne, this);
+        this.$el.html( this.$row.wrap('<div class="container-fluid" />').parent() );
         this.masonry();
         return this;
     },
 
-
-    redraw: function(){
-        this.reset().render();
-    },
-
     reset: function(){
         this.$el.html('');
-        return this;
+        this.$row = $('<div class="row" />');
     },
 
     addOne: function(model){
         var view = App.create('view/Cart', 'content', {model: model});
-        this.$el.append(view.render().el);
+        this.$row.append(view.render().el);
     },
 
 
@@ -43,7 +43,7 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
 
         //Init masonry event handler function
         var masonry = function () {
-            this.$el.masonry({
+            this.$row.masonry({
                 columnWidth: this.$('.cart-item')[0],
                 itemSelector: '.cart-item',
                 percentPosition: true

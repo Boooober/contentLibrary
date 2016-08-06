@@ -60,7 +60,7 @@ App.set('view/Cart', 'content', App.get('view/BaseView').extend({
             container.css('padding-bottom', height);
         }.bind(this);
 
-        video.load(scaleMedia);
+        setTimeout(scaleMedia, 0);
         $(window).resize(scaleMedia);
         this.listenTo(App.Vent, 'layoutResize', scaleMedia);
     }

@@ -7,6 +7,7 @@ App.Router = Backbone.Router.extend({
         '!/account/logout': 'logout',
         '!/account/recover': 'recover',
         '!/contacts': 'contacts',
+        '!/account': 'account'
         //'!/page-:id': 'page',
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
@@ -23,7 +24,7 @@ App.Router = Backbone.Router.extend({
 
         function success(){
             App.Vent.trigger('collectionLoad', collection);
-            App.Helpers.renderContent(view.render().el);
+            view.render();
         }
         function error(collection, response){
             console.log(response.responseText);
@@ -58,18 +59,21 @@ App.Router = Backbone.Router.extend({
         var model = App.createForm('model/Recover'),
             view  = App.createForm('view/Recover', {model: model});
 
-
         App.Helpers.renderContent(view.render().el);
-    },
-
-    addMedia: function(){
-
     },
 
     contacts: function(){
         App.Vent.trigger('layoutUpdateForce', {sidebar: false});
-        //var model = App.createLayout('model/Contact'),
         App.createLayout('view/Contacts').render();
+    },
+
+    account: function(){
+        App.Vent.trigger('layoutUpdateForce');
+        App.createLayout('view/Account').render();
+    },
+
+
+    addMedia: function(){
 
     }
 

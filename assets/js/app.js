@@ -150,6 +150,34 @@ var App = {
         return path;
     }
 };
+//App.User = (function(){
+//    var storage = App.Helpers.storage('session'),
+//        user;
+//
+//
+//    function findUser(){
+//        var session = storage.get();
+//        if(!session) return;
+//
+//
+//
+//        return session.id;
+//    }
+//
+//    function getUser(){
+//        return user ? user : findUser();
+//    }
+//
+//    // login/password
+//    function setUser(id){
+//        console.log('Setting user...');
+//        user = _user;
+//    }
+//    return {
+//        get: getUser,
+//        set: setUser
+//    }
+//})();
 _.extend(App.Vent, Backbone.Events);
 
 /**
@@ -284,12 +312,14 @@ App.set('model/Contact', 'form', App.get('model/BaseForm', 'form').extend({
         email: '',
         message: ''
     },
+
+    // Response from server
     response: '',
 
     send: function(){
         // Ajax sending to the server...
         console.log('Sending to server... Fake timeout 2s.', this.toJSON());
-        
+
         // Do fake server response
         setTimeout(_.bind(function(){
             if(this.get('message') === 'error'){
@@ -718,7 +748,7 @@ App.set('view/Contact', 'form', App.get('view/BaseForm', 'form').extend({
         this.model.send();
     },
     showResponse: function(){
-        App.create('view/Popup', 'widget').render(this.model.response, {toggle: true, trigger: false});
+        App.create('view/Popup', 'widget').render(this.model.response, {toggle: false, trigger: false});
         if(this.model.get('success')) this.clearInputs();
         this.model.clear({silent: true});
     }
@@ -840,15 +870,54 @@ App.set('view/Cart', 'content', App.get('view/BaseView').extend({
             container.css('padding-bottom', height);
         }.bind(this);
 
-        video.load(scaleMedia);
+        setTimeout(scaleMedia, 0);
         $(window).resize(scaleMedia);
         this.listenTo(App.Vent, 'layoutResize', scaleMedia);
     }
 }));
 
 
+App.set('view/UserRates', 'content', App.get('view/BaseView').extend({
+    initialize: function(){
+        this.model = App.User.get();
+    },
+    template: App.Helpers.getTemplate('#userRates'),
+    render: function(){
+        this.$el.html( this.template() );
+        return this;
+    }
+}));
+App.set('view/UserProfile', 'content', App.get('view/BaseView').extend({
+    initialize: function(){
+        this.model = App.User.get();
+    },
+    template: App.Helpers.getTemplate('#userProfile'),
+    render: function(){
+        this.$el.html( this.template() );
+        return this;
+    }
+}));
+App.set('view/Account', 'layout', App.get('view/BaseView').extend({
+    el: '.main-content',
+    template: App.Helpers.getTemplate('#account'),
+    initSubviews: function(){
+        this.subview = {
+            '.user-profile': App.create('view/UserProfile', 'content'),
+            '.user-rates': App.create('view/UserRates', 'content')
+        };
+        return this.subview;
+    },
+    render: function(){
+        this.$el.html( this.template() );
+        this.assign( this.initSubviews() );
+        return this;
+    }
+}));
 App.set('view/Carts', 'layout', Backbone.View.extend({
-    className: 'row',
+    //className: 'row',
+    el: '.main-content',
+
+
 
     initialize: function(){
         this.listenTo(App.Vent, 'collectionLoad', this.setCollection);
@@ -857,31 +926,28 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
     setCollection: function(collection){
         if(!this.collection){
             this.collection = collection;
-            this.listenTo(this.collection, 'reset', this.redraw);
+            this.listenTo(this.collection, 'reset', this.render);
         }else{
             this.collection.reset(collection.models);
         }
     },
 
     render: function(){
+        this.reset();
         this.collection.each(this.addOne, this);
+        this.$el.html( this.$row.wrap('<div class="container-fluid" />').parent() );
         this.masonry();
         return this;
     },
 
-
-    redraw: function(){
-        this.reset().render();
-    },
-
     reset: function(){
         this.$el.html('');
-        return this;
+        this.$row = $('<div class="row" />');
     },
 
     addOne: function(model){
         var view = App.create('view/Cart', 'content', {model: model});
-        this.$el.append(view.render().el);
+        this.$row.append(view.render().el);
     },
 
 
@@ -892,7 +958,7 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
 
         //Init masonry event handler function
         var masonry = function () {
-            this.$el.masonry({
+            this.$row.masonry({
                 columnWidth: this.$('.cart-item')[0],
                 itemSelector: '.cart-item',
                 percentPosition: true
@@ -1069,18 +1135,22 @@ App.set('view/GoogleMap', 'widget', Backbone.View.extend({
 
 /**
  * Popup widget
- * (c) 2016 Nikita Slobodian
  */
 
 App.set('view/Popup', 'widget', Backbone.View.extend({
+
+    className: 'popup',
     initialize: function(){
-        this.setElement( $(document).find('.popup') );
-        this.initial = this.$el.clone();
-        this.$container = this.$('.popup-container');
+        this.root = $(document).find('.popup-container');
+
         this.$box = $('<div class="popup-box" />');
+
+        // Create popup structure
+        // .popup -> .popup-container -> .popup-box -> content...
+        this.$el.html( $('<div class="popup-wrapper" />').html(this.$box) );
     },
     events: {
-        'click .close-trigger, .popup-container': 'closeHandler'
+        'click .close-trigger, .popup-wrapper': 'closeHandler'
     },
     // Classes of popup size
     sizes: {
@@ -1103,7 +1173,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
     },
     render: function(content, options){
         this.$el.css('z-index', 9999);
-        this.$container.html( this.$box.append(content) );
+        this.$box.html(content);
         this.setOptions(options);
         this.open();
     },
@@ -1144,6 +1214,9 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
     },
 
     open: function(){
+
+        console.log(this.root);
+        this.root.append(this.$el);
         this.$el.addClass('open--popup');
     },
     close: function(){
@@ -1154,7 +1227,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
         setTimeout(_.bind(this.removePopup, this), 500);
     },
     removePopup: function(){
-        this.$el.replaceWith(this.initial);
+        this.$el.remove();
         this.remove();
     }
 }));
@@ -1167,6 +1240,7 @@ App.Router = Backbone.Router.extend({
         '!/account/logout': 'logout',
         '!/account/recover': 'recover',
         '!/contacts': 'contacts',
+        '!/account': 'account'
         //'!/page-:id': 'page',
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
@@ -1183,7 +1257,7 @@ App.Router = Backbone.Router.extend({
 
         function success(){
             App.Vent.trigger('collectionLoad', collection);
-            App.Helpers.renderContent(view.render().el);
+            view.render();
         }
         function error(collection, response){
             console.log(response.responseText);
@@ -1218,18 +1292,21 @@ App.Router = Backbone.Router.extend({
         var model = App.createForm('model/Recover'),
             view  = App.createForm('view/Recover', {model: model});
 
-
         App.Helpers.renderContent(view.render().el);
-    },
-
-    addMedia: function(){
-
     },
 
     contacts: function(){
         App.Vent.trigger('layoutUpdateForce', {sidebar: false});
-        //var model = App.createLayout('model/Contact'),
         App.createLayout('view/Contacts').render();
+    },
+
+    account: function(){
+        App.Vent.trigger('layoutUpdateForce');
+        App.createLayout('view/Account').render();
+    },
+
+
+    addMedia: function(){
 
     }
 

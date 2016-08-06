@@ -47,8 +47,6 @@
 </script>
 
 
-
-
 <script type="text/template" id="contactForm">
 	<form class="form">
 		<div class="form-group">
@@ -71,9 +69,33 @@
 		</div>
 	</form>
 </script>
-<script type="text/template" id="contactFormSuccess">
 
+
+<script type="text/template" id="account">
+	<div class="account-page">
+
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-6">
+					<div class="user-profile"></div>
+				</div>
+				<div class="col-sm-6">
+					<div class="user-rates"></div>
+				</div>
+			</div>
+		</div>
+
+	</div>
 </script>
-<script type="text/template" id="contactFormError">
 
+
+<script type="text/template" id="userProfile">
+
+	.user-
+	user profile
+</script>
+
+
+<script type="text/template" id="userRates">
+	user rates
 </script>

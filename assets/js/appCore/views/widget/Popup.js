@@ -1,17 +1,21 @@
 /**
  * Popup widget
- * (c) 2016 Nikita Slobodian
  */
 
 App.set('view/Popup', 'widget', Backbone.View.extend({
+
+    className: 'popup',
     initialize: function(){
-        this.setElement( $(document).find('.popup') );
-        this.initial = this.$el.clone();
-        this.$container = this.$('.popup-container');
+        this.root = $(document).find('.popup-container');
+
         this.$box = $('<div class="popup-box" />');
+
+        // Create popup structure
+        // .popup -> .popup-container -> .popup-box -> content...
+        this.$el.html( $('<div class="popup-wrapper" />').html(this.$box) );
     },
     events: {
-        'click .close-trigger, .popup-container': 'closeHandler'
+        'click .close-trigger, .popup-wrapper': 'closeHandler'
     },
     // Classes of popup size
     sizes: {
@@ -34,7 +38,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
     },
     render: function(content, options){
         this.$el.css('z-index', 9999);
-        this.$container.html( this.$box.append(content) );
+        this.$box.html(content);
         this.setOptions(options);
         this.open();
     },
@@ -75,6 +79,9 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
     },
 
     open: function(){
+
+        console.log(this.root);
+        this.root.append(this.$el);
         this.$el.addClass('open--popup');
     },
     close: function(){
@@ -85,7 +92,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
         setTimeout(_.bind(this.removePopup, this), 500);
     },
     removePopup: function(){
-        this.$el.replaceWith(this.initial);
+        this.$el.remove();
         this.remove();
     }
 }));

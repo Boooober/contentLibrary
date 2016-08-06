@@ -4,12 +4,14 @@ App.set('model/Contact', 'form', App.get('model/BaseForm', 'form').extend({
         email: '',
         message: ''
     },
+
+    // Response from server
     response: '',
 
     send: function(){
         // Ajax sending to the server...
         console.log('Sending to server... Fake timeout 2s.', this.toJSON());
-        
+
         // Do fake server response
         setTimeout(_.bind(function(){
             if(this.get('message') === 'error'){

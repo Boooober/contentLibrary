@@ -61,6 +61,8 @@
 		<!-- Dynamic content -->
 		<div class="main-content"></div>
 		<!-- ./Dynamic content -->
+
+
 		<div class="row">
 			<div class="footer">
 				<div class="container-fluid">
@@ -81,27 +83,24 @@
 
 <!-- Topmenu -->
 <script type="text/template" id="topMenu">
-	<div class="row">
-		<div class="container-fluid">
-			<nav class="navbar">
-				<div class="navbar-header">
-					<p class="sidebar-toggle">Toggle sidebar</p>
-				</div>
+	<div class="container-fluid">
 
-				<ul class="navbar-links navbar-right">
-					<li><a href="#">Index</a></li>
-					<li><a href="#!/account/signin">Sign in</a></li>
-					<li><a href="#!/account/login">Login</a></li>
-					<li><a href="#!/account/logout">Logout</a></li>
-					<li><a href="#!/add-media">Add media</a></li>
-					<li><a href="#!/account">Account</a></li>
-					<li><a href="#!/contacts">Contacts</a></li>
-				</ul>
+		<nav class="navbar">
+			<div class="navbar-header">
+				<p class="sidebar-toggle">Toggle sidebar</p>
+			</div>
 
+			<ul class="navbar-links navbar-right">
+				<li><a href="#">Index</a></li>
+				<li><a href="#!/account/signin">Sign in</a></li>
+				<li><a href="#!/account/login">Login</a></li>
+				<li><a href="#!/account/logout">Logout</a></li>
+				<li><a href="#!/add-media">Add media</a></li>
+				<li><a href="#!/account">Account</a></li>
+				<li><a href="#!/contacts">Contacts</a></li>
+			</ul>
 
-			</nav>
-		</div>
-
+		</nav>
 	</div>
 </script>
 <!-- ./Topmenu -->
@@ -117,9 +116,7 @@
 <!-- ./Content topline/header -->
 
 <script type="text/template" id="wrapperAppends">
-	<div class="popup">
-		<div class="popup-container"></div>
-	</div>
+	<div class="popup-container"></div>
 </script>
 <!--	<div class="preloader">-->
 <!--		<div class="loader"></div>-->
