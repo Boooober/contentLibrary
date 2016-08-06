@@ -1,28 +1,43 @@
 App.set('model/Main', 'layout', Backbone.Model.extend({
+
+    // Save layout options in storage
     storage: App.Helpers.storage('Layout'),
 
+    // Initialize layout on application start
     initialize: function(){
-        this.loadOptions();
-        this.listenTo(App.Vent, 'layoutUpdate', this.update);
-        this.listenTo(App.Vent, 'layoutUpdateForce', this.updateForce);
+        this.set( _.defaults(this.loadOptions(), this.getOptions()) );
+        this.listenTo(App.Vent, 'layoutChange', this.change);
     },
-    defaults: {
-        withSidebar: true,
+
+    // Store this options separate from attributes
+    defaultOptions: {
+        withSidebar: false,
         sidebarCollapsed: true
     },
 
-    // Save model options
-    // and save it to localStorage/cookie
-    update: function(options, render){
-        this.updateOptions(options);
-        this.updateForce(options, render);
+    loadOptions: function(){
+        this.set( this.storage.get() );
     },
 
-    // Set layout options for current view
-    updateForce: function(options, render){
-        render = _.isBoolean(render) ? render : true;
-        if(options) this.set(options);
-        if(render) App.Vent.trigger('layoutRender');
+    getOptions: function(){
+        var options = _.extend({}, this.defaultOptions);
+
+        // Show sidebar only for authorized users
+        if(App.getUser()) options.withSidebar = true;
+        return options;
+    },
+
+    // Change layout
+    change: function(options){
+        options = options || this.loadOptions();
+        this.set(options);
+    },
+
+    // Change layout and save to storage
+    // Used only from inner methods
+    update: function(options){
+        this.change(options);
+        this.storage.set(this.toJSON());
     },
 
     //Functions predicates
@@ -35,28 +50,12 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
 
     //Trigger function
     toggleSidebar: function(){
-        this.update({sidebarCollapsed: !this.get('sidebarCollapsed')}, false);
+        this.update({sidebarCollapsed: !this.get('sidebarCollapsed')});
         //this.set('sidebarCollapsed', );
 
         //After end of css toggle animation
         setTimeout(function(){
             App.Vent.trigger('layoutResize');
         }, 400);
-    },
-
-    loadOptions: function(){
-        this.set( this.storage.get() );
-    },
-
-    saveOptions: function(options){
-        this.set(options);
-        this.storage.set(this.toJSON());
-    },
-
-    updateOptions: function(options){
-        // load default options from storage
-        this.loadOptions();
-        // save new options to storage and model
-        this.saveOptions(options);
     }
 }));

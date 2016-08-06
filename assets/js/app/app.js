@@ -1,6 +1,6 @@
 'use strict';
-var debug = true;
 var App = {
+    debug: false,
 
     //Namespace app structure
     //Models: {
@@ -35,9 +35,33 @@ var App = {
         return this.create(namespace, 'content', config)
     },
 
-    getState: function(name){
-        return this.get('state/'+name);
+
+    /**
+     * Methods below are shortcuts for working with App state parametrs:
+     * layout, queried collection, user object
+     */
+    getLayout: function(){
+        return this.getStateParam('layout');
     },
+    getQuery: function(){
+        return this.getStateParam('query');
+    },
+    setQuery: function(query){
+        this.setStateParam('query', query);
+    },
+    getUser: function(){
+        var user = true;
+        //return this.getStateParam('user');
+        return user;
+    },
+
+    getStateParam: function(param){
+        return this.get('state').get(param);
+    },
+    setStateParam: function(param, value){
+        return this.get('state').set(param, value);
+    },
+
 
     /**
      * This method designed for simple creating new object instances from App namespace.
@@ -60,11 +84,11 @@ var App = {
         object = this.get.apply(this, args);
         if(object){
 
-            if(debug) console.log('New instance of '+this.getNamespace(args[0], args[1]).join('/')+' successfully created');
+            if(App.debug) console.log('New instance of '+this.getNamespace(args[0], args[1]).join('/')+' successfully created');
 
             return new object(args[2]);
         }
-        if(debug) console.log('No objects found at '+this.getNamespace(args[0], args[1]).join('/')+'.');
+        if(App.debug) console.log('No objects found at '+this.getNamespace(args[0], args[1]).join('/')+'.');
     },
 
     /**
@@ -90,9 +114,9 @@ var App = {
                 return path[i+1] ? deep(app[path[i]], ++i) : app[path[i]];
             })(this, 0);
             if(obj) return obj;
-            if(debug) console.log('Path is correct, but object is missing... '+path.join('/'));
+            if(App.debug) console.log('Path is correct, but object is missing... '+path.join('/'));
         } catch(e) {
-            if(debug) console.log('No objects at '+path.join('/')+' exists');
+            if(App.debug) console.log('No objects at '+path.join('/')+' exists');
         }
     },
 

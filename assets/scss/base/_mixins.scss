@@ -27,6 +27,7 @@
   & > li{
     float: none !important;
     display: inline-block;
+    vertical-align: middle;
     font-size: $fontSize;
   }
 }

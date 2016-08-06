@@ -1,6 +1,6 @@
 'use strict';
-var debug = true;
 var App = {
+    debug: false,
 
     //Namespace app structure
     //Models: {
@@ -35,9 +35,33 @@ var App = {
         return this.create(namespace, 'content', config)
     },
 
-    getState: function(name){
-        return this.get('state/'+name);
+
+    /**
+     * Methods below are shortcuts for working with App state parametrs:
+     * layout, queried collection, user object
+     */
+    getLayout: function(){
+        return this.getStateParam('layout');
     },
+    getQuery: function(){
+        return this.getStateParam('query');
+    },
+    setQuery: function(query){
+        this.setStateParam('query', query);
+    },
+    getUser: function(){
+        var user = true;
+        //return this.getStateParam('user');
+        return user;
+    },
+
+    getStateParam: function(param){
+        return this.get('state').get(param);
+    },
+    setStateParam: function(param, value){
+        return this.get('state').set(param, value);
+    },
+
 
     /**
      * This method designed for simple creating new object instances from App namespace.
@@ -60,11 +84,11 @@ var App = {
         object = this.get.apply(this, args);
         if(object){
 
-            if(debug) console.log('New instance of '+this.getNamespace(args[0], args[1]).join('/')+' successfully created');
+            if(App.debug) console.log('New instance of '+this.getNamespace(args[0], args[1]).join('/')+' successfully created');
 
             return new object(args[2]);
         }
-        if(debug) console.log('No objects found at '+this.getNamespace(args[0], args[1]).join('/')+'.');
+        if(App.debug) console.log('No objects found at '+this.getNamespace(args[0], args[1]).join('/')+'.');
     },
 
     /**
@@ -90,9 +114,9 @@ var App = {
                 return path[i+1] ? deep(app[path[i]], ++i) : app[path[i]];
             })(this, 0);
             if(obj) return obj;
-            if(debug) console.log('Path is correct, but object is missing... '+path.join('/'));
+            if(App.debug) console.log('Path is correct, but object is missing... '+path.join('/'));
         } catch(e) {
-            if(debug) console.log('No objects at '+path.join('/')+' exists');
+            if(App.debug) console.log('No objects at '+path.join('/')+' exists');
         }
     },
 
@@ -155,34 +179,6 @@ var App = {
         return path;
     }
 };
-//App.User = (function(){
-//    var storage = App.Helpers.storage('session'),
-//        user;
-//
-//
-//    function findUser(){
-//        var session = storage.get();
-//        if(!session) return;
-//
-//
-//
-//        return session.id;
-//    }
-//
-//    function getUser(){
-//        return user ? user : findUser();
-//    }
-//
-//    // login/password
-//    function setUser(id){
-//        console.log('Setting user...');
-//        user = _user;
-//    }
-//    return {
-//        get: getUser,
-//        set: setUser
-//    }
-//})();
 _.extend(App.Vent, Backbone.Events);
 
 /**
@@ -193,18 +189,11 @@ _.extend(App.Vent, Backbone.Events);
  *** layoutResize: event fires when layout sizes changed.
  *   For example, sidebar toggle needs to reinit masonry and video scale.
  *
- *** layoutUpdate: fire this event to change users layout options.
- *   After success update, this event triggers layoutRender.
+ *** layoutUpdate: fire this event to change page layout options.
  *   For example, to hide sidebar from display and save this option to localStorage.
  *
- *** layoutForceUpdate: change layout options, but do not save them anywhere.
- *   After success update, this event triggers layoutRender.
- *   Fire this event to change layout for current page.
- *   For example, {sidebar: false} to remove sidebar.
- *
- *** layoutRender: event fires from router to create page layout.
- *   If you need to change layout options before render, use
- *   layoutUpdate or layoutForceUpdate
+ *** layoutRender: initial render of base layout.
+ *   Layout options can be changed with layoutUpdate.
  *
  * Collection events
  * -----------------
@@ -446,30 +435,45 @@ App.set('model/Cart', 'content', Backbone.Model.extend({
 
 }));
 App.set('model/Main', 'layout', Backbone.Model.extend({
+
+    // Save layout options in storage
     storage: App.Helpers.storage('Layout'),
 
+    // Initialize layout on application start
     initialize: function(){
-        this.loadOptions();
-        this.listenTo(App.Vent, 'layoutUpdate', this.update);
-        this.listenTo(App.Vent, 'layoutUpdateForce', this.updateForce);
+        this.set( _.defaults(this.loadOptions(), this.getOptions()) );
+        this.listenTo(App.Vent, 'layoutChange', this.change);
     },
-    defaults: {
-        withSidebar: true,
+
+    // Store this options separate from attributes
+    defaultOptions: {
+        withSidebar: false,
         sidebarCollapsed: true
     },
 
-    // Save model options
-    // and save it to localStorage/cookie
-    update: function(options, render){
-        this.updateOptions(options);
-        this.updateForce(options, render);
+    loadOptions: function(){
+        this.set( this.storage.get() );
     },
 
-    // Set layout options for current view
-    updateForce: function(options, render){
-        render = _.isBoolean(render) ? render : true;
-        if(options) this.set(options);
-        if(render) App.Vent.trigger('layoutRender');
+    getOptions: function(){
+        var options = _.extend({}, this.defaultOptions);
+
+        // Show sidebar only for authorized users
+        if(App.getUser()) options.withSidebar = true;
+        return options;
+    },
+
+    // Change layout
+    change: function(options){
+        options = options || this.loadOptions();
+        this.set(options);
+    },
+
+    // Change layout and save to storage
+    // Used only from inner methods
+    update: function(options){
+        this.change(options);
+        this.storage.set(this.toJSON());
     },
 
     //Functions predicates
@@ -482,29 +486,13 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
 
     //Trigger function
     toggleSidebar: function(){
-        this.update({sidebarCollapsed: !this.get('sidebarCollapsed')}, false);
+        this.update({sidebarCollapsed: !this.get('sidebarCollapsed')});
         //this.set('sidebarCollapsed', );
 
         //After end of css toggle animation
         setTimeout(function(){
             App.Vent.trigger('layoutResize');
         }, 400);
-    },
-
-    loadOptions: function(){
-        this.set( this.storage.get() );
-    },
-
-    saveOptions: function(options){
-        this.set(options);
-        this.storage.set(this.toJSON());
-    },
-
-    updateOptions: function(options){
-        // load default options from storage
-        this.loadOptions();
-        // save new options to storage and model
-        this.saveOptions(options);
     }
 }));
 App.set('model/GoogleMap', 'widget', Backbone.Model.extend({
@@ -885,6 +873,17 @@ App.set('view/Cart', 'content', App.get('view/BaseView').extend({
 }));
 
 
+App.set('view/Page', 'content', App.get('view/BaseView').extend({
+    //template: App.Helpers.template('#pageContent'),
+    initialize: function(options){
+        this.model = App.Query.get( options.id );
+    },
+    render: function(){
+        var model = this.model.toJSON();
+        this.setElement( this.template(this.model.toJSON()) );
+        return this;
+    }
+}));
 App.set('view/UserRates', 'content', App.get('view/BaseView').extend({
     initialize: function(){
         this.model = App.User.get();
@@ -1003,17 +1002,20 @@ App.set('view/Contacts', 'layout', App.get('view/BaseView').extend({
 // Navigation menu
 
 App.set('view/Topmenu', 'layout', App.Views.BaseView.extend({
+
+    template: App.Helpers.getTemplate('#topMenu'),
+
     initialize: function(){
-        this.model = App.getState('Layout');
+        this.model = App.getLayout();
         this.model.on('change:withSidebar', this.render, this);
     },
 
-    template: App.Helpers.getTemplate('#topMenu'),
     render: function(){
         this.$el.html( this.template( this.model.toJSON() ) );
         this.assign( this.initSubviews() );
         return this;
     },
+
     initSubviews: function(){
         this.subviews = {};
         this.subviews['.searchform'] = App.createForm('view/Search');
@@ -1024,11 +1026,17 @@ App.set('view/Topmenu', 'layout', App.Views.BaseView.extend({
 // Sidebar layout
 
 App.set('view/Sidebar', 'layout', App.Views.BaseView.extend({
-    initialize: function(){
-        this.model = App.getState('Layout');
-        this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
-    },
+
     template: App.Helpers.getTemplate('#sidebarLayout'),
+
+    initialize: function(){
+        this.model = App.getLayout();
+        this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
+
+        // Remove if withSidebar changed (it will always change to false)
+        this.model.on('change:withSidebar', this.remove, this);
+    },
+
     render: function(){
         this.setElement( this.template() );
         this.$('.side-wrapper').slimScroll({
@@ -1036,6 +1044,7 @@ App.set('view/Sidebar', 'layout', App.Views.BaseView.extend({
         });
         return this;
     },
+
     toggleSidebar: function(){
         this.model.get('sidebarCollapsed') ?
             this.$('.side-content').fadeOut(150) :
@@ -1048,13 +1057,17 @@ App.set('view/Sidebar', 'layout', App.Views.BaseView.extend({
 // This layout includes top navigation menu, dynamic content wrapper and footer
 
 App.set('view/MainContent', 'layout', App.Views.BaseView.extend({
-    initialize: function(){
-        this.model = App.getState('Layout');
-    },
+
     events: {
         'click .sidebar-toggle': 'toggleSidebar'
     },
+
     template: App.Helpers.getTemplate('#pageLayout'),
+
+    initialize: function(){
+        this.model = App.getLayout();
+    },
+
     render: function () {
         this.setElement(this.template());
         this.assign(this.initSubviews());
@@ -1076,25 +1089,16 @@ App.set('view/MainContent', 'layout', App.Views.BaseView.extend({
 App.set('view/Wrapper', 'layout',  App.get('view/BaseView').extend({
     el: '#wrapper',
 
+    template: App.Helpers.getTemplate('#wrapperAppends'),
+
     initialize: function(){
-        this.model = App.getState('Layout');
+        this.model = App.getLayout();
+
         this.listenTo(App.Vent, 'layoutRender', this.render);
+
+        this.model.on('change:withSidebar', this.render, this);
         this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
     },
-
-    initSubviews: function(){
-        this.subviews = [];
-        if(this.model.withSidebar()){
-            this.$el.addClass('with-sidebar');
-            this.subviews.push( App.createLayout('view/Sidebar') );
-
-            if(this.model.sidebarCollapsed())
-                this.$el.addClass('sidebar-collapsed');
-        }
-        this.subviews.push( App.createLayout('view/MainContent') );
-    },
-
-    template: App.Helpers.getTemplate('#wrapperAppends'),
 
     render: function(){
         this.$el.html('').removeClass();
@@ -1104,6 +1108,19 @@ App.set('view/Wrapper', 'layout',  App.get('view/BaseView').extend({
             this.$el.append(subview.render().el);
         }, this);
         this.$el.append( this.template() );
+    },
+
+    initSubviews: function(){
+        this.subviews = [];
+
+        if(this.model.withSidebar()){
+            this.$el.addClass('with-sidebar');
+            this.subviews.push( App.createLayout('view/Sidebar') );
+
+            if(this.model.sidebarCollapsed())
+                this.$el.addClass('sidebar-collapsed');
+        }
+        this.subviews.push( App.createLayout('view/MainContent') );
     },
 
     // Resize layouts width
@@ -1205,7 +1222,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
                 case 'toggle':
                     // Set timeout to close popup
                     if (value === true){
-                        if(debug) console.log('popup will close in '+options.toggleDelay+' ms');
+                        if(App.debug) console.log('popup will close in '+options.toggleDelay+' ms');
                         this.$el.data('timeout', setTimeout(_.bind(this.close, this), options.toggleDelay));
                     }
                     break;
@@ -1236,7 +1253,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
 
         console.log(this.root);
         this.root.append(this.$el);
-        this.$el.addClass('open--popup');
+        this.$el.fadeIn().addClass('open--popup');
     },
     close: function(){
         var timeout = this.$el.data('timeout');
@@ -1267,9 +1284,13 @@ App.Router = Backbone.Router.extend({
     },
 
     index: function(){
-        App.Vent.trigger('layoutUpdate');
+        App.Vent.trigger('layoutChange');
+        console.log('index');
+
+
         var collection = App.create('collection/Carts'),
             view = App.createLayout('view/Carts');
+
         collection.fetch({
             success: success,
             error: error
@@ -1277,6 +1298,7 @@ App.Router = Backbone.Router.extend({
 
         function success(){
             App.Vent.trigger('collectionLoad', collection);
+            App.setQuery(collection);
             view.render();
         }
         function error(collection, response){
@@ -1286,7 +1308,10 @@ App.Router = Backbone.Router.extend({
     },
 
     login: function(){
-        App.Vent.trigger('layoutUpdateForce', {withSidebar: false});
+        console.log('login');
+
+        App.Vent.trigger('layoutChange', {withSidebar: false});
+
         var model = App.createForm('model/Login'),
             view  = App.createForm('view/Login', {model: model});
 
@@ -1299,16 +1324,14 @@ App.Router = Backbone.Router.extend({
     },
 
     signin: function(){
-        App.Vent.trigger('layoutUpdateForce', {withSidebar: false});
+        App.Vent.trigger('layoutChange', {withSidebar: false});
         var model = App.createForm('model/Sigin'),
             view  = App.createForm('view/Sigin', {model: model});
-
-
         App.Helpers.renderContent(view.render().el);
     },
 
     recover: function(){
-        App.Vent.trigger('layoutUpdateForce', {sidebar: false});
+        App.Vent.trigger('layoutChange', {withSidebar: false});
         var model = App.createForm('model/Recover'),
             view  = App.createForm('view/Recover', {model: model});
 
@@ -1316,19 +1339,21 @@ App.Router = Backbone.Router.extend({
     },
 
     contacts: function(){
-        App.Vent.trigger('layoutUpdateForce', {withSidebar: false});
+        App.Vent.trigger('layoutChange', {withSidebar: false});
         App.createLayout('view/Contacts').render();
     },
 
     account: function(){
-        App.Vent.trigger('layoutUpdateForce');
+        App.Vent.trigger('layoutChange', {withSidebar: false});
         App.createLayout('view/Account').render();
     },
 
     page: function(id){
+        App.create('view/Popup', 'widget').render('sdfasdfsdf');
+
         console.log(id);
 
-        
+
 
 
     },
@@ -1338,13 +1363,33 @@ App.Router = Backbone.Router.extend({
     }
 
 });
-App.set('state/Layout', App.create('model/Main', 'layout'));
-App.create('view/Wrapper', 'layout', {
-    model: App.getState('Layout')
-});
-new App.Router;
-Backbone.history.start();
+App.State = new (Backbone.Model.extend({
+    defaults: {
+        user: {},
+        layout: {},
+        query: {}
+    },
 
+    initialize: function(){
+        //fetch user
+    },
+
+    run: function(){
+        // Create initial layout model and set as property to app state
+        this.set('layout', App.create('model/Main', 'layout'));
+        
+        // Create main layout view
+        App.create('view/Wrapper', 'layout');
+        App.Vent.trigger('layoutRender');
+
+        // Run routers when application starts
+        new App.Router;
+        Backbone.history.start();
+
+
+    }
+}));
+App.State.run();
 +function ($) {
     'use strict';
 

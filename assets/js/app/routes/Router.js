@@ -15,9 +15,13 @@ App.Router = Backbone.Router.extend({
     },
 
     index: function(){
-        App.Vent.trigger('layoutUpdate');
+        App.Vent.trigger('layoutChange');
+        console.log('index');
+
+
         var collection = App.create('collection/Carts'),
             view = App.createLayout('view/Carts');
+
         collection.fetch({
             success: success,
             error: error
@@ -25,6 +29,7 @@ App.Router = Backbone.Router.extend({
 
         function success(){
             App.Vent.trigger('collectionLoad', collection);
+            App.setQuery(collection);
             view.render();
         }
         function error(collection, response){
@@ -34,7 +39,10 @@ App.Router = Backbone.Router.extend({
     },
 
     login: function(){
-        App.Vent.trigger('layoutUpdateForce', {withSidebar: false});
+        console.log('login');
+
+        App.Vent.trigger('layoutChange', {withSidebar: false});
+
         var model = App.createForm('model/Login'),
             view  = App.createForm('view/Login', {model: model});
 
@@ -47,16 +55,14 @@ App.Router = Backbone.Router.extend({
     },
 
     signin: function(){
-        App.Vent.trigger('layoutUpdateForce', {withSidebar: false});
+        App.Vent.trigger('layoutChange', {withSidebar: false});
         var model = App.createForm('model/Sigin'),
             view  = App.createForm('view/Sigin', {model: model});
-
-
         App.Helpers.renderContent(view.render().el);
     },
 
     recover: function(){
-        App.Vent.trigger('layoutUpdateForce', {sidebar: false});
+        App.Vent.trigger('layoutChange', {withSidebar: false});
         var model = App.createForm('model/Recover'),
             view  = App.createForm('view/Recover', {model: model});
 
@@ -64,19 +70,21 @@ App.Router = Backbone.Router.extend({
     },
 
     contacts: function(){
-        App.Vent.trigger('layoutUpdateForce', {withSidebar: false});
+        App.Vent.trigger('layoutChange', {withSidebar: false});
         App.createLayout('view/Contacts').render();
     },
 
     account: function(){
-        App.Vent.trigger('layoutUpdateForce');
+        App.Vent.trigger('layoutChange', {withSidebar: false});
         App.createLayout('view/Account').render();
     },
 
     page: function(id){
+        App.create('view/Popup', 'widget').render('sdfasdfsdf');
+
         console.log(id);
 
-        
+
 
 
     },

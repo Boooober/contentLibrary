@@ -133,9 +133,7 @@
 <!-- ./Content topline/header -->
 
 <script type="text/template" id="wrapperAppends">
-	<div class="popup">
-		<div class="popup-container"></div>
-	</div>
+	<div class="popup-container"></div>
 </script>
 <!-- <div class="preloader">-->
 <!--  <div class="loader"></div>-->

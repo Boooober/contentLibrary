@@ -51,7 +51,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
                 case 'toggle':
                     // Set timeout to close popup
                     if (value === true){
-                        if(debug) console.log('popup will close in '+options.toggleDelay+' ms');
+                        if(App.debug) console.log('popup will close in '+options.toggleDelay+' ms');
                         this.$el.data('timeout', setTimeout(_.bind(this.close, this), options.toggleDelay));
                     }
                     break;
@@ -82,7 +82,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
 
         console.log(this.root);
         this.root.append(this.$el);
-        this.$el.addClass('open--popup');
+        this.$el.fadeIn().addClass('open--popup');
     },
     close: function(){
         var timeout = this.$el.data('timeout');
