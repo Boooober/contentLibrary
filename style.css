@@ -115,6 +115,10 @@
   content: '\e811'; }
 
 /* '' */
+.icon-edit:before {
+  content: '\e812'; }
+
+/* '' */
 .icon-star-half-alt:before {
   content: '\f123'; }
 
@@ -175,7 +179,7 @@ table {
 img {
   max-width: 100%; }
 
-a:hover {
+a:hover, a:focus {
   text-decoration: none; }
 
 html, body {
@@ -242,41 +246,48 @@ html, body {
         display: block;
         padding: 0 15px;
         line-height: 2.2em; }
-        .sidebar .side-content .cat-list li a:hover, .sidebar .side-content .cat-list li a .current-item {
-          background: #c4c4c4; }
   .sidebar .side-footer {
     left: 0;
     width: 100%;
     bottom: 25px;
+    padding: 0 15px;
     position: absolute; }
-    .sidebar .side-footer .soc-icons {
-      text-align: center;
-      font-size: 0; }
-      .sidebar .side-footer .soc-icons > li {
-        display: inline-block;
-        font-size: 16px; }
-      .sidebar .side-footer .soc-icons li {
-        padding: 0 5px; }
-        .sidebar .side-footer .soc-icons li a {
-          display: block;
-          line-height: 2.2em; }
-          .sidebar .side-footer .soc-icons li a:hover {
-            background: #c4c4c4; }
 
 .topmenu {
-  position: relative; }
+  position: relative;
+  font-size: 16px;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+  margin-bottom: 15px; }
   .topmenu .navbar {
+    margin: 0;
+    border: none;
     min-height: auto; }
-  .topmenu .navbar-links {
-    margin: 0 -15px; }
-    .topmenu .navbar-links::before, .topmenu .navbar-links::after {
+  .topmenu .navbar-nav {
+    margin: 0 -15px;
+    font-size: 0; }
+    .topmenu .navbar-nav::before, .topmenu .navbar-nav::after {
       display: block;
       content: ''; }
-    .topmenu .navbar-links::after {
+    .topmenu .navbar-nav::after {
       clear: both; }
-    .topmenu .navbar-links li {
-      float: left;
+    .topmenu .navbar-nav > li {
+      float: none !important;
+      display: inline-block;
+      font-size: 16px; }
+    .topmenu .navbar-nav li {
       padding: 0 15px; }
+      .topmenu .navbar-nav li a {
+        line-height: 36px;
+        display: block;
+        padding: 10px 0; }
+  .topmenu .navbar-links li:hover {
+    background: #c4c4c4; }
+  .topmenu .btn-sidebar {
+    cursor: pointer; }
+  .topmenu .searchform {
+    width: auto;
+    margin: 0;
+    padding: 0; }
 
 .cart-content {
   overflow: hidden;
@@ -357,9 +368,9 @@ html, body {
   .box .box-header, .box .box-body, .box .box-footer {
     padding: 15px; }
   .box .box-footer {
-    border-top: 1px solid #f3f3f4; }
+    border-top: 1px solid #f3f3f3; }
   .box .box-header.with-border {
-    border-bottom: 1px solid #f3f3f4; }
+    border-bottom: 1px solid #f3f3f3; }
 
 .form-box {
   max-width: 400px;
@@ -371,6 +382,50 @@ html, body {
   .form-box .form-title, .form-box .form-subtitle {
     margin: 1em 0;
     text-align: center; }
+
+.user-profile {
+  padding: 30px 0 15px;
+  border-bottom: 1px solid #3b3b3b; }
+  .user-profile figure {
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
+    border-radius: 50%;
+    margin-bottom: 20px; }
+  .user-profile .account-links {
+    position: relative;
+    padding-right: 25px;
+    color: #c4c4c4; }
+    .user-profile .account-links > a {
+      display: inline-block;
+      vertical-align: middle;
+      font-weight: 700;
+      color: inherit;
+      font-size: 18px; }
+    .user-profile .account-links .account-dropdown {
+      position: static;
+      display: inline-block;
+      vertical-align: middle; }
+      .user-profile .account-links .account-dropdown .dropdown-toggle {
+        cursor: pointer; }
+      .user-profile .account-links .account-dropdown .dropdown-menu {
+        background: #f3f3f3;
+        -webkit-transition: .4s;
+        transition: .4s; }
+        .user-profile .account-links .account-dropdown .dropdown-menu a:hover {
+          background: #c4c4c4; }
+
+.menu-list {
+  padding-top: 20px; }
+  .menu-list li {
+    margin: 0 -15px; }
+    .menu-list li a {
+      display: block;
+      padding: 15px;
+      color: #c4c4c4; }
+      .menu-list li a:hover {
+        background: #c4c4c4;
+        color: #212121; }
 
 .preloader {
   position: fixed;
@@ -556,6 +611,12 @@ html, body {
             transform: translateY(-75%); } }
 
 .blue-theme {
-  background: #f3f3f4; }
+  background: #f3f3f3; }
   .blue-theme .sidebar {
-    background: #2a2a2a; }
+    background: #212121; }
+    .blue-theme .sidebar .side-content li a:hover,
+    .blue-theme .sidebar .side-content li a.current-item {
+      background: #c4c4c4; }
+  .blue-theme .topmenu {
+    background: #f3f3f3;
+    border-bottom: 1px solid #c4c4c4; }

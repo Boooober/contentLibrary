@@ -1,4 +1,7 @@
 App.set('view/Search', 'form', Backbone.View.extend({
+    initialize: function(){
+        this.model = App.createForm('model/Search');
+    },
     events: {
         "submit form": 'submit',
         "keyup [name='s']": 'keyup'

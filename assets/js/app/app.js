@@ -14,6 +14,7 @@ var App = {
     //    Content: {},
     //    Layouts: {}
     //},
+    //State: {},
     Vent: {},
     Helpers: {},
 
@@ -32,6 +33,10 @@ var App = {
     },
     createContent: function(namespace, config){
         return this.create(namespace, 'content', config)
+    },
+
+    getState: function(name){
+        return this.get('state/'+name);
     },
 
     /**

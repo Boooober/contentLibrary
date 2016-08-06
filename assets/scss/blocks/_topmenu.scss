@@ -1,16 +1,43 @@
 .topmenu {
   position: relative;
+  font-size: 16px;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+  margin-bottom: 15px;
 
   .navbar{
+    margin: 0;
+    border: none;
     min-height: auto;
   }
 
-  .navbar-links{
+  .navbar-nav{
     margin: 0 -15px;
     @include clearfix;
-    li{
-      float: left;
+    @include inlineList(16px);
+    li {
       padding: 0 15px;
+      a{
+        line-height: 36px;
+        display: block;
+        padding: 10px 0;
+      }
     }
+  }
+  .navbar-links {
+    li{
+      &:hover {
+        background: $gray;
+      }
+    }
+  }
+
+  .btn-sidebar{
+    cursor: pointer;
+  }
+
+  .searchform{
+    width: auto;
+    margin: 0;
+    padding: 0;
   }
 }

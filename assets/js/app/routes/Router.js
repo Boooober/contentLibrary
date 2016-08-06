@@ -7,7 +7,8 @@ App.Router = Backbone.Router.extend({
         '!/account/logout': 'logout',
         '!/account/recover': 'recover',
         '!/contacts': 'contacts',
-        '!/account': 'account'
+        '!/account': 'account',
+        '!/page/:id': 'page'
         //'!/page-:id': 'page',
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
@@ -33,7 +34,7 @@ App.Router = Backbone.Router.extend({
     },
 
     login: function(){
-        App.Vent.trigger('layoutUpdateForce', {sidebar: false});
+        App.Vent.trigger('layoutUpdateForce', {withSidebar: false});
         var model = App.createForm('model/Login'),
             view  = App.createForm('view/Login', {model: model});
 
@@ -46,7 +47,7 @@ App.Router = Backbone.Router.extend({
     },
 
     signin: function(){
-        App.Vent.trigger('layoutUpdateForce', {sidebar: false});
+        App.Vent.trigger('layoutUpdateForce', {withSidebar: false});
         var model = App.createForm('model/Sigin'),
             view  = App.createForm('view/Sigin', {model: model});
 
@@ -63,7 +64,7 @@ App.Router = Backbone.Router.extend({
     },
 
     contacts: function(){
-        App.Vent.trigger('layoutUpdateForce', {sidebar: false});
+        App.Vent.trigger('layoutUpdateForce', {withSidebar: false});
         App.createLayout('view/Contacts').render();
     },
 
@@ -72,6 +73,13 @@ App.Router = Backbone.Router.extend({
         App.createLayout('view/Account').render();
     },
 
+    page: function(id){
+        console.log(id);
+
+        
+
+
+    },
 
     addMedia: function(){
 

@@ -25,6 +25,7 @@
 @mixin inlineList ($fontSize:16px){
   font-size: 0;
   & > li{
+    float: none !important;
     display: inline-block;
     font-size: $fontSize;
   }

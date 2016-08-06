@@ -30,7 +30,7 @@
 			<div class="cart-body hover-toolbox">
 				<figure>
 					<!-- Image -->
-					<a href="#" class="cart-link">
+					<a href="#!/page/<%= id %>" class="cart-link">
 						<img src="<%= mediaLink %>" alt="<%= title %>"/>
 					</a>
 					<!-- ./Image -->
@@ -52,7 +52,7 @@
 				<div class="toolbox"></div>
 			</div>
 			<div class="cart-body with-padding">
-				<h3 class="post-title"><a href="#"><%= title %></a></h3>
+				<h3 class="post-title"><a href="#!/page/<%= id %>"><%= title %></a></h3>
 				<div class="post-content"><%= description %></div>
 			</div>
 			<div class="cart-footer"></div>
@@ -66,7 +66,7 @@
 <script type="text/template" id="cartToolbox">
 	<div class="pull-right">
 		<a href="#" class="rate-button<% if(isFavorite) { %> is-favorite<% } %>"><i class="icon-rate-star"></i><%= favorites %></a>
-		<a href="#"><i class="icon-goto"></i></a>
+		<a href="#!/page/<%= id %>"><i class="icon-goto"></i></a>
 	</div>
 	<a href="#" class="label label-hover"><%= author %></a>
 </script>

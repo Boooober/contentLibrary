@@ -2,8 +2,17 @@
   background: $lightgray;
   .sidebar{
     background: $dark;
+
+    .side-content {
+      li a:hover,
+      li a.current-item, {
+        background: $gray;
+      }
+    }
   }
 
-
-
+  .topmenu {
+    background: $lightgray;
+    border-bottom: 1px solid $gray;
+  }
 }

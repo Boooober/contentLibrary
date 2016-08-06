@@ -6,27 +6,33 @@
 		<div class="side-wrapper">
 			<div class="side-container">
 				<div class="side-content">
-					Sidebar
-					<div class="searchform"></div>
 
-					<ul class="cat-list">
-						<li><a href="#">Category 1</a></li>
-						<li><a href="#">Category 2</a></li>
-						<li><a href="#">Category 3</a></li>
-						<li><a href="#">Category 4</a></li>
-						<li><a href="#">Category 5</a></li>
+					<div class="side-header">
+						<div class="user-profile">
+							<figure>
+								<img class="image-circle" src="assets/images/user/profile-image.jpg" alt="profile image" />
+							</figure>
+
+							<div class="account-links">
+								<a href="#!/account">Nikita Slobodian</a>
+								<div class="account-dropdown dropdown">
+									<span class="dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon-edit"></i></span>
+									<ul class="dropdown-menu">
+										<li><a href="#!/edit-profile">Edit profile</a></li>
+										<li><a href="#!/delete-profile">Delete profile</a></li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<ul class="menu-list">
+						<li><a href="#!/add-media"><i class="icon-media"></i>Media</a></li> <!-- Add media/Delete media -->
+						<li><a href="#"><i class="icon-favorites"></i>Favorites</a></li>
 					</ul>
 				</div>
 
-				<div class="side-footer">
-					<ul class="soc-icons">
-						<li><a href="#">FB</a></li>
-						<li><a href="#">GP</a></li>
-						<li><a href="#">TW</a></li>
-						<li><a href="#">PIN</a></li>
-						<li><a href="#">VK</a></li>
-					</ul>
-				</div>
+				<div class="side-footer"><p>Random phrase</p></div>
 			</div>
 		</div>
 	</nav>
@@ -41,9 +47,9 @@
 			<label for="s" class="sr-only">Search</label>
 			<div class="input-group">
 				<input id="s" name="s" type="text" class="form-control" placeholder="Search" value="<%= s %>"/>
-				<span class="input-group-btn" id="basic-addon3">
-					<button class="btn btn-primary">s</button>
-				</span>
+			    <span class="input-group-btn" id="basic-addon3">
+			        <button class="btn btn-primary"><i class="icon-search"></i></button>
+			    </span>
 			</div>
 		</div>
 	</form>
@@ -61,13 +67,17 @@
 		<!-- Dynamic content -->
 		<div class="main-content"></div>
 		<!-- ./Dynamic content -->
-
-
 		<div class="row">
 			<div class="footer">
 				<div class="container-fluid">
 					<div class="pull-right">
-						New theme sceleton
+						<ul class="soc-icons">
+							<li><a href="#">FB</a></li>
+							<li><a href="#">GP</a></li>
+							<li><a href="#">TW</a></li>
+							<li><a href="#">PIN</a></li>
+							<li><a href="#">VK</a></li>
+						</ul>
 					</div>
 					<div>
 						<p>Author: Nikita Slobodian</p>
@@ -83,25 +93,32 @@
 
 <!-- Topmenu -->
 <script type="text/template" id="topMenu">
-	<div class="container-fluid">
 
-		<nav class="navbar">
-			<div class="navbar-header">
-				<p class="sidebar-toggle">Toggle sidebar</p>
-			</div>
+		<div class="container-fluid">
+			<nav class="navbar">
 
-			<ul class="navbar-links navbar-right">
-				<li><a href="#">Index</a></li>
-				<li><a href="#!/account/signin">Sign in</a></li>
-				<li><a href="#!/account/login">Login</a></li>
-				<li><a href="#!/account/logout">Logout</a></li>
-				<li><a href="#!/add-media">Add media</a></li>
-				<li><a href="#!/account">Account</a></li>
-				<li><a href="#!/contacts">Contacts</a></li>
-			</ul>
+				<div class="navbar-header">
+					<ul class="navbar-nav">
+						<% if(withSidebar){ %>
+						<li class="sidebar-toggle"><a class="btn-sidebar" href="#"><i class="icon-menu"></i></a></li>
+						<% } %>
+						<li><div class="searchform navbar-form"></div></li>
+					</ul>
+				</div>
 
-		</nav>
-	</div>
+				<ul class="navbar-nav navbar-links navbar-right">
+					<li><a href="#">Index</a></li>
+					<li><a href="#!/account/signin">Sign in</a></li>
+					<li><a href="#!/account/login">Login</a></li>
+					<li><a href="#!/account/logout">Logout</a></li>
+					<li><a href="#!/account">Account</a></li>
+					<li><a href="#!/contacts">Contacts</a></li>
+				</ul>
+
+
+			</nav>
+		</div>
+
 </script>
 <!-- ./Topmenu -->
 
@@ -116,8 +133,10 @@
 <!-- ./Content topline/header -->
 
 <script type="text/template" id="wrapperAppends">
-	<div class="popup-container"></div>
+	<div class="popup">
+		<div class="popup-container"></div>
+	</div>
 </script>
-<!--	<div class="preloader">-->
-<!--		<div class="loader"></div>-->
-<!--	</div>-->
+<!-- <div class="preloader">-->
+<!--  <div class="loader"></div>-->
+<!-- </div>-->

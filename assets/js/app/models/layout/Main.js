@@ -7,7 +7,7 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
         this.listenTo(App.Vent, 'layoutUpdateForce', this.updateForce);
     },
     defaults: {
-        sidebar: true,
+        withSidebar: true,
         sidebarCollapsed: true
     },
 
@@ -27,7 +27,7 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
 
     //Functions predicates
     withSidebar: function(){
-        return this.get('sidebar');
+        return this.get('withSidebar');
     },
     sidebarCollapsed: function(){
         return this.get('sidebarCollapsed');

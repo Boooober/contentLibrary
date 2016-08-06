@@ -1,0 +1,65 @@
+.user-profile{
+  padding: 30px 0 15px;
+  border-bottom: 1px solid #3b3b3b;
+
+  figure{
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
+    border-radius: 50%;
+
+    margin-bottom: 20px;
+  }
+
+  //Profile-link
+  .account-links {
+    position: relative;
+    padding-right: 25px;
+    color: $gray;
+    & > a {
+      display: inline-block;
+      vertical-align: middle;
+      font-weight: 700;
+      color: inherit;
+      font-size: 18px;
+//      &:hover {
+//        color: $lightgray;
+//      }
+    }
+
+    .account-dropdown{
+      position: static;
+      display: inline-block;
+      vertical-align: middle;
+
+      .dropdown-toggle{
+        cursor: pointer;
+      }
+      .dropdown-menu{
+        background: $lightgray;
+        transition: .4s;
+        a:hover{
+          background: $gray;
+        }
+      }
+    }
+  }
+}
+
+.menu-list{
+  padding-top: 20px;
+  li{
+    margin: 0 -15px;
+
+    a{
+      display: block;
+      padding: 15px;
+      color: $gray;
+
+      &:hover{
+        background: $gray;
+        color: $dark;
+      }
+    }
+  }
+}

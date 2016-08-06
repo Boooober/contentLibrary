@@ -14,6 +14,7 @@ var App = {
     //    Content: {},
     //    Layouts: {}
     //},
+    //State: {},
     Vent: {},
     Helpers: {},
 
@@ -32,6 +33,10 @@ var App = {
     },
     createContent: function(namespace, config){
         return this.create(namespace, 'content', config)
+    },
+
+    getState: function(name){
+        return this.get('state/'+name);
     },
 
     /**
@@ -449,7 +454,7 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
         this.listenTo(App.Vent, 'layoutUpdateForce', this.updateForce);
     },
     defaults: {
-        sidebar: true,
+        withSidebar: true,
         sidebarCollapsed: true
     },
 
@@ -469,7 +474,7 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
 
     //Functions predicates
     withSidebar: function(){
-        return this.get('sidebar');
+        return this.get('withSidebar');
     },
     sidebarCollapsed: function(){
         return this.get('sidebarCollapsed');
@@ -770,6 +775,9 @@ App.set('view/Recover', 'form', App.get('view/BaseForm', 'form').extend({
     }
 }));
 App.set('view/Search', 'form', Backbone.View.extend({
+    initialize: function(){
+        this.model = App.createForm('model/Search');
+    },
     events: {
         "submit form": 'submit',
         "keyup [name='s']": 'keyup'
@@ -995,10 +1003,21 @@ App.set('view/Contacts', 'layout', App.get('view/BaseView').extend({
 // Navigation menu
 
 App.set('view/Topmenu', 'layout', App.Views.BaseView.extend({
+    initialize: function(){
+        this.model = App.getState('Layout');
+        this.model.on('change:withSidebar', this.render, this);
+    },
+
     template: App.Helpers.getTemplate('#topMenu'),
     render: function(){
-        this.$el.html( this.template() );
+        this.$el.html( this.template( this.model.toJSON() ) );
+        this.assign( this.initSubviews() );
         return this;
+    },
+    initSubviews: function(){
+        this.subviews = {};
+        this.subviews['.searchform'] = App.createForm('view/Search');
+        return this.subviews;
     }
 }));
 
@@ -1006,14 +1025,12 @@ App.set('view/Topmenu', 'layout', App.Views.BaseView.extend({
 
 App.set('view/Sidebar', 'layout', App.Views.BaseView.extend({
     initialize: function(){
+        this.model = App.getState('Layout');
         this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
-        this.subviews['.searchform'] = App.createForm('view/Search', {model: App.createForm('model/Search')});
     },
-    subviews: {},
     template: App.Helpers.getTemplate('#sidebarLayout'),
     render: function(){
         this.setElement( this.template() );
-        this.assign( this.subviews );
         this.$('.side-wrapper').slimScroll({
             height: '100%'
         });
@@ -1027,26 +1044,27 @@ App.set('view/Sidebar', 'layout', App.Views.BaseView.extend({
 }));
 
 
-
 // Content layout
 // This layout includes top navigation menu, dynamic content wrapper and footer
 
 App.set('view/MainContent', 'layout', App.Views.BaseView.extend({
     initialize: function(){
-        this.subviews['.topmenu'] = App.createLayout('view/Topmenu');// new App.Views.Layout.Topmenu()
+        this.model = App.getState('Layout');
     },
     events: {
         'click .sidebar-toggle': 'toggleSidebar'
     },
-    subviews: {},
-
     template: App.Helpers.getTemplate('#pageLayout'),
     render: function () {
         this.setElement(this.template());
-        this.assign(this.subviews);
+        this.assign(this.initSubviews());
         return this;
     },
-
+    initSubviews: function(){
+        this.subviews = {};
+        this.subviews['.topmenu'] = App.createLayout('view/Topmenu');
+        return this.subviews;
+    },
     toggleSidebar: function(){
         this.model.toggleSidebar();
     }
@@ -1059,6 +1077,7 @@ App.set('view/Wrapper', 'layout',  App.get('view/BaseView').extend({
     el: '#wrapper',
 
     initialize: function(){
+        this.model = App.getState('Layout');
         this.listenTo(App.Vent, 'layoutRender', this.render);
         this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
     },
@@ -1067,12 +1086,12 @@ App.set('view/Wrapper', 'layout',  App.get('view/BaseView').extend({
         this.subviews = [];
         if(this.model.withSidebar()){
             this.$el.addClass('with-sidebar');
-            this.subviews.push( App.createLayout('view/Sidebar', {model: this.model}) );
+            this.subviews.push( App.createLayout('view/Sidebar') );
 
             if(this.model.sidebarCollapsed())
                 this.$el.addClass('sidebar-collapsed');
         }
-        this.subviews.push( App.createLayout('view/MainContent', {model: this.model}) );
+        this.subviews.push( App.createLayout('view/MainContent') );
     },
 
     template: App.Helpers.getTemplate('#wrapperAppends'),
@@ -1240,7 +1259,8 @@ App.Router = Backbone.Router.extend({
         '!/account/logout': 'logout',
         '!/account/recover': 'recover',
         '!/contacts': 'contacts',
-        '!/account': 'account'
+        '!/account': 'account',
+        '!/page/:id': 'page'
         //'!/page-:id': 'page',
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
@@ -1266,7 +1286,7 @@ App.Router = Backbone.Router.extend({
     },
 
     login: function(){
-        App.Vent.trigger('layoutUpdateForce', {sidebar: false});
+        App.Vent.trigger('layoutUpdateForce', {withSidebar: false});
         var model = App.createForm('model/Login'),
             view  = App.createForm('view/Login', {model: model});
 
@@ -1279,7 +1299,7 @@ App.Router = Backbone.Router.extend({
     },
 
     signin: function(){
-        App.Vent.trigger('layoutUpdateForce', {sidebar: false});
+        App.Vent.trigger('layoutUpdateForce', {withSidebar: false});
         var model = App.createForm('model/Sigin'),
             view  = App.createForm('view/Sigin', {model: model});
 
@@ -1296,7 +1316,7 @@ App.Router = Backbone.Router.extend({
     },
 
     contacts: function(){
-        App.Vent.trigger('layoutUpdateForce', {sidebar: false});
+        App.Vent.trigger('layoutUpdateForce', {withSidebar: false});
         App.createLayout('view/Contacts').render();
     },
 
@@ -1305,15 +1325,178 @@ App.Router = Backbone.Router.extend({
         App.createLayout('view/Account').render();
     },
 
+    page: function(id){
+        console.log(id);
+
+        
+
+
+    },
 
     addMedia: function(){
 
     }
 
 });
+App.set('state/Layout', App.create('model/Main', 'layout'));
 App.create('view/Wrapper', 'layout', {
-    model: App.create('model/Main', 'layout')
+    model: App.getState('Layout')
 });
-
 new App.Router;
 Backbone.history.start();
+
++function ($) {
+    'use strict';
+
+    // DROPDOWN CLASS DEFINITION
+    // =========================
+
+    var backdrop = '.dropdown-backdrop';
+    var toggle   = '[data-toggle="dropdown"]';
+    var Dropdown = function (element) {
+        $(element).on('click.bs.dropdown', this.toggle)
+    };
+
+    Dropdown.VERSION = '3.3.7';
+
+    function getParent($this) {
+        var selector = $this.attr('data-target');
+
+        if (!selector) {
+            selector = $this.attr('href');
+            selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, ''); // strip for ie7
+        }
+
+        var $parent = selector && $(selector);
+
+        return $parent && $parent.length ? $parent : $this.parent()
+    }
+
+    function clearMenus(e) {
+        if (e && e.which === 3) return;
+        $(backdrop).remove();
+        $(toggle).each(function () {
+            var $this         = $(this);
+            var $parent       = getParent($this);
+            var relatedTarget = { relatedTarget: this };
+
+            if (!$parent.hasClass('open')) return;
+
+            if (e && e.type == 'click' && /input|textarea/i.test(e.target.tagName) && $.contains($parent[0], e.target)) return;
+
+            $parent.trigger(e = $.Event('hide.bs.dropdown', relatedTarget));
+
+            if (e.isDefaultPrevented()) return;
+
+            $this.attr('aria-expanded', 'false');
+            $parent.removeClass('open').trigger($.Event('hidden.bs.dropdown', relatedTarget))
+        })
+    }
+
+    Dropdown.prototype.toggle = function (e) {
+        var $this = $(this);
+
+        if ($this.is('.disabled, :disabled')) return;
+
+        var $parent  = getParent($this);
+        var isActive = $parent.hasClass('open');
+
+        clearMenus();
+
+        if (!isActive) {
+            if ('ontouchstart' in document.documentElement && !$parent.closest('.navbar-nav').length) {
+                // if mobile we use a backdrop because click events don't delegate
+                $(document.createElement('div'))
+                    .addClass('dropdown-backdrop')
+                    .insertAfter($(this))
+                    .on('click', clearMenus)
+            }
+
+            var relatedTarget = { relatedTarget: this };
+            $parent.trigger(e = $.Event('show.bs.dropdown', relatedTarget));
+
+            if (e.isDefaultPrevented()) return;
+
+            $this
+                .trigger('focus')
+                .attr('aria-expanded', 'true');
+
+            $parent
+                .toggleClass('open')
+                .trigger($.Event('shown.bs.dropdown', relatedTarget))
+        }
+
+        return false
+    };
+
+    Dropdown.prototype.keydown = function (e) {
+        if (!/(38|40|27|32)/.test(e.which) || /input|textarea/i.test(e.target.tagName)) return;
+
+        var $this = $(this);
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        if ($this.is('.disabled, :disabled')) return;
+
+        var $parent  = getParent($this);
+        var isActive = $parent.hasClass('open');
+
+        if (!isActive && e.which != 27 || isActive && e.which == 27) {
+            if (e.which == 27) $parent.find(toggle).trigger('focus');
+            return $this.trigger('click')
+        }
+
+        var desc = ' li:not(.disabled):visible a';
+        var $items = $parent.find('.dropdown-menu' + desc);
+
+        if (!$items.length) return;
+
+        var index = $items.index(e.target);
+
+        if (e.which == 38 && index > 0)                 index--;         // up
+        if (e.which == 40 && index < $items.length - 1) index++;         // down
+        if (!~index)                                    index = 0;
+
+        $items.eq(index).trigger('focus')
+    };
+
+
+    // DROPDOWN PLUGIN DEFINITION
+    // ==========================
+
+    function Plugin(option) {
+        return this.each(function () {
+            var $this = $(this);
+            var data  = $this.data('bs.dropdown');
+
+            if (!data) $this.data('bs.dropdown', (data = new Dropdown(this)));
+            if (typeof option == 'string') data[option].call($this)
+        })
+    }
+
+    var old = $.fn.dropdown;
+
+    $.fn.dropdown             = Plugin;
+    $.fn.dropdown.Constructor = Dropdown;
+
+
+    // DROPDOWN NO CONFLICT
+    // ====================
+
+    $.fn.dropdown.noConflict = function () {
+        $.fn.dropdown = old;
+        return this
+    };
+
+    // APPLY TO STANDARD DROPDOWN ELEMENTS
+    // ===================================
+
+    $(document)
+        .on('click.bs.dropdown.data-api', clearMenus)
+        .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
+        .on('click.bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
+        .on('keydown.bs.dropdown.data-api', toggle, Dropdown.prototype.keydown)
+        .on('keydown.bs.dropdown.data-api', '.dropdown-menu', Dropdown.prototype.keydown)
+
+}(jQuery);
