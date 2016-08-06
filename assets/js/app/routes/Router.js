@@ -16,8 +16,6 @@ App.Router = Backbone.Router.extend({
 
     index: function(){
         App.Vent.trigger('layoutChange');
-        console.log('index');
-
 
         var collection = App.create('collection/Carts'),
             view = App.createLayout('view/Carts');
@@ -39,10 +37,7 @@ App.Router = Backbone.Router.extend({
     },
 
     login: function(){
-        console.log('login');
-
-        App.Vent.trigger('layoutChange', {withSidebar: false});
-
+        App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         var model = App.createForm('model/Login'),
             view  = App.createForm('view/Login', {model: model});
 
@@ -55,14 +50,15 @@ App.Router = Backbone.Router.extend({
     },
 
     signin: function(){
-        App.Vent.trigger('layoutChange', {withSidebar: false});
+        App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         var model = App.createForm('model/Sigin'),
             view  = App.createForm('view/Sigin', {model: model});
+
         App.Helpers.renderContent(view.render().el);
     },
 
     recover: function(){
-        App.Vent.trigger('layoutChange', {withSidebar: false});
+        App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         var model = App.createForm('model/Recover'),
             view  = App.createForm('view/Recover', {model: model});
 
@@ -70,12 +66,12 @@ App.Router = Backbone.Router.extend({
     },
 
     contacts: function(){
-        App.Vent.trigger('layoutChange', {withSidebar: false});
+        App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         App.createLayout('view/Contacts').render();
     },
 
     account: function(){
-        App.Vent.trigger('layoutChange', {withSidebar: false});
+        App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         App.createLayout('view/Account').render();
     },
 
