@@ -14,14 +14,9 @@ App.Router = Backbone.Router.extend({
     },
 
     execute: function (callback, args, name) {
-        var overflowViews = ['page'];
 
-        // If this is not overflow layout  and view isset
-        if ($.inArray(name, overflowViews) === -1 && this.view){
-            // Remove current view and all subviews;
-            this.view.remove();
-            this.view = void(0);
-        }
+        if (this.view) this.view.remove();
+
 
         // Call new route to render view
         if (callback) callback.apply(this, args);

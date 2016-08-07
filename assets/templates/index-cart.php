@@ -5,13 +5,13 @@
 			<div class="cart-head"></div>
 
 			<div class="cart-body hover-toolbox">
-				<% if(mediaLink) {
-					console.log(this.processMediaTag(mediaLink, title));
-
-
-
-					%>
-					<figure><%= this.processMediaTag(mediaLink, title) %></figure>
+				<% if(mediaLink) { %>
+					<figure>
+						<%= this.processMediaTag(mediaLink, title) %>
+						<% if(this.model.isImage()) { %>
+							<%= this.getLink('post-link') %>
+						<% } %>
+					</figure>
 				<% } %>
 				<div class="toolbox with-padding"></div>
 			</div>

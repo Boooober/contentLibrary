@@ -8,15 +8,20 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
     initialize: function(){
         this.root = $(document).find('.popup-container');
 
-        this.$content = $('<div class="popup-content" />');
+        var $table = $('<div class="popup-table" />'),
+            $cell = $('<div class="popup-cell" />'),
+            $content = $('<div class="popup-content" />');
 
         // Create popup structure
         // .popup -> .popup-container -> .popup-box -> content...
-        this.$el.html( $('<div class="popup-wrapper" />').html(this.$content) );
+        this.$el.html($table.html($cell.html($content)));
+
+        // Push content for popup to this element
+        this.$content = $content;
     },
     events: {
-        'click': 'closeHandler',
-        'click .close-trigger': 'closeHandler'
+        //'click': 'closeHandler',
+        'click .close-trigger, .popup-cell': 'closeHandler'
     },
     // Classes of popup size
     sizes: {

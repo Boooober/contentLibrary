@@ -7,7 +7,6 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
     },
     events: {
         'click .rate-button': 'toggleRate',
-        'click .post-link': 'openInPopup'
     },
     template: App.Helpers.getTemplate('#cartToolbox'),
 
@@ -19,6 +18,33 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
     toggleRate: function(e){
         e.preventDefault();
         this.model.favoriteToggle();
+    }
+}));
+
+
+App.set('view/Cart', 'content', App.get('view/BaseCart', 'content').extend({
+    initSubviews: function(){
+        this.subviews = {};
+        this.subviews['.toolbox'] = App.createContent('view/CartToolbox', {model: this.model});
+        return this.subviews;
+    },
+    events: {
+        'click .post-link': 'openInPopup'
+    },
+
+    mediaTemplate: App.Helpers.getTemplate('#mediaCart'),
+    textTemplate: App.Helpers.getTemplate('#textCart'),
+
+    render: function(){
+        var type = this.model.isText() ? 'text' : 'media',
+            template = this[type+'Template'](this.model.toJSON());
+
+        this.setElement(template);
+        this.assign( this.initSubviews() );
+
+        if(this.model.isVideo()) this.scaleMedia();
+
+        return this;
     },
 
     openInPopup: function(e){
@@ -37,30 +63,6 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
                     router.navigate('');
                 }
             });
-    }
-}));
-
-
-App.set('view/Cart', 'content', App.get('view/BaseCart', 'content').extend({
-    initSubviews: function(){
-        this.subviews = {};
-        this.subviews['.toolbox'] = App.createContent('view/CartToolbox', {model: this.model});
-        return this.subviews;
-    },
-
-    mediaTemplate: App.Helpers.getTemplate('#mediaCart'),
-    textTemplate: App.Helpers.getTemplate('#textCart'),
-
-    render: function(){
-        var type = this.model.isText() ? 'text' : 'media',
-            template = this[type+'Template'](this.model.toJSON());
-
-        this.setElement(template);
-        this.assign( this.initSubviews() );
-
-        if(this.model.isVideo()) this.scaleMedia();
-
-        return this;
     }
 }));
 

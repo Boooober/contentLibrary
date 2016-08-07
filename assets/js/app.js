@@ -864,8 +864,19 @@ App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
         return this.model.isImage() ? 'image-cart' :
             this.model.isVideo() ? 'video-cart' :
             'text-type';
-    }
+    },
 
+    // Render cart link
+    getLink: function(className){
+        var wrap = $('<div />');
+
+        wrap.append($('<a />').attr({
+            href: '#!/page/'+this.model.id,
+            class: className
+        }));
+
+        return wrap.html();
+    }
 
 }));
 
@@ -879,7 +890,6 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
     },
     events: {
         'click .rate-button': 'toggleRate',
-        'click .post-link': 'openInPopup'
     },
     template: App.Helpers.getTemplate('#cartToolbox'),
 
@@ -891,6 +901,33 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
     toggleRate: function(e){
         e.preventDefault();
         this.model.favoriteToggle();
+    }
+}));
+
+
+App.set('view/Cart', 'content', App.get('view/BaseCart', 'content').extend({
+    initSubviews: function(){
+        this.subviews = {};
+        this.subviews['.toolbox'] = App.createContent('view/CartToolbox', {model: this.model});
+        return this.subviews;
+    },
+    events: {
+        'click .post-link': 'openInPopup'
+    },
+
+    mediaTemplate: App.Helpers.getTemplate('#mediaCart'),
+    textTemplate: App.Helpers.getTemplate('#textCart'),
+
+    render: function(){
+        var type = this.model.isText() ? 'text' : 'media',
+            template = this[type+'Template'](this.model.toJSON());
+
+        this.setElement(template);
+        this.assign( this.initSubviews() );
+
+        if(this.model.isVideo()) this.scaleMedia();
+
+        return this;
     },
 
     openInPopup: function(e){
@@ -909,30 +946,6 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
                     router.navigate('');
                 }
             });
-    }
-}));
-
-
-App.set('view/Cart', 'content', App.get('view/BaseCart', 'content').extend({
-    initSubviews: function(){
-        this.subviews = {};
-        this.subviews['.toolbox'] = App.createContent('view/CartToolbox', {model: this.model});
-        return this.subviews;
-    },
-
-    mediaTemplate: App.Helpers.getTemplate('#mediaCart'),
-    textTemplate: App.Helpers.getTemplate('#textCart'),
-
-    render: function(){
-        var type = this.model.isText() ? 'text' : 'media',
-            template = this[type+'Template'](this.model.toJSON());
-
-        this.setElement(template);
-        this.assign( this.initSubviews() );
-
-        if(this.model.isVideo()) this.scaleMedia();
-
-        return this;
     }
 }));
 
@@ -1245,15 +1258,20 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
     initialize: function(){
         this.root = $(document).find('.popup-container');
 
-        this.$content = $('<div class="popup-content" />');
+        var $table = $('<div class="popup-table" />'),
+            $cell = $('<div class="popup-cell" />'),
+            $content = $('<div class="popup-content" />');
 
         // Create popup structure
         // .popup -> .popup-container -> .popup-box -> content...
-        this.$el.html( $('<div class="popup-wrapper" />').html(this.$content) );
+        this.$el.html($table.html($cell.html($content)));
+
+        // Push content for popup to this element
+        this.$content = $content;
     },
     events: {
-        'click': 'closeHandler',
-        'click .close-trigger': 'closeHandler'
+        //'click': 'closeHandler',
+        'click .close-trigger, .popup-cell': 'closeHandler'
     },
     // Classes of popup size
     sizes: {
@@ -1375,14 +1393,9 @@ App.Router = Backbone.Router.extend({
     },
 
     execute: function (callback, args, name) {
-        var overflowViews = ['page'];
 
-        // If this is not overflow layout  and view isset
-        if ($.inArray(name, overflowViews) === -1 && this.view){
-            // Remove current view and all subviews;
-            this.view.remove();
-            this.view = void(0);
-        }
+        if (this.view) this.view.remove();
+
 
         // Call new route to render view
         if (callback) callback.apply(this, args);

@@ -44,8 +44,19 @@ App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
         return this.model.isImage() ? 'image-cart' :
             this.model.isVideo() ? 'video-cart' :
             'text-type';
-    }
+    },
 
+    // Render cart link
+    getLink: function(className){
+        var wrap = $('<div />');
+
+        wrap.append($('<a />').attr({
+            href: '#!/page/'+this.model.id,
+            class: className
+        }));
+
+        return wrap.html();
+    }
 
 }));
 
