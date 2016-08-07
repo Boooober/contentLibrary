@@ -7,9 +7,9 @@ App.Router = Backbone.Router.extend({
         '!/account/logout': 'logout',
         '!/account/recover': 'recover',
         '!/contacts': 'contacts',
+        '!/page/:id': 'page',
         '!/search/:s': 'search'
-        //'!/account': 'account',
-        //'!/page/:id': 'page'
+        //'!/account': 'account'
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
     },
@@ -26,7 +26,7 @@ App.Router = Backbone.Router.extend({
         App.Vent.trigger('layoutChange');
         this.view = App.createLayout('view/Carts');
 
-        App.Helpers.loadCollection({
+        App.Helpers.loadFromCollection({
             collection: App.create('collection/Carts')
         });
     },
@@ -73,7 +73,7 @@ App.Router = Backbone.Router.extend({
         App.Vent.trigger('layoutChange');
         this.view = App.createLayout('view/Carts');
 
-        App.Helpers.loadCollection({
+        App.Helpers.loadFromCollection({
             collection: App.create('collection/Carts'),
 
             // Filtering function
@@ -87,26 +87,15 @@ App.Router = Backbone.Router.extend({
         });
     },
 
-    //account: function(){
-    //    App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
-    //    this.view = App.createLayout('view/Account').render();
-    //},
+    page: function(id){
+        App.Vent.trigger('layoutChange');
+        this.view = App.createLayout('view/CartPage');
 
-
-
-    //page: function(id){
-    //    var redirect = function(){
-    //        return App.getRouter().navigate('', {trigger: true, replace: true});
-    //    };
-    //
-    //    App.create('view/Popup', 'widget').render('sdfasdfsdf', {redirect: redirect});
-    //
-    //    console.log(id);
-    //
-    //
-    //
-    //
-    //},
+        App.Helpers.loadFromCollection({
+            collection: App.create('collection/Carts'),
+            find: {id: parseInt(id)}
+        });
+    },
 
     addMedia: function(){
 

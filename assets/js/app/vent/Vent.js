@@ -28,6 +28,9 @@ _.extend(App.Vent, Backbone.Events);
  *   Accept collection data.
  *   For example, search, pagination, filter categories
  *
+ *** modelLoad [model]: filtered model from collection.
+ *   Accept model object.
+ *
  *
  * Form events
  * -----------

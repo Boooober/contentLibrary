@@ -1,6 +1,6 @@
 'use strict';
 var App = {
-    debug: false,
+    debug: true,
 
     //Namespace app structure
     //Models: {
@@ -213,6 +213,9 @@ _.extend(App.Vent, Backbone.Events);
  *   Accept collection data.
  *   For example, search, pagination, filter categories
  *
+ *** modelLoad [model]: filtered model from collection.
+ *   Accept model object.
+ *
  *
  * Form events
  * -----------
@@ -244,9 +247,10 @@ App.Helpers = {
         return wrap.html();
     },
 
-    loadCollection: function(options){
+    loadFromCollection: function(options){
         var collection = options.collection,
-            filter = options.filter;
+            filter = options.filter,
+            find = options.find;
 
         collection.fetch({
             success: success,
@@ -254,16 +258,28 @@ App.Helpers = {
         });
 
         function success(collection){
-            // Filter collection if filtering function exists
-            if(filter) collection.reset(collection.filter(filter));
-            App.Vent.trigger('collectionLoad', collection);
-            //App.setQuery(collection);
+            var model;
+
+            // Filter collection
+            if(filter){
+                collection = collection.reset(collection.filter(filter));
+                if(collection) App.Vent.trigger('collectionLoad', collection);
+
+            // Find model in collection
+            } else if(find){
+                model = collection.findWhere(find);
+                if(model) App.Vent.trigger('modelLoad', model);
+
+            } else {
+                App.Vent.trigger('collectionLoad', collection);
+            }
         }
         function error(collection, response){
             console.log(response.responseText);
             //MyApp.vent.trigger("search:error", response);
         }
     },
+
 
     getQueryParam: function(param, source){
         var params, i, l, data;
@@ -934,6 +950,14 @@ App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
         });
 
         return App.Helpers.elemToString(link);
+    },
+
+    socialLinks: function(){
+        var socials = [
+
+        ];
+
+        return [];
     }
 
 }));
@@ -1019,49 +1043,16 @@ App.set('view/CartInPopup', 'content', App.get('view/BaseCart', 'content').exten
 
 
 
-App.set('view/Page', 'content', App.get('view/BaseView').extend({
-    //template: App.Helpers.template('#pageContent'),
-    initialize: function(options){
-        this.model = App.Query.get( options.id );
-    },
-    render: function(){
-        var model = this.model.toJSON();
-        this.setElement( this.template(this.model.toJSON()) );
-        return this;
-    }
-}));
-App.set('view/UserRates', 'content', App.get('view/BaseView').extend({
+App.set('view/CartPage', 'layout', App.get('view/BaseCart', 'content').extend({
+
+    className: 'container-fluid',
+    template: App.Helpers.getTemplate('#cartPage'),
     initialize: function(){
-        this.model = App.User.get();
+        this.listenTo(App.Vent, 'modelLoad', this.render);
     },
-    template: App.Helpers.getTemplate('#userRates'),
-    render: function(){
-        this.$el.html( this.template() );
-        return this;
-    }
-}));
-App.set('view/UserProfile', 'content', App.get('view/BaseView').extend({
-    initialize: function(){
-        this.model = App.User.get();
-    },
-    template: App.Helpers.getTemplate('#userProfile'),
-    render: function(){
-        this.$el.html( this.template() );
-        return this;
-    }
-}));
-App.set('view/Account', 'layout', App.get('view/BaseView').extend({
-    template: App.Helpers.getTemplate('#account'),
-    initSubviews: function(){
-        this.subview = {
-            '.user-profile': App.create('view/UserProfile', 'content'),
-            '.user-rates': App.create('view/UserRates', 'content')
-        };
-        return this.subview;
-    },
-    render: function(){
-        this.setElement( this.template() );
-        this.assign( this.initSubviews() );
+    render: function(model){
+        this.model = model;
+        this.$el.html( this.template(model.toJSON()) );
         App.Helpers.renderContent(this.el);
         return this;
     }
@@ -1445,9 +1436,9 @@ App.Router = Backbone.Router.extend({
         '!/account/logout': 'logout',
         '!/account/recover': 'recover',
         '!/contacts': 'contacts',
+        '!/page/:id': 'page',
         '!/search/:s': 'search'
-        //'!/account': 'account',
-        //'!/page/:id': 'page'
+        //'!/account': 'account'
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
     },
@@ -1464,7 +1455,7 @@ App.Router = Backbone.Router.extend({
         App.Vent.trigger('layoutChange');
         this.view = App.createLayout('view/Carts');
 
-        App.Helpers.loadCollection({
+        App.Helpers.loadFromCollection({
             collection: App.create('collection/Carts')
         });
     },
@@ -1511,7 +1502,7 @@ App.Router = Backbone.Router.extend({
         App.Vent.trigger('layoutChange');
         this.view = App.createLayout('view/Carts');
 
-        App.Helpers.loadCollection({
+        App.Helpers.loadFromCollection({
             collection: App.create('collection/Carts'),
 
             // Filtering function
@@ -1525,26 +1516,15 @@ App.Router = Backbone.Router.extend({
         });
     },
 
-    //account: function(){
-    //    App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
-    //    this.view = App.createLayout('view/Account').render();
-    //},
+    page: function(id){
+        App.Vent.trigger('layoutChange');
+        this.view = App.createLayout('view/CartPage');
 
-
-
-    //page: function(id){
-    //    var redirect = function(){
-    //        return App.getRouter().navigate('', {trigger: true, replace: true});
-    //    };
-    //
-    //    App.create('view/Popup', 'widget').render('sdfasdfsdf', {redirect: redirect});
-    //
-    //    console.log(id);
-    //
-    //
-    //
-    //
-    //},
+        App.Helpers.loadFromCollection({
+            collection: App.create('collection/Carts'),
+            find: {id: parseInt(id)}
+        });
+    },
 
     addMedia: function(){
 
@@ -1603,7 +1583,7 @@ App.State = new (Backbone.Model.extend({
         this.set('user', false);
 
         //Draw application layouts
-        self.draw();
+        this.draw();
     },
 
     draw: function(){

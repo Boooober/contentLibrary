@@ -50,7 +50,7 @@ App.State = new (Backbone.Model.extend({
         this.set('user', false);
 
         //Draw application layouts
-        self.draw();
+        this.draw();
     },
 
     draw: function(){

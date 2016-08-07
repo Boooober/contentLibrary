@@ -12,9 +12,10 @@ App.Helpers = {
         return wrap.html();
     },
 
-    loadCollection: function(options){
+    loadFromCollection: function(options){
         var collection = options.collection,
-            filter = options.filter;
+            filter = options.filter,
+            find = options.find;
 
         collection.fetch({
             success: success,
@@ -22,16 +23,28 @@ App.Helpers = {
         });
 
         function success(collection){
-            // Filter collection if filtering function exists
-            if(filter) collection.reset(collection.filter(filter));
-            App.Vent.trigger('collectionLoad', collection);
-            //App.setQuery(collection);
+            var model;
+
+            // Filter collection
+            if(filter){
+                collection = collection.reset(collection.filter(filter));
+                if(collection) App.Vent.trigger('collectionLoad', collection);
+
+            // Find model in collection
+            } else if(find){
+                model = collection.findWhere(find);
+                if(model) App.Vent.trigger('modelLoad', model);
+
+            } else {
+                App.Vent.trigger('collectionLoad', collection);
+            }
         }
         function error(collection, response){
             console.log(response.responseText);
             //MyApp.vent.trigger("search:error", response);
         }
     },
+
 
     getQueryParam: function(param, source){
         var params, i, l, data;

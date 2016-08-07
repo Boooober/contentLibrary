@@ -70,32 +70,26 @@
 	</form>
 </script>
 
-
-<script type="text/template" id="account">
-	<div class="account-page">
-
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-6">
-					<div class="user-profile"></div>
-				</div>
-				<div class="col-sm-6">
-					<div class="user-rates"></div>
-				</div>
-			</div>
+<script type="text/template" id="cartPage">
+	<div class="box">
+		<div class="box-header">
+			<h1><%= title %></h1>
+			<div class="toolbox"></div>
 		</div>
-
+		<div class="box-body">
+			<% if(mediaLink) { %>
+				<figure>
+					<%= this.processMediaTag(mediaLink, title) %>
+				</figure>
+			<% } %>
+			<div class="box-content"><%= description %></div>
+		</div>
+		<div class="box-footer">
+			<ul class="soc-links">
+				<% _.each(this.socialLinks(), function(link){ %>
+					<li><%= link %></li>
+				<% }) %>
+			</ul>
+		</div>
 	</div>
-</script>
-
-
-<script type="text/template" id="userProfile">
-
-	.user-
-	user profile
-</script>
-
-
-<script type="text/template" id="userRates">
-	user rates
 </script>

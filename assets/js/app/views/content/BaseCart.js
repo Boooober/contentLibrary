@@ -52,6 +52,14 @@ App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
         });
 
         return App.Helpers.elemToString(link);
+    },
+
+    socialLinks: function(){
+        var socials = [
+
+        ];
+
+        return [];
     }
 
 }));
