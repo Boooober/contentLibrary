@@ -1,6 +1,6 @@
 // Navigation menu
 
-App.set('view/Topmenu', 'layout', App.Views.BaseView.extend({
+App.set('view/Topmenu', 'layout', App.get('view/BaseView').extend({
 
     template: App.Helpers.getTemplate('#topMenu'),
 
@@ -20,11 +20,12 @@ App.set('view/Topmenu', 'layout', App.Views.BaseView.extend({
         this.subviews['.searchform'] = App.createForm('view/Search');
         return this.subviews;
     }
+
 }));
 
 // Sidebar layout
 
-App.set('view/Sidebar', 'layout', App.Views.BaseView.extend({
+App.set('view/Sidebar', 'layout', App.get('view/BaseView').extend({
 
     template: App.Helpers.getTemplate('#sidebarLayout'),
 
@@ -55,7 +56,7 @@ App.set('view/Sidebar', 'layout', App.Views.BaseView.extend({
 // Content layout
 // This layout includes top navigation menu, dynamic content wrapper and footer
 
-App.set('view/MainContent', 'layout', App.Views.BaseView.extend({
+App.set('view/MainContent', 'layout', App.get('view/BaseView').extend({
 
     events: {
         'click .sidebar-toggle': 'toggleSidebar'

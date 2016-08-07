@@ -115,10 +115,18 @@
   content: '\e811'; }
 
 /* '' */
-.icon-edit:before {
+.icon-pencil:before {
   content: '\e812'; }
 
 /* '' */
+.icon-login:before {
+  content: '\e814'; }
+
+/* '' */
+.icon-logout:before {
+  content: '\e815'; }
+
+/* '' */
 .icon-star-half-alt:before {
   content: '\f123'; }
 

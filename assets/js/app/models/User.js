@@ -1,6 +1,7 @@
-App.Models.User = Backbone.Model.extend({
+App.set('model/User', Backbone.Model.extend({
     defaults: {
+        avatar: '',
+        fullname: '',
         username: '',
-        email: '',
     }
-});
+}));

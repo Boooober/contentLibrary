@@ -1,0 +1,16 @@
+[
+    {
+        "id": 1,
+        "username": "nikita",
+        "password": "12345",
+        "fullname": "Nikita Slobodian",
+        "avatar": "/assets/images/user/nikita.jpg"
+    },
+    {
+        "id": 2,
+        "username": "admin",
+        "password": "12345",
+        "fullname": "Admin",
+        "avatar": "/assets/images/user/default.jpg"
+    }
+]

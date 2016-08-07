@@ -1,4 +1,5 @@
 App.State = new (Backbone.Model.extend({
+    storage: App.Helpers.storage('State'),
     defaults: {
         user: {},
         router: {},
@@ -7,7 +8,23 @@ App.State = new (Backbone.Model.extend({
     },
 
     initialize: function(){
-        //fetch user
+        // Fetch user
+        var id = this.storage.get().userId;
+
+        if(id){
+            // User was logged in, restore session
+            App.create('collection/Users').fetch({
+                success: function success(collection){
+                    var user = collection.get(id);
+                    console.log(user);
+                },
+                error: function (collection, response){
+                    console.log(response.responseText);
+                }
+            });
+        }
+
+        this.set('user', false);
     },
 
     run: function(){

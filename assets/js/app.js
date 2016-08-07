@@ -1,6 +1,6 @@
 'use strict';
 var App = {
-    debug: true,
+    debug: false,
 
     //Namespace app structure
     //Models: {
@@ -50,9 +50,10 @@ var App = {
         this.setStateParam('query', query);
     },
     getUser: function(){
-        var user = true;
-        //return this.getStateParam('user');
-        return user;
+        return this.getStateParam('user');
+    },
+    setUser: function(user){
+        this.setStateParam('user', user);
     },
     getRouter: function(){
         return this.getStateParam('router');
@@ -215,9 +216,11 @@ App.Helpers = {
         return _.template($(selector).html());
     },
 
-    //getTypeTemplate: function(type){
-    //    return this.getTemplate('#'+type+'Cart');
-    //},
+    elemToString: function(elem){
+        var wrap = $('<div />').html(elem);
+        return wrap.html();
+    },
+
     getQueryParam: function(param, source){
         var params, i, l, data;
         source = source || window.location.search.substring(1);
@@ -300,6 +303,13 @@ App.Helpers = {
         })();
     }
 };
+App.set('model/User', Backbone.Model.extend({
+    defaults: {
+        avatar: '',
+        fullname: '',
+        username: '',
+    }
+}));
 App.set('model/BaseForm', 'form', Backbone.Model.extend({
 
 }));
@@ -444,27 +454,23 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
 
     // Initialize layout on application start
     initialize: function(){
-        this.set( _.defaults(this.loadOptions(), this.getOptions()) );
+        this.set( this.loadOptions() );
         this.listenTo(App.Vent, 'layoutChange', this.change);
     },
 
-    // Store this options separate from attributes
-    defaultOptions: {
-        withSidebar: false,
-        sidebarCollapsed: true
-    },
-
     loadOptions: function(){
-        this.set( this.storage.get() );
-    },
-
-    getOptions: function(){
-        var options = _.extend({}, this.defaultOptions);
+        var options,
+            defaultOptions = {
+                withSidebar: false,
+                sidebarCollapsed: true
+            };
+        options = _.defaults(this.storage.get(), defaultOptions);
 
         // Show sidebar only for authorized users
-        if(App.getUser()) options.withSidebar = true;
+        options.withSidebar = !!App.getUser();
         return options;
     },
+
 
     // Change layout
     change: function(options){
@@ -487,7 +493,7 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
         return this.get('sidebarCollapsed');
     },
 
-    //Trigger function
+    //Trigger functions
     toggleSidebar: function(){
         this.update({sidebarCollapsed: !this.get('sidebarCollapsed')});
         //this.set('sidebarCollapsed', );
@@ -496,6 +502,27 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
         setTimeout(function(){
             App.Vent.trigger('layoutResize');
         }, 400);
+    },
+
+    menuItems: function(){
+        // Items of topmenu. Text/url/show on login/logout
+        var items = [
+                ['Home', '#', {in: 1, out: 1}],
+                ['Contacts', '#!/contacts', {in: 1, out: 1}],
+                ['Log in <i class="icon-login"></i>', '#!/account/login', {in: 0, out: 1}],
+                ['Sign in', '#!/account/signin', {in: 0, out: 1}],
+                ['Log out <i class="icon-logout"></i>', '#!/account/logout', {in: 1, out: 0}]
+            ],
+            list = [],
+            status = !!App.getUser() ? 'in' : 'out';
+
+        $.each(items, function(index, item){
+            // If menu item should show for user
+            if ( item[2][status] )
+                // Create DOM element
+                list.push( App.Helpers.elemToString( $('<a />').attr('href', item[1]).html(item[0]) ));
+        });
+        return list;
     }
 }));
 App.set('model/GoogleMap', 'widget', Backbone.Model.extend({
@@ -517,6 +544,10 @@ App.set('model/GoogleMap', 'widget', Backbone.Model.extend({
 App.set('collection/Carts', Backbone.Collection.extend({
     url: 'assets/js/database/carts.json',
     model: App.get('model/Cart', 'content')
+}));
+App.set('collection/Users', Backbone.Collection.extend({
+    url: 'assets/js/database/users.json',
+    model: App.get('model/User')
 }));
 // BaseView for views with subviews.
 // Extended with helpful methods for rendering DOM
@@ -835,28 +866,26 @@ App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
     },
 
     processMediaTag: function(link, title){
-        var wrap = $('<div />');
+        var media;
 
         // Create DOM element and push it to temp wrapper
         if( this.model.isVideo() ){
-            wrap.append($('<iframe />').attr({
+            media = $('<iframe />').attr({
                 width: 640,
                 height: 360,
                 src: link,
                 frameborder: 0,
                 allowfullscreen: true
-            }));
+            });
         } else if(this.model.isImage() ){
-            wrap.append($('<img />').attr({
+            media = $('<img />').attr({
                 src: link,
                 alt: title,
                 title: title
-            }));
+            });
         }
 
-        // Return text representation of DOM element
-        // To use it in template
-        return wrap.html();
+        return App.Helpers.elemToString(media);
     },
 
     // Return type of cart
@@ -868,14 +897,12 @@ App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
 
     // Render cart link
     getLink: function(className){
-        var wrap = $('<div />');
-
-        wrap.append($('<a />').attr({
+        var link = $('<a />').attr({
             href: '#!/page/'+this.model.id,
             class: className
-        }));
+        });
 
-        return wrap.html();
+        return App.Helpers.elemToString(link);
     }
 
 }));
@@ -1080,7 +1107,7 @@ App.set('view/Contacts', 'layout', App.get('view/BaseView').extend({
 }));
 // Navigation menu
 
-App.set('view/Topmenu', 'layout', App.Views.BaseView.extend({
+App.set('view/Topmenu', 'layout', App.get('view/BaseView').extend({
 
     template: App.Helpers.getTemplate('#topMenu'),
 
@@ -1100,11 +1127,12 @@ App.set('view/Topmenu', 'layout', App.Views.BaseView.extend({
         this.subviews['.searchform'] = App.createForm('view/Search');
         return this.subviews;
     }
+
 }));
 
 // Sidebar layout
 
-App.set('view/Sidebar', 'layout', App.Views.BaseView.extend({
+App.set('view/Sidebar', 'layout', App.get('view/BaseView').extend({
 
     template: App.Helpers.getTemplate('#sidebarLayout'),
 
@@ -1135,7 +1163,7 @@ App.set('view/Sidebar', 'layout', App.Views.BaseView.extend({
 // Content layout
 // This layout includes top navigation menu, dynamic content wrapper and footer
 
-App.set('view/MainContent', 'layout', App.Views.BaseView.extend({
+App.set('view/MainContent', 'layout', App.get('view/BaseView').extend({
 
     events: {
         'click .sidebar-toggle': 'toggleSidebar'
@@ -1488,6 +1516,7 @@ App.Router = Backbone.Router.extend({
     // ==============
 });
 App.State = new (Backbone.Model.extend({
+    storage: App.Helpers.storage('State'),
     defaults: {
         user: {},
         router: {},
@@ -1496,7 +1525,23 @@ App.State = new (Backbone.Model.extend({
     },
 
     initialize: function(){
-        //fetch user
+        // Fetch user
+        var id = this.storage.get().userId;
+
+        if(id){
+            // User was logged in, restore session
+            App.create('collection/Users').fetch({
+                success: function success(collection){
+                    var user = collection.get(id);
+                    console.log(user);
+                },
+                error: function (collection, response){
+                    console.log(response.responseText);
+                }
+            });
+        }
+
+        this.set('user', false);
     },
 
     run: function(){

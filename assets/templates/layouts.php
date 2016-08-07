@@ -10,11 +10,11 @@
 					<div class="side-header">
 						<div class="user-profile">
 							<figure>
-								<img class="image-circle" src="assets/images/user/profile-image.jpg" alt="profile image" />
+<!--								<img class="image-circle" src="--><%//= avatar %><!--" alt="--><%//= fullname %><!--" />-->
 							</figure>
 
 							<div class="account-links">
-								<a href="#!/account">Nikita Slobodian</a>
+<!--								<a href="#!/account">--><%//= fullname %><!--</a>-->
 								<div class="account-dropdown dropdown">
 									<span class="dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon-edit"></i></span>
 									<ul class="dropdown-menu">
@@ -107,12 +107,9 @@
 				</div>
 
 				<ul class="navbar-nav navbar-links navbar-right">
-					<li><a href="#">Index</a></li>
-					<li><a href="#!/account/signin">Sign in</a></li>
-					<li><a href="#!/account/login">Login</a></li>
-					<li><a href="#!/account/logout">Logout</a></li>
-					<li><a href="#!/account">Account</a></li>
-					<li><a href="#!/contacts">Contacts</a></li>
+					<% _.each(this.model.menuItems(), function(item){ %>
+						<li><%= item %></li>
+					<% }) %>
 				</ul>
 
 

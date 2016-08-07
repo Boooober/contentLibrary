@@ -15,28 +15,26 @@ App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
     },
 
     processMediaTag: function(link, title){
-        var wrap = $('<div />');
+        var media;
 
         // Create DOM element and push it to temp wrapper
         if( this.model.isVideo() ){
-            wrap.append($('<iframe />').attr({
+            media = $('<iframe />').attr({
                 width: 640,
                 height: 360,
                 src: link,
                 frameborder: 0,
                 allowfullscreen: true
-            }));
+            });
         } else if(this.model.isImage() ){
-            wrap.append($('<img />').attr({
+            media = $('<img />').attr({
                 src: link,
                 alt: title,
                 title: title
-            }));
+            });
         }
 
-        // Return text representation of DOM element
-        // To use it in template
-        return wrap.html();
+        return App.Helpers.elemToString(media);
     },
 
     // Return type of cart
@@ -48,14 +46,12 @@ App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
 
     // Render cart link
     getLink: function(className){
-        var wrap = $('<div />');
-
-        wrap.append($('<a />').attr({
+        var link = $('<a />').attr({
             href: '#!/page/'+this.model.id,
             class: className
-        }));
+        });
 
-        return wrap.html();
+        return App.Helpers.elemToString(link);
     }
 
 }));

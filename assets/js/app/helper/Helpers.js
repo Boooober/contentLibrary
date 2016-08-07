@@ -7,9 +7,11 @@ App.Helpers = {
         return _.template($(selector).html());
     },
 
-    //getTypeTemplate: function(type){
-    //    return this.getTemplate('#'+type+'Cart');
-    //},
+    elemToString: function(elem){
+        var wrap = $('<div />').html(elem);
+        return wrap.html();
+    },
+
     getQueryParam: function(param, source){
         var params, i, l, data;
         source = source || window.location.search.substring(1);

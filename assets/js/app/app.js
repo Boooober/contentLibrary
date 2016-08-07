@@ -1,6 +1,6 @@
 'use strict';
 var App = {
-    debug: true,
+    debug: false,
 
     //Namespace app structure
     //Models: {
@@ -50,9 +50,10 @@ var App = {
         this.setStateParam('query', query);
     },
     getUser: function(){
-        var user = true;
-        //return this.getStateParam('user');
-        return user;
+        return this.getStateParam('user');
+    },
+    setUser: function(user){
+        this.setStateParam('user', user);
     },
     getRouter: function(){
         return this.getStateParam('router');
