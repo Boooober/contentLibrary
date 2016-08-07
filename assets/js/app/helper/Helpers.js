@@ -27,8 +27,8 @@ App.Helpers = {
 
             // Filter collection
             if(filter){
-                collection = collection.reset(collection.filter(filter));
-                if(collection) App.Vent.trigger('collectionLoad', collection);
+                collection.reset(collection.filter(filter));
+                App.Vent.trigger('collectionLoad', collection);
 
             // Find model in collection
             } else if(find){

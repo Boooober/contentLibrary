@@ -27,8 +27,9 @@
 					</div>
 
 					<ul class="menu-list">
-						<li><a href="#!/add-media"><i class="icon-media"></i>Media</a></li> <!-- Add media/Delete media -->
-						<li><a href="#"><i class="icon-favorites"></i>Favorites</a></li>
+<!--						<li><a href="#!/add-media"><i class="icon-media"></i>Media</a></li>-->
+						<li><a href="#!/uploads">My uploads</a></li>
+						<li><a href="#!/favorites">Favorites</a></li>
 					</ul>
 				</div>
 

@@ -4,7 +4,7 @@
         "type": 0,
         "title": "Snail on a dewy moss",
         "description": "A little snail in the morning light",
-        "author": "Nikita",
+        "author": "Nikita Slobodian",
         "mediaLink": "/assets/images/snail.jpg",
         "favorites": 15
     },
@@ -13,7 +13,7 @@
         "type": 0,
         "title": "Night and day",
         "description": "A girl running with a starry veil",
-        "author": "Nikita",
+        "author": "Nikita Slobodian",
         "mediaLink": "/assets/images/night_day.jpg",
         "favorites": 23
     },
@@ -22,16 +22,17 @@
         "type": 1,
         "title": "Norway",
         "description": "Beautiful timelapse adventure",
-        "author": "Nikita",
+        "author": "Nikita Slobodian",
         "mediaLink": "//www.youtube.com/embed/Scxs7L0vhZ4?rel=0&controls=0&showinfo=0&feature=oembed",
-        "favorites": 12
+        "favorites": 12,
+        "isFavorite": true
     },
     {
         "id": 4,
         "type": 2,
         "title": "Three Men in a Boat: To Say Nothing of the Dog",
         "description": "<p>Throw the lumber over, man! Let your boat of life be light, packed with only what you need – a homely home and simple pleasures, one or two friends, worth the name, someone to love and someone to love you, a cat, a dog, and a pipe or two, enough to eat and enough to wear, and a little more than enough to drink; for thirst is a dangerous thing.</p>",
-        "author": "Nikita",
+        "author": "Nikita Slobodian",
         "favorites": 16
     },
     {
@@ -39,7 +40,7 @@
         "type": 0,
         "title": "Galaxy",
         "description": "Horsehead Nebula",
-        "author": "Nikita",
+        "author": "Nikita Slobodian",
         "mediaLink": "/assets/images/galaxy.jpg",
         "favorites": 23
     },
@@ -77,14 +78,15 @@
         "description": "Winter landscape",
         "author": "George",
         "mediaLink": "/assets/images/northern_light.jpg",
-        "favorites": 35
+        "favorites": 35,
+        "isFavorite": true
     },
     {
         "id": 9,
         "type": 2,
         "title": "Down the Rabbit-Hole",
         "description": "<p>Down, down, down. There was nothing else to do, so Alice soon began talking again. `Dinah'll miss me very much to-night, I should think!' (Dinah was the cat .) `I hope they'll remember her saucer of milk at tea-time. Dinah my dear! I wish you were down here with me! There are no mice in the air, I'm afraid, but you might catch a bat, and that's very like a mouse, you know. But do cats eat bats, I wonder?' And here Alice began to get rather sleepy, and went on saying to herself, in a dreamy sort of way, `Do cats eat bats? Do cats eat bats?' and sometimes, `Do bats eat cats?' for, you see, as she couldn't answer either question, it didn't much matter which way she put it. She felt that she was dozing off, and had just begun to dream that she was walking hand in hand with Dinah, and saying to her very earnestly, `Now, Dinah, tell me the truth: did you ever eat a bat?' when suddenly, thump! thump! down she came upon a heap of sticks and dry leaves, and the fall was over.</p>",
-        "author": "Nikita",
+        "author": "Nikita Slobodian",
         "favorites": 16
     },
     {
@@ -101,7 +103,7 @@
         "type": 0,
         "title": "Lavender",
         "description": "Flower field in summer",
-        "author": "Nikita",
+        "author": "Nikita Slobodian",
         "mediaLink": "/assets/images/lavender.jpg",
         "favorites": 19
     },
@@ -128,16 +130,17 @@
         "type": 0,
         "title": "Carpathian mountains",
         "description": "Sunny day in mountain area",
-        "author": "Nikita",
+        "author": "Nikita Slobodian",
         "mediaLink": "/assets/images/carpathian.jpg",
-        "favorites": 31
+        "favorites": 31,
+        "isFavorite": true
     },
     {
         "id": 15,
         "type": 2,
         "title": "Don't Think About a Zebra",
         "description": "<p>Don't think about a zebra no matter what you do, for, if you ever think of one, then soon you'll think of two. And, after that, you'll think of three. And then you'll think of four. Then five or six or seven zebras. Maybe even more. And then you'll think of zebra herds stampeding down the street, and zebras wearing tutus, disco-dancing to a beat. You'll think of flying ninja zebras practicing kung fu. And zebra clowns from outer space. And robot zebras too. And zebras in pajama bottoms bouncing on their beds, and maybe even zebras wearing diapers on their heads. You'll wish you'd never thought of them, so do it starting now: Don't think about a zebra. Only think about a cow.</p>",
-        "author": "Nikita",
+        "author": "Nikita Slobodian",
         "favorites": 18
     },
     {
@@ -174,6 +177,7 @@
         "description": "Cardinal in the winter snow",
         "author": "Victoria",
         "mediaLink": "/assets/images/cardinal.jpg",
-        "favorites": 28
+        "favorites": 28,
+        "isFavorite": true
     }
 ]

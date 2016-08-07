@@ -262,8 +262,8 @@ App.Helpers = {
 
             // Filter collection
             if(filter){
-                collection = collection.reset(collection.filter(filter));
-                if(collection) App.Vent.trigger('collectionLoad', collection);
+                collection.reset(collection.filter(filter));
+                App.Vent.trigger('collectionLoad', collection);
 
             // Find model in collection
             } else if(find){
@@ -1207,7 +1207,8 @@ App.set('view/MainContent', 'layout', App.get('view/BaseView').extend({
         this.subviews['.topmenu'] = App.createLayout('view/Topmenu');
         return this.subviews;
     },
-    toggleSidebar: function(){
+    toggleSidebar: function(e){
+        e.preventDefault();
         this.model.toggleSidebar();
     }
 }));
@@ -1437,9 +1438,9 @@ App.Router = Backbone.Router.extend({
         '!/account/recover': 'recover',
         '!/contacts': 'contacts',
         '!/page/:id': 'page',
-        '!/search/:s': 'search'
-        //'!/account': 'account'
-        //'!/category-:id': 'category',
+        '!/search/:s': 'search',
+        '!/uploads': 'uploads',
+        '!/favorites': 'favorites',
         //'!/add-media': 'addMedia'
     },
 
@@ -1528,8 +1529,42 @@ App.Router = Backbone.Router.extend({
 
     addMedia: function(){
 
-    }
+    },
+
+    // Filters
     // ==============
+    uploads: function(){
+        App.Vent.trigger('layoutChange');
+        this.view = App.createLayout('view/Carts');
+
+        App.Helpers.loadFromCollection({
+            collection: App.create('collection/Carts'),
+
+            // Filtering function
+            // Return every model, that content match to pattern
+            filter: (function(){
+                var user = new RegExp(App.getUser().get('fullname'), 'i');
+                return function(model){
+                    return user.test(model.get('author'));
+                }
+            })()
+        });
+    },
+
+    favorites: function(){
+        App.Vent.trigger('layoutChange');
+        this.view = App.createLayout('view/Carts');
+
+        App.Helpers.loadFromCollection({
+            collection: App.create('collection/Carts'),
+
+            // Filtering function
+            // Return every model, that content match to pattern
+            filter: function(model){
+                return model.get('isFavorite');
+            }
+        });
+    }
 });
 App.State = new (Backbone.Model.extend({
     storage: App.Helpers.storage,

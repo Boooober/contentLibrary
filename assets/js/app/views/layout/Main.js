@@ -78,7 +78,8 @@ App.set('view/MainContent', 'layout', App.get('view/BaseView').extend({
         this.subviews['.topmenu'] = App.createLayout('view/Topmenu');
         return this.subviews;
     },
-    toggleSidebar: function(){
+    toggleSidebar: function(e){
+        e.preventDefault();
         this.model.toggleSidebar();
     }
 }));
