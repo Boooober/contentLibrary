@@ -8,7 +8,7 @@ App.Router = Backbone.Router.extend({
         '!/account/recover': 'recover',
         '!/contacts': 'contacts',
         //'!/account': 'account',
-        '!/page/:id': 'page'
+        //'!/page/:id': 'page'
         //'!/page-:id': 'page',
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
@@ -19,9 +19,8 @@ App.Router = Backbone.Router.extend({
 
         // If this is not overflow layout  and view isset
         if ($.inArray(name, overflowViews) === -1 && this.view){
-
             // Remove current view and all subviews;
-            this.view.purge ? this.view.purge() : this.view.remove();
+            this.view.remove();
             this.view = void(0);
         }
 
@@ -30,6 +29,8 @@ App.Router = Backbone.Router.extend({
     },
 
     index: function(){
+
+        console.log('index');
         App.Vent.trigger('layoutChange');
 
         var collection = App.create('collection/Carts'),
@@ -96,15 +97,19 @@ App.Router = Backbone.Router.extend({
 
 
 
-    page: function(id){
-        App.create('view/Popup', 'widget').render('sdfasdfsdf');
-
-        console.log(id);
-
-
-
-
-    },
+    //page: function(id){
+    //    var redirect = function(){
+    //        return App.getRouter().navigate('', {trigger: true, replace: true});
+    //    };
+    //
+    //    App.create('view/Popup', 'widget').render('sdfasdfsdf', {redirect: redirect});
+    //
+    //    console.log(id);
+    //
+    //
+    //
+    //
+    //},
 
     addMedia: function(){
 

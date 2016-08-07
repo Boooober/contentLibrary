@@ -1,5 +1,7 @@
-App.set('view/Carts', 'layout', Backbone.View.extend({
+App.set('view/Carts', 'layout', App.get('view/BaseView').extend({
     className: 'row',
+
+    subviews: {},
 
     initialize: function(){
         this.listenTo(App.Vent, 'collectionLoad', this.renderCollection);
@@ -18,8 +20,11 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
         return this;
     },
 
-    addOne: function(model){
+    // Render every subview and save pointers to objects
+    addOne: function(model, index){
         var view = App.create('view/Cart', 'content', {model: model});
+
+        this.subviews[index] = view;
         this.$el.append(view.render().el);
     },
 

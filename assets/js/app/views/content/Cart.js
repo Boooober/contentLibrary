@@ -6,7 +6,8 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
         this.model.on('change:favorites', this.render, this);
     },
     events: {
-        'click .rate-button': 'toggleRate'
+        'click .rate-button': 'toggleRate',
+        'click .post-link': 'openInPopup'
     },
     template: App.Helpers.getTemplate('#cartToolbox'),
 
@@ -18,6 +19,24 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
     toggleRate: function(e){
         e.preventDefault();
         this.model.favoriteToggle();
+    },
+
+    openInPopup: function(e){
+        e.preventDefault();
+        var id = this.model.get('id'),
+            router = App.getRouter(),
+            content = 'sdfasdfsdf' + id;
+
+        router.navigate('!/page/' + id);
+
+        App.create('view/Popup', 'widget')
+            .render(content, {
+
+                // Redirect to index after close popup
+                redirect: function () {
+                    router.navigate('');
+                }
+            });
     }
 }));
 

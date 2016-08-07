@@ -54,6 +54,9 @@ var App = {
         //return this.getStateParam('user');
         return user;
     },
+    getRouter: function(){
+        return this.getStateParam('router');
+    },
 
     getStateParam: function(param){
         return this.get('state').get(param);

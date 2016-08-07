@@ -21,15 +21,14 @@ App.set('view/BaseView', Backbone.View.extend({
         }, this);
     },
 
-    // http://mikeygee.com/blog/backbone.html
+    // Idea from http://mikeygee.com/blog/backbone.html
     // Remove all subviews after closing current
-    purge: function(){
-        if( this.subviews && this.subviews.length !== 0 ){
+    remove: function(){
+        if( this.subviews ){
             _.each(this.subviews, function(subview){
-                // If subview may have own subviews - purge, else - remove
-                subview.purge ? subview.purge() : subview.remove();
+                subview.remove();
             });
         }
-        this.remove();
+        Backbone.View.prototype.remove.call(this);
     }
 }));

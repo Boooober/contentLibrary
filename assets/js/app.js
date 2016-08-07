@@ -54,6 +54,9 @@ var App = {
         //return this.getStateParam('user');
         return user;
     },
+    getRouter: function(){
+        return this.getStateParam('router');
+    },
 
     getStateParam: function(param){
         return this.get('state').get(param);
@@ -538,16 +541,15 @@ App.set('view/BaseView', Backbone.View.extend({
         }, this);
     },
 
-    // http://mikeygee.com/blog/backbone.html
+    // Idea from http://mikeygee.com/blog/backbone.html
     // Remove all subviews after closing current
-    purge: function(){
-        if( this.subviews && this.subviews.length !== 0 ){
+    remove: function(){
+        if( this.subviews ){
             _.each(this.subviews, function(subview){
-                // If subview may have own subviews - purge, else - remove
-                subview.purge ? subview.purge() : subview.remove();
+                subview.remove();
             });
         }
-        this.remove();
+        Backbone.View.prototype.remove.call(this);
     }
 }));
 /**
@@ -824,7 +826,8 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
         this.model.on('change:favorites', this.render, this);
     },
     events: {
-        'click .rate-button': 'toggleRate'
+        'click .rate-button': 'toggleRate',
+        'click .post-link': 'openInPopup'
     },
     template: App.Helpers.getTemplate('#cartToolbox'),
 
@@ -836,6 +839,24 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
     toggleRate: function(e){
         e.preventDefault();
         this.model.favoriteToggle();
+    },
+
+    openInPopup: function(e){
+        e.preventDefault();
+        var id = this.model.get('id'),
+            router = App.getRouter(),
+            content = 'sdfasdfsdf' + id;
+
+        router.navigate('!/page/' + id);
+
+        App.create('view/Popup', 'widget')
+            .render(content, {
+
+                // Redirect to index after close popup
+                redirect: function () {
+                    router.navigate('');
+                }
+            });
     }
 }));
 
@@ -932,8 +953,10 @@ App.set('view/Account', 'layout', App.get('view/BaseView').extend({
         return this;
     }
 }));
-App.set('view/Carts', 'layout', Backbone.View.extend({
+App.set('view/Carts', 'layout', App.get('view/BaseView').extend({
     className: 'row',
+
+    subviews: {},
 
     initialize: function(){
         this.listenTo(App.Vent, 'collectionLoad', this.renderCollection);
@@ -952,8 +975,11 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
         return this;
     },
 
-    addOne: function(model){
+    // Render every subview and save pointers to objects
+    addOne: function(model, index){
         var view = App.create('view/Cart', 'content', {model: model});
+
+        this.subviews[index] = view;
         this.$el.append(view.render().el);
     },
 
@@ -1209,12 +1235,15 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
         redirect: function(){}
     },
 
-    render: function(content, options){
+    render: function(data, options){
+        var content = this.getDataContent(data);
+
         this.$el.css('z-index', 9999);
         this.$box.html(content);
         this.setOptions(options);
         this.open();
     },
+
     setOptions: function(options){
         options = _.defaults(options || {}, this.defaultOptions);
 
@@ -1249,6 +1278,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
             }
         }, this);
     },
+
     closeHandler: function(e){
         if(e.target !== e.currentTarget) return;
         this.close();
@@ -1269,8 +1299,23 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
     },
     removePopup: function(){
         this.$el.remove();
+        this.removeContentModel();
         this.redirect();
         this.remove();
+    },
+
+    // Methods are allow to work not only with plain text content,
+    // but also with Backbone Views.
+
+    getDataContent: function(data){
+        if( data instanceof Backbone.View){
+            this.contentModel = data;
+            return data.render().el;
+        }
+        return data;
+    },
+    removeContentModel: function(){
+        if(this.contentModel) this.contentModel.remove();
     }
 }));
 App.Router = Backbone.Router.extend({
@@ -1283,7 +1328,7 @@ App.Router = Backbone.Router.extend({
         '!/account/recover': 'recover',
         '!/contacts': 'contacts',
         //'!/account': 'account',
-        '!/page/:id': 'page'
+        //'!/page/:id': 'page'
         //'!/page-:id': 'page',
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
@@ -1294,9 +1339,8 @@ App.Router = Backbone.Router.extend({
 
         // If this is not overflow layout  and view isset
         if ($.inArray(name, overflowViews) === -1 && this.view){
-
             // Remove current view and all subviews;
-            this.view.purge ? this.view.purge() : this.view.remove();
+            this.view.remove();
             this.view = void(0);
         }
 
@@ -1305,6 +1349,8 @@ App.Router = Backbone.Router.extend({
     },
 
     index: function(){
+
+        console.log('index');
         App.Vent.trigger('layoutChange');
 
         var collection = App.create('collection/Carts'),
@@ -1371,15 +1417,19 @@ App.Router = Backbone.Router.extend({
 
 
 
-    page: function(id){
-        App.create('view/Popup', 'widget').render('sdfasdfsdf');
-
-        console.log(id);
-
-
-
-
-    },
+    //page: function(id){
+    //    var redirect = function(){
+    //        return App.getRouter().navigate('', {trigger: true, replace: true});
+    //    };
+    //
+    //    App.create('view/Popup', 'widget').render('sdfasdfsdf', {redirect: redirect});
+    //
+    //    console.log(id);
+    //
+    //
+    //
+    //
+    //},
 
     addMedia: function(){
 

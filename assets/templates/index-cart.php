@@ -66,7 +66,7 @@
 <script type="text/template" id="cartToolbox">
 	<div class="pull-right">
 		<a href="#" class="rate-button<% if(isFavorite) { %> is-favorite<% } %>"><i class="icon-rate-star"></i><%= favorites %></a>
-		<a href="#!/page/<%= id %>"><i class="icon-goto"></i></a>
+		<a href="#!/page/<%= id %>" class="post-link"><i class="icon-goto"></i></a>
 	</div>
 	<a href="#" class="label label-hover"><%= author %></a>
 </script>

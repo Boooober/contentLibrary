@@ -40,12 +40,15 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
         redirect: function(){}
     },
 
-    render: function(content, options){
+    render: function(data, options){
+        var content = this.getDataContent(data);
+
         this.$el.css('z-index', 9999);
         this.$box.html(content);
         this.setOptions(options);
         this.open();
     },
+
     setOptions: function(options){
         options = _.defaults(options || {}, this.defaultOptions);
 
@@ -80,6 +83,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
             }
         }, this);
     },
+
     closeHandler: function(e){
         if(e.target !== e.currentTarget) return;
         this.close();
@@ -100,7 +104,22 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
     },
     removePopup: function(){
         this.$el.remove();
+        this.removeContentModel();
         this.redirect();
         this.remove();
+    },
+
+    // Methods are allow to work not only with plain text content,
+    // but also with Backbone Views.
+
+    getDataContent: function(data){
+        if( data instanceof Backbone.View){
+            this.contentModel = data;
+            return data.render().el;
+        }
+        return data;
+    },
+    removeContentModel: function(){
+        if(this.contentModel) this.contentModel.remove();
     }
 }));
