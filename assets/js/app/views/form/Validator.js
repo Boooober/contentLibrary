@@ -17,7 +17,8 @@ App.set('view/Validator', 'form', Backbone.View.extend({
         e.preventDefault();
         var $form = $(e.target),
             noErrors = true,
-            data = this.processData($form.find(':input[name]'));
+            data = this.processData($form.find(':input[name]')),
+            formData;
 
 
         // Loop over form inputs and return general form validation flag.
@@ -31,9 +32,16 @@ App.set('view/Validator', 'form', Backbone.View.extend({
             return flag === true ? result : flag;
         }, noErrors, this);
 
+
+        // Key - value form data object
+        formData = _.reduce(data, function(attrs, input, name){
+            attrs[name] = input.value;
+            return attrs;
+        }, {});
+
         if(noErrors && this['submit']){
             // Submitting method fires in successor object
-            this['submit'].call(this, e, data);
+            this['submit'].call(this, e, formData);
         }
     },
 

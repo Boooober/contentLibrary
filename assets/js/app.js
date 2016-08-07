@@ -187,13 +187,20 @@ _.extend(App.Vent, Backbone.Events);
 
 /**
  *
+ * State events
+ * ------------
+ *
+ *** initialized: Application initialized and ready to run
+ *
+ *
+ *
  * Layout events
  * -------------
  *
  *** layoutResize: event fires when layout sizes changed.
  *   For example, sidebar toggle needs to reinit masonry and video scale.
  *
- *** layoutUpdate: fire this event to change page layout options.
+ *** layoutUpdate [options]: fire this event to change page layout options.
  *   For example, to hide sidebar from display and save this option to localStorage.
  *
  *** layoutRender: initial render of base layout.
@@ -202,9 +209,25 @@ _.extend(App.Vent, Backbone.Events);
  * Collection events
  * -----------------
  *
- *** collectionLoad: event fires when collection needs to be reloaded.
- *   Accepts collection data.
+ *** collectionLoad [collection]: event fires when collection needs to be reloaded.
+ *   Accept collection data.
  *   For example, search, pagination, filter categories
+ *
+ *
+ * Form events
+ * -----------
+ *
+ *** loginSuccess [user]: success user login.
+ *   Accept user object.
+ *
+ *** loginFailed: failed user login.
+ *
+ *
+ * Router events
+ * -------------
+ *
+ *** userLogout: user logout action
+ *
  */
 
 App.Helpers = {
@@ -233,75 +256,56 @@ App.Helpers = {
         }
         return '';
     },
-    storage: function(storeName){
-        return (function(){
-            var storeAPI,
-                hasStorage = (function() {
-                    try {
-                        localStorage.setItem('test', 'hello');
-                        localStorage.removeItem('test');
-                        return true;
-                    } catch (exception) {
-                        return false;
-                    }
-                }());
-
-            function getArgs(){
-                var name, value;
-                switch (arguments.length){
-                    case 1:
-                        name = storeName;
-                        value = JSON.stringify(arguments[0]);
-                        break;
-                    case 2:
-                        name = arguments[0];
-                        value = JSON.stringify(arguments[1]);
-                        break;
-                    default:
-                        return false;
+    storage: (function(){
+        var storeAPI,
+            hasStorage = (function() {
+                try {
+                    localStorage.setItem('hello', 'world');
+                    localStorage.removeItem('hello');
+                    return true;
+                } catch (exception) {
+                    return false;
                 }
-                return {
-                    name: name,
-                    value: value
-                };
-            }
+            }());
 
-            if(hasStorage)
-                // Local storage get/set API
-                storeAPI = {
-                    set: function(){
-                        var args = getArgs.apply(this, arguments);
-                        if(args){
-                            localStorage[args.name] = args.value;
-                            return true;
-                        }
-                        return false;
-                    },
-                    get: function(option){
-                        option = option || storeName;
-                        return JSON.parse(localStorage[option] || '{}');
-                    }
-                };
-            else
-                // Cookie get/set API
-                storeAPI = {
-                    set: function(){
-                        var args = getArgs.apply(this, arguments),
-                            date = new Date(new Date().getTime() + 30 * 24 * 3600 * 1000);
-                        if(args){
-                            document.cookie = args.name+'='+args.value+'; path=/; expires='+date.toUTCString();
-                            return true;
-                        }
-                        return false;
-                    },
-                    get: function(option){
-                        option = option || storeName;
-                        return JSON.parse(App.Helpers.getQueryParam(option, document.cookie) || '{}');
-                    }
-                };
-            return storeAPI;
-        })();
-    }
+        if(hasStorage)
+            // Local storage get/set API
+            storeAPI = {
+                set: function(item, value){
+                    if(arguments.length !== 2) return false;
+                    localStorage[item] = JSON.stringify(value);
+                    return true;
+                },
+                get: function(item){
+                    if(arguments.length !== 1) return; //undefined
+                    var value = localStorage[item];
+                    return value ? JSON.parse(value) : value; //false value
+                },
+                remove: function(item){
+                    localStorage.removeItem(item);
+                }
+            };
+        else
+            // Cookie get/set API
+            storeAPI = {
+                set: function(item, value){
+                    if(arguments.length !== 2) return false;
+                    var date = new Date(new Date().getTime() + 30 * 24 * 3600 * 1000);
+
+                    document.cookie = item+'='+JSON.stringify(value)+'; path=/; expires='+date.toUTCString();
+                    return true;
+                },
+                get: function(item){
+                    if(arguments.length !== 1) return; //undefined
+                    var value = App.Helpers.getQueryParam(item, document.cookie);
+                    return value ? JSON.parse(value) : value; //false value
+                },
+                remove: function(item){
+                    document.cookie = item+'=; path=/; expires='+(new Date).toUTCString();
+                }
+            };
+        return storeAPI;
+    })()
 };
 App.set('model/User', Backbone.Model.extend({
     defaults: {
@@ -342,20 +346,37 @@ App.set('model/Contact', 'form', App.get('model/BaseForm', 'form').extend({
 }));
 App.set('model/Login', 'form', App.get('model/BaseForm', 'form').extend({
     defaults: {
-        login: '',
+        username: '',
         password: ''
     },
 
-    validate: function(attributes){
-        console.log(attributes);
-    },
+    login: function(){
 
-    login: function(data){
-        this.set(data);
+        // Front-end user login...
+        var identity = this.toJSON(),
+            users = App.create('collection/Users');
 
-        if (!this.isValid()) {
-            console.log(this.validationError);
+        users.fetch({
+            success: success,
+            error: error
+        });
+
+        function success(collection){
+            var user = collection.findWhere(identity);
+            user ?
+                App.Vent.trigger('loginSuccess', user) :
+                App.Vent.trigger('loginFailed');
         }
+        function error(collection, response){
+            console.log(response.responseText);
+            //MyApp.vent.trigger("search:error", response);
+        }
+
+
+
+
+
+        console.log(this.toJSON());
     }
 }));
 App.set('model/Recover', 'form', App.get('model/BaseForm', 'form').extend({
@@ -450,7 +471,7 @@ App.set('model/Cart', 'content', Backbone.Model.extend({
 App.set('model/Main', 'layout', Backbone.Model.extend({
 
     // Save layout options in storage
-    storage: App.Helpers.storage('Layout'),
+    storage: App.Helpers.storage,
 
     // Initialize layout on application start
     initialize: function(){
@@ -462,9 +483,9 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
         var options,
             defaultOptions = {
                 withSidebar: false,
-                sidebarCollapsed: true
+                sidebarCollapsed: false
             };
-        options = _.defaults(this.storage.get(), defaultOptions);
+        options = _.defaults(this.storage.get('layout') || {}, defaultOptions);
 
         // Show sidebar only for authorized users
         options.withSidebar = !!App.getUser();
@@ -482,7 +503,7 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
     // Used only from inner methods
     update: function(options){
         this.change(options);
-        this.storage.set(this.toJSON());
+        this.storage.set('layout', this.toJSON());
     },
 
     //Functions predicates
@@ -509,8 +530,8 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
         var items = [
                 ['Home', '#', {in: 1, out: 1}],
                 ['Contacts', '#!/contacts', {in: 1, out: 1}],
-                ['Log in <i class="icon-login"></i>', '#!/account/login', {in: 0, out: 1}],
                 ['Sign in', '#!/account/signin', {in: 0, out: 1}],
+                ['Log in <i class="icon-login"></i>', '#!/account/login', {in: 0, out: 1}],
                 ['Log out <i class="icon-logout"></i>', '#!/account/logout', {in: 1, out: 0}]
             ],
             list = [],
@@ -602,7 +623,8 @@ App.set('view/Validator', 'form', Backbone.View.extend({
         e.preventDefault();
         var $form = $(e.target),
             noErrors = true,
-            data = this.processData($form.find(':input[name]'));
+            data = this.processData($form.find(':input[name]')),
+            formData;
 
 
         // Loop over form inputs and return general form validation flag.
@@ -616,9 +638,16 @@ App.set('view/Validator', 'form', Backbone.View.extend({
             return flag === true ? result : flag;
         }, noErrors, this);
 
+
+        // Key - value form data object
+        formData = _.reduce(data, function(attrs, input, name){
+            attrs[name] = input.value;
+            return attrs;
+        }, {});
+
         if(noErrors && this['submit']){
             // Submitting method fires in successor object
-            this['submit'].call(this, e, data);
+            this['submit'].call(this, e, formData);
         }
     },
 
@@ -779,10 +808,7 @@ App.set('view/Contact', 'form', App.get('view/BaseForm', 'form').extend({
         return this;
     },
     submit: function(e, data){
-        this.model.set(_.reduce(data, function(attrs, input, name){
-            attrs[name] = input.value;
-            return attrs;
-        }, {}));
+        this.model.set(data);
         this.model.send();
     },
     showResponse: function(){
@@ -792,11 +818,21 @@ App.set('view/Contact', 'form', App.get('view/BaseForm', 'form').extend({
     }
 }));
 App.set('view/Login', 'form', App.get('view/BaseForm', 'form').extend({
-    initialize: function(){},
+    initialize: function(){
+        this.listenTo(App.Vent, 'loginFailed', this.showFail);
+    },
     template: App.Helpers.getTemplate('#loginForm'),
     render: function(){
         this.setElement( this.template() );
         return this;
+    },
+    submit: function(e, data){
+        this.model.set(data);
+        this.model.login();
+    },
+
+    showFail: function(){
+        console.log('login attempt failed');
     }
 }));
 App.set('view/Recover', 'form', App.get('view/BaseForm', 'form').extend({
@@ -1145,7 +1181,7 @@ App.set('view/Sidebar', 'layout', App.get('view/BaseView').extend({
     },
 
     render: function(){
-        this.setElement( this.template() );
+        this.setElement( this.template( App.getUser().toJSON() ) );
         this.$('.side-wrapper').slimScroll({
             height: '100%'
         });
@@ -1462,7 +1498,7 @@ App.Router = Backbone.Router.extend({
     },
 
     logout: function(){
-        //delete session and navigate to index
+        App.Vent.trigger('userLogout');
         this.navigate('', {trigger: true, replace: true});
     },
 
@@ -1516,7 +1552,7 @@ App.Router = Backbone.Router.extend({
     // ==============
 });
 App.State = new (Backbone.Model.extend({
-    storage: App.Helpers.storage('State'),
+    storage: App.Helpers.storage,
     defaults: {
         user: {},
         router: {},
@@ -1525,29 +1561,55 @@ App.State = new (Backbone.Model.extend({
     },
 
     initialize: function(){
+        this.listenTo(App.Vent, 'loginSuccess', this.userLogin);
+        this.listenTo(App.Vent, 'userLogout', this.userLogout);
+    },
+
+    userLogin: function(user){
+        this.set('user', user);
+        this.storage.set('userId', user.id);
+
+        // Go to index page after success login
+        App.getRouter().navigate('', {trigger: true});
+    },
+
+    userLogout: function(){
+        this.set('user', false);
+        this.storage.remove('userId');
+    },
+
+    run: function(){
         // Fetch user
-        var id = this.storage.get().userId;
+        var self = this,
+            id = this.storage.get('userId');
 
         if(id){
             // User was logged in, restore session
             App.create('collection/Users').fetch({
                 success: function success(collection){
                     var user = collection.get(id);
-                    console.log(user);
+                    if(user) self.set('user', user);
+
+                    //Draw application layouts
+                    self.draw();
                 },
                 error: function (collection, response){
                     console.log(response.responseText);
                 }
             });
+            return;
         }
 
         this.set('user', false);
+
+        //Draw application layouts
+        self.draw();
     },
 
-    run: function(){
+    draw: function(){
         // Create initial layout model and set as property to app state
         this.set('layout', App.create('model/Main', 'layout'));
-        
+
         // Create main layout view
         App.create('view/Wrapper', 'layout');
         App.Vent.trigger('layoutRender');
@@ -1555,8 +1617,8 @@ App.State = new (Backbone.Model.extend({
         // Run routers when application starts
         this.set('router', new App.Router);
         Backbone.history.start();
-
     }
+
 }));
 App.State.run();
 +function ($) {

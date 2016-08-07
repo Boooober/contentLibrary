@@ -1,7 +1,7 @@
 App.set('model/Main', 'layout', Backbone.Model.extend({
 
     // Save layout options in storage
-    storage: App.Helpers.storage('Layout'),
+    storage: App.Helpers.storage,
 
     // Initialize layout on application start
     initialize: function(){
@@ -13,9 +13,9 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
         var options,
             defaultOptions = {
                 withSidebar: false,
-                sidebarCollapsed: true
+                sidebarCollapsed: false
             };
-        options = _.defaults(this.storage.get(), defaultOptions);
+        options = _.defaults(this.storage.get('layout') || {}, defaultOptions);
 
         // Show sidebar only for authorized users
         options.withSidebar = !!App.getUser();
@@ -33,7 +33,7 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
     // Used only from inner methods
     update: function(options){
         this.change(options);
-        this.storage.set(this.toJSON());
+        this.storage.set('layout', this.toJSON());
     },
 
     //Functions predicates
@@ -60,8 +60,8 @@ App.set('model/Main', 'layout', Backbone.Model.extend({
         var items = [
                 ['Home', '#', {in: 1, out: 1}],
                 ['Contacts', '#!/contacts', {in: 1, out: 1}],
-                ['Log in <i class="icon-login"></i>', '#!/account/login', {in: 0, out: 1}],
                 ['Sign in', '#!/account/signin', {in: 0, out: 1}],
+                ['Log in <i class="icon-login"></i>', '#!/account/login', {in: 0, out: 1}],
                 ['Log out <i class="icon-logout"></i>', '#!/account/logout', {in: 1, out: 0}]
             ],
             list = [],

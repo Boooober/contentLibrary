@@ -11,7 +11,7 @@
 				<form class="login-form" method="post">
 					<div class="form-group">
 						<label for="loginName" class="sr-only">Your name:</label>
-						<input id="loginName" name="name" type="text" class="form-control" placeholder="Your name"/>
+						<input id="loginName" name="username" type="text" class="form-control" placeholder="Your name"/>
 					</div>
 
 					<div class="form-group">
@@ -60,7 +60,7 @@
 				<form class="sigin-form" method="post">
 					<div class="form-group">
 						<label for="signName" class="sr-only">Your name:</label>
-						<input id="signName" name="name" type="text" class="form-control" placeholder="Your name" data-validate='{"min":4}'/>
+						<input id="signName" name="username" type="text" class="form-control" placeholder="Your name" data-validate='{"min":4}'/>
 					</div>
 
 					<div class="form-group">

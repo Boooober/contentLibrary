@@ -1,18 +1,35 @@
 App.set('model/Login', 'form', App.get('model/BaseForm', 'form').extend({
     defaults: {
-        login: '',
+        username: '',
         password: ''
     },
 
-    validate: function(attributes){
-        console.log(attributes);
-    },
+    login: function(){
 
-    login: function(data){
-        this.set(data);
+        // Front-end user login...
+        var identity = this.toJSON(),
+            users = App.create('collection/Users');
 
-        if (!this.isValid()) {
-            console.log(this.validationError);
+        users.fetch({
+            success: success,
+            error: error
+        });
+
+        function success(collection){
+            var user = collection.findWhere(identity);
+            user ?
+                App.Vent.trigger('loginSuccess', user) :
+                App.Vent.trigger('loginFailed');
         }
+        function error(collection, response){
+            console.log(response.responseText);
+            //MyApp.vent.trigger("search:error", response);
+        }
+
+
+
+
+
+        console.log(this.toJSON());
     }
 }));

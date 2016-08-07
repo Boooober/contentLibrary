@@ -38,7 +38,7 @@ App.set('view/Sidebar', 'layout', App.get('view/BaseView').extend({
     },
 
     render: function(){
-        this.setElement( this.template() );
+        this.setElement( this.template( App.getUser().toJSON() ) );
         this.$('.side-wrapper').slimScroll({
             height: '100%'
         });

@@ -55,7 +55,7 @@ App.Router = Backbone.Router.extend({
     },
 
     logout: function(){
-        //delete session and navigate to index
+        App.Vent.trigger('userLogout');
         this.navigate('', {trigger: true, replace: true});
     },
 

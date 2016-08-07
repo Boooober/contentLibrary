@@ -24,73 +24,54 @@ App.Helpers = {
         }
         return '';
     },
-    storage: function(storeName){
-        return (function(){
-            var storeAPI,
-                hasStorage = (function() {
-                    try {
-                        localStorage.setItem('test', 'hello');
-                        localStorage.removeItem('test');
-                        return true;
-                    } catch (exception) {
-                        return false;
-                    }
-                }());
-
-            function getArgs(){
-                var name, value;
-                switch (arguments.length){
-                    case 1:
-                        name = storeName;
-                        value = JSON.stringify(arguments[0]);
-                        break;
-                    case 2:
-                        name = arguments[0];
-                        value = JSON.stringify(arguments[1]);
-                        break;
-                    default:
-                        return false;
+    storage: (function(){
+        var storeAPI,
+            hasStorage = (function() {
+                try {
+                    localStorage.setItem('hello', 'world');
+                    localStorage.removeItem('hello');
+                    return true;
+                } catch (exception) {
+                    return false;
                 }
-                return {
-                    name: name,
-                    value: value
-                };
-            }
+            }());
 
-            if(hasStorage)
-                // Local storage get/set API
-                storeAPI = {
-                    set: function(){
-                        var args = getArgs.apply(this, arguments);
-                        if(args){
-                            localStorage[args.name] = args.value;
-                            return true;
-                        }
-                        return false;
-                    },
-                    get: function(option){
-                        option = option || storeName;
-                        return JSON.parse(localStorage[option] || '{}');
-                    }
-                };
-            else
-                // Cookie get/set API
-                storeAPI = {
-                    set: function(){
-                        var args = getArgs.apply(this, arguments),
-                            date = new Date(new Date().getTime() + 30 * 24 * 3600 * 1000);
-                        if(args){
-                            document.cookie = args.name+'='+args.value+'; path=/; expires='+date.toUTCString();
-                            return true;
-                        }
-                        return false;
-                    },
-                    get: function(option){
-                        option = option || storeName;
-                        return JSON.parse(App.Helpers.getQueryParam(option, document.cookie) || '{}');
-                    }
-                };
-            return storeAPI;
-        })();
-    }
+        if(hasStorage)
+            // Local storage get/set API
+            storeAPI = {
+                set: function(item, value){
+                    if(arguments.length !== 2) return false;
+                    localStorage[item] = JSON.stringify(value);
+                    return true;
+                },
+                get: function(item){
+                    if(arguments.length !== 1) return; //undefined
+                    var value = localStorage[item];
+                    return value ? JSON.parse(value) : value; //false value
+                },
+                remove: function(item){
+                    localStorage.removeItem(item);
+                }
+            };
+        else
+            // Cookie get/set API
+            storeAPI = {
+                set: function(item, value){
+                    if(arguments.length !== 2) return false;
+                    var date = new Date(new Date().getTime() + 30 * 24 * 3600 * 1000);
+
+                    document.cookie = item+'='+JSON.stringify(value)+'; path=/; expires='+date.toUTCString();
+                    return true;
+                },
+                get: function(item){
+                    if(arguments.length !== 1) return; //undefined
+                    var value = App.Helpers.getQueryParam(item, document.cookie);
+                    return value ? JSON.parse(value) : value; //false value
+                },
+                remove: function(item){
+                    document.cookie = item+'=; path=/; expires='+(new Date).toUTCString();
+                }
+            };
+        return storeAPI;
+    })()
 };

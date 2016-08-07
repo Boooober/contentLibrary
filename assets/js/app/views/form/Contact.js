@@ -10,10 +10,7 @@ App.set('view/Contact', 'form', App.get('view/BaseForm', 'form').extend({
         return this;
     },
     submit: function(e, data){
-        this.model.set(_.reduce(data, function(attrs, input, name){
-            attrs[name] = input.value;
-            return attrs;
-        }, {}));
+        this.model.set(data);
         this.model.send();
     },
     showResponse: function(){
