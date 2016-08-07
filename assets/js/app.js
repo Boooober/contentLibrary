@@ -917,7 +917,6 @@ App.set('view/UserProfile', 'content', App.get('view/BaseView').extend({
     }
 }));
 App.set('view/Account', 'layout', App.get('view/BaseView').extend({
-    el: '.main-content',
     template: App.Helpers.getTemplate('#account'),
     initSubviews: function(){
         this.subview = {
@@ -927,28 +926,22 @@ App.set('view/Account', 'layout', App.get('view/BaseView').extend({
         return this.subview;
     },
     render: function(){
-        this.$el.html( this.template() );
+        this.setElement( this.template() );
         this.assign( this.initSubviews() );
+        App.Helpers.renderContent(this.el);
         return this;
     }
 }));
 App.set('view/Carts', 'layout', Backbone.View.extend({
     className: 'row',
-    //el: '.main-content',
-
-
 
     initialize: function(){
-        this.listenTo(App.Vent, 'collectionLoad', this.setCollection);
+        this.listenTo(App.Vent, 'collectionLoad', this.renderCollection);
     },
 
-    setCollection: function(collection){
-        if(!this.collection){
-            this.collection = collection;
-            this.listenTo(this.collection, 'reset', this.render);
-        }else{
-            this.collection.reset(collection.models);
-        }
+    renderCollection: function(collection){
+        this.collection = collection;
+        this.render();
     },
 
     render: function(){
@@ -986,12 +979,10 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
         });
         this.listenTo(App.Vent, 'layoutResize', masonry);
     }
-
 }));
 
 
 App.set('view/Contacts', 'layout', App.get('view/BaseView').extend({
-    el: '.main-content',
     template: App.Helpers.getTemplate('#contactPage'),
     initSubviews: function(){
         this.subviews = {
@@ -1001,8 +992,9 @@ App.set('view/Contacts', 'layout', App.get('view/BaseView').extend({
         return this.subviews;
     },
     render: function(){
-        this.$el.html( this.template() );
+        this.setElement( this.template() );
         this.assign( this.initSubviews() );
+        App.Helpers.renderContent(this.el);
         return this;
     }
 }));
@@ -1283,18 +1275,22 @@ App.Router = Backbone.Router.extend({
         '!/account/logout': 'logout',
         '!/account/recover': 'recover',
         '!/contacts': 'contacts',
-        '!/account': 'account',
+        //'!/account': 'account',
         '!/page/:id': 'page'
         //'!/page-:id': 'page',
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
     },
 
-    beforeRouteChange: function(e){
+      execute: function(callback, args/*, name*/) {
+
         // Remove changed view and all subviews;
-        console.log(this.view);
-        this.view.purge ? this.view.purge() : this.view.remove();
-        //console.log(e);
+        if(this.view){
+            this.view.purge ? this.view.purge() : this.view.remove();
+            this.view = void(0);
+        }
+
+        if (callback) callback.apply(this, args);
     },
 
     index: function(){
@@ -1303,15 +1299,16 @@ App.Router = Backbone.Router.extend({
         var collection = App.create('collection/Carts'),
             view = this.view = App.createLayout('view/Carts');
 
+
         collection.fetch({
             success: success,
             error: error
         });
 
-        function success(){
+        function success(collection){
             App.Vent.trigger('collectionLoad', collection);
             App.setQuery(collection);
-            view.render();
+            //view.render();
         }
         function error(collection, response){
             console.log(response.responseText);
@@ -1319,6 +1316,9 @@ App.Router = Backbone.Router.extend({
         }
     },
 
+
+    // Forms
+    // ==============
     login: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         this.view = App.createForm('view/Login', {model: App.createForm('model/Login')});
@@ -1343,16 +1343,22 @@ App.Router = Backbone.Router.extend({
 
         App.Helpers.renderContent(this.view.render().el);
     },
+    // ==============
 
+
+    //Pages
+    // ==============
     contacts: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         this.view = App.createLayout('view/Contacts').render();
     },
 
-    account: function(){
-        App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
-        this.view = App.createLayout('view/Account').render();
-    },
+    //account: function(){
+    //    App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
+    //    this.view = App.createLayout('view/Account').render();
+    //},
+
+
 
     page: function(id){
         App.create('view/Popup', 'widget').render('sdfasdfsdf');
@@ -1367,7 +1373,7 @@ App.Router = Backbone.Router.extend({
     addMedia: function(){
 
     }
-
+    // ==============
 });
 App.State = new (Backbone.Model.extend({
     defaults: {
@@ -1389,11 +1395,7 @@ App.State = new (Backbone.Model.extend({
         App.Vent.trigger('layoutRender');
 
         // Run routers when application starts
-        var router = new App.Router;
-
-        // http://mikeygee.com/blog/backbone.html
-        // Run views purge before every routers url change
-        $(window).on('hashchange', router.beforeRouteChange.bind(router));
+        new App.Router;
         Backbone.history.start();
 
 

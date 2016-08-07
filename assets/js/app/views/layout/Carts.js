@@ -1,20 +1,13 @@
 App.set('view/Carts', 'layout', Backbone.View.extend({
     className: 'row',
-    //el: '.main-content',
-
-
 
     initialize: function(){
-        this.listenTo(App.Vent, 'collectionLoad', this.setCollection);
+        this.listenTo(App.Vent, 'collectionLoad', this.renderCollection);
     },
 
-    setCollection: function(collection){
-        if(!this.collection){
-            this.collection = collection;
-            this.listenTo(this.collection, 'reset', this.render);
-        }else{
-            this.collection.reset(collection.models);
-        }
+    renderCollection: function(collection){
+        this.collection = collection;
+        this.render();
     },
 
     render: function(){
@@ -52,6 +45,5 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
         });
         this.listenTo(App.Vent, 'layoutResize', masonry);
     }
-
 }));
 

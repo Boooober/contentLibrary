@@ -1,5 +1,4 @@
 App.set('view/Contacts', 'layout', App.get('view/BaseView').extend({
-    el: '.main-content',
     template: App.Helpers.getTemplate('#contactPage'),
     initSubviews: function(){
         this.subviews = {
@@ -9,8 +8,9 @@ App.set('view/Contacts', 'layout', App.get('view/BaseView').extend({
         return this.subviews;
     },
     render: function(){
-        this.$el.html( this.template() );
+        this.setElement( this.template() );
         this.assign( this.initSubviews() );
+        App.Helpers.renderContent(this.el);
         return this;
     }
 }));

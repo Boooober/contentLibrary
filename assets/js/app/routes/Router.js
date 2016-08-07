@@ -7,18 +7,22 @@ App.Router = Backbone.Router.extend({
         '!/account/logout': 'logout',
         '!/account/recover': 'recover',
         '!/contacts': 'contacts',
-        '!/account': 'account',
+        //'!/account': 'account',
         '!/page/:id': 'page'
         //'!/page-:id': 'page',
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
     },
 
-    beforeRouteChange: function(e){
+      execute: function(callback, args/*, name*/) {
+
         // Remove changed view and all subviews;
-        console.log(this.view);
-        this.view.purge ? this.view.purge() : this.view.remove();
-        //console.log(e);
+        if(this.view){
+            this.view.purge ? this.view.purge() : this.view.remove();
+            this.view = void(0);
+        }
+
+        if (callback) callback.apply(this, args);
     },
 
     index: function(){
@@ -27,15 +31,16 @@ App.Router = Backbone.Router.extend({
         var collection = App.create('collection/Carts'),
             view = this.view = App.createLayout('view/Carts');
 
+
         collection.fetch({
             success: success,
             error: error
         });
 
-        function success(){
+        function success(collection){
             App.Vent.trigger('collectionLoad', collection);
             App.setQuery(collection);
-            view.render();
+            //view.render();
         }
         function error(collection, response){
             console.log(response.responseText);
@@ -43,6 +48,9 @@ App.Router = Backbone.Router.extend({
         }
     },
 
+
+    // Forms
+    // ==============
     login: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         this.view = App.createForm('view/Login', {model: App.createForm('model/Login')});
@@ -67,16 +75,22 @@ App.Router = Backbone.Router.extend({
 
         App.Helpers.renderContent(this.view.render().el);
     },
+    // ==============
 
+
+    //Pages
+    // ==============
     contacts: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         this.view = App.createLayout('view/Contacts').render();
     },
 
-    account: function(){
-        App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
-        this.view = App.createLayout('view/Account').render();
-    },
+    //account: function(){
+    //    App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
+    //    this.view = App.createLayout('view/Account').render();
+    //},
+
+
 
     page: function(id){
         App.create('view/Popup', 'widget').render('sdfasdfsdf');
@@ -91,5 +105,5 @@ App.Router = Backbone.Router.extend({
     addMedia: function(){
 
     }
-
+    // ==============
 });
