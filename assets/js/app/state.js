@@ -1,6 +1,7 @@
 App.State = new (Backbone.Model.extend({
     defaults: {
         user: {},
+        router: {},
         layout: {},
         query: {}
     },
@@ -18,9 +19,8 @@ App.State = new (Backbone.Model.extend({
         App.Vent.trigger('layoutRender');
 
         // Run routers when application starts
-        new App.Router;
+        this.set('router', new App.Router);
         Backbone.history.start();
-
 
     }
 }));

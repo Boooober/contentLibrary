@@ -34,8 +34,12 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
         // Additional class names to the popup wrapper
         className: 'popup-bg-default',
         // Additional css options for wrapper
-        css: {}
+        css: {},
+        removeTimeout: 500,
+        // Redirect callack after popup close
+        redirect: function(){}
     },
+
     render: function(content, options){
         this.$el.css('z-index', 9999);
         this.$box.html(content);
@@ -52,6 +56,8 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
                     // Set timeout to close popup
                     if (value === true){
                         if(App.debug) console.log('popup will close in '+options.toggleDelay+' ms');
+
+                        //Set timeout identifier to data attribute to remove it in case closing before toggleDelay
                         this.$el.data('timeout', setTimeout(_.bind(this.close, this), options.toggleDelay));
                     }
                     break;
@@ -69,6 +75,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
                     this.$el.css(value);
                     break;
                 default:
+                    this[option] = value;
                     break;
             }
         }, this);
@@ -89,10 +96,11 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
         if( timeout !== void(0) ) clearTimeout(timeout);
 
         this.$el.toggleClass('open--popup close--popup');
-        setTimeout(_.bind(this.removePopup, this), 500);
+        setTimeout(_.bind(this.removePopup, this), this.removeTimeout);
     },
     removePopup: function(){
         this.$el.remove();
+        this.redirect();
         this.remove();
     }
 }));

@@ -23,7 +23,6 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
         this.$el.append(view.render().el);
     },
 
-
     masonry: function(){
         //Find all external media resources
         var items = this.$('iframe, img, video'),

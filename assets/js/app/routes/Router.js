@@ -14,14 +14,18 @@ App.Router = Backbone.Router.extend({
         //'!/add-media': 'addMedia'
     },
 
-      execute: function(callback, args/*, name*/) {
+    execute: function (callback, args, name) {
+        var overflowViews = ['page'];
 
-        // Remove changed view and all subviews;
-        if(this.view){
+        // If this is not overflow layout  and view isset
+        if ($.inArray(name, overflowViews) === -1 && this.view){
+
+            // Remove current view and all subviews;
             this.view.purge ? this.view.purge() : this.view.remove();
             this.view = void(0);
         }
 
+        // Call new route to render view
         if (callback) callback.apply(this, args);
     },
 
@@ -40,7 +44,6 @@ App.Router = Backbone.Router.extend({
         function success(collection){
             App.Vent.trigger('collectionLoad', collection);
             App.setQuery(collection);
-            //view.render();
         }
         function error(collection, response){
             console.log(response.responseText);
@@ -54,6 +57,7 @@ App.Router = Backbone.Router.extend({
     login: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         this.view = App.createForm('view/Login', {model: App.createForm('model/Login')});
+
         App.Helpers.renderContent(this.view.render().el);
     },
 

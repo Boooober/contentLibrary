@@ -957,7 +957,6 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
         this.$el.append(view.render().el);
     },
 
-
     masonry: function(){
         //Find all external media resources
         var items = this.$('iframe, img, video'),
@@ -1204,8 +1203,12 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
         // Additional class names to the popup wrapper
         className: 'popup-bg-default',
         // Additional css options for wrapper
-        css: {}
+        css: {},
+        removeTimeout: 500,
+        // Redirect callack after popup close
+        redirect: function(){}
     },
+
     render: function(content, options){
         this.$el.css('z-index', 9999);
         this.$box.html(content);
@@ -1222,6 +1225,8 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
                     // Set timeout to close popup
                     if (value === true){
                         if(App.debug) console.log('popup will close in '+options.toggleDelay+' ms');
+
+                        //Set timeout identifier to data attribute to remove it in case closing before toggleDelay
                         this.$el.data('timeout', setTimeout(_.bind(this.close, this), options.toggleDelay));
                     }
                     break;
@@ -1239,6 +1244,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
                     this.$el.css(value);
                     break;
                 default:
+                    this[option] = value;
                     break;
             }
         }, this);
@@ -1259,10 +1265,11 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
         if( timeout !== void(0) ) clearTimeout(timeout);
 
         this.$el.toggleClass('open--popup close--popup');
-        setTimeout(_.bind(this.removePopup, this), 500);
+        setTimeout(_.bind(this.removePopup, this), this.removeTimeout);
     },
     removePopup: function(){
         this.$el.remove();
+        this.redirect();
         this.remove();
     }
 }));
@@ -1282,14 +1289,18 @@ App.Router = Backbone.Router.extend({
         //'!/add-media': 'addMedia'
     },
 
-      execute: function(callback, args/*, name*/) {
+    execute: function (callback, args, name) {
+        var overflowViews = ['page'];
 
-        // Remove changed view and all subviews;
-        if(this.view){
+        // If this is not overflow layout  and view isset
+        if ($.inArray(name, overflowViews) === -1 && this.view){
+
+            // Remove current view and all subviews;
             this.view.purge ? this.view.purge() : this.view.remove();
             this.view = void(0);
         }
 
+        // Call new route to render view
         if (callback) callback.apply(this, args);
     },
 
@@ -1308,7 +1319,6 @@ App.Router = Backbone.Router.extend({
         function success(collection){
             App.Vent.trigger('collectionLoad', collection);
             App.setQuery(collection);
-            //view.render();
         }
         function error(collection, response){
             console.log(response.responseText);
@@ -1322,6 +1332,7 @@ App.Router = Backbone.Router.extend({
     login: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         this.view = App.createForm('view/Login', {model: App.createForm('model/Login')});
+
         App.Helpers.renderContent(this.view.render().el);
     },
 
@@ -1378,6 +1389,7 @@ App.Router = Backbone.Router.extend({
 App.State = new (Backbone.Model.extend({
     defaults: {
         user: {},
+        router: {},
         layout: {},
         query: {}
     },
@@ -1395,9 +1407,8 @@ App.State = new (Backbone.Model.extend({
         App.Vent.trigger('layoutRender');
 
         // Run routers when application starts
-        new App.Router;
+        this.set('router', new App.Router);
         Backbone.history.start();
-
 
     }
 }));
