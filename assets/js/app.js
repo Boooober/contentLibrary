@@ -519,9 +519,9 @@ App.set('collection/Carts', Backbone.Collection.extend({
 // Extended with helpful methods for rendering DOM
 App.set('view/BaseView', Backbone.View.extend({
 
-    //https://ianstormtaylor.com/assigning-backbone-subviews-made-even-cleaner
-    //https://ianstormtaylor.com/rendering-views-in-backbonejs-isnt-always-simple
-    //Render subviews with delegating events;
+    // https://ianstormtaylor.com/assigning-backbone-subviews-made-even-cleaner
+    // https://ianstormtaylor.com/rendering-views-in-backbonejs-isnt-always-simple
+    // Render subviews with delegating events;
     assign: function(selector, view){
         var selectors;
 
@@ -536,6 +536,18 @@ App.set('view/BaseView', Backbone.View.extend({
         _.each(selectors, function(view, selector){
             view.setElement(this.$(selector)).render();
         }, this);
+    },
+
+    // http://mikeygee.com/blog/backbone.html
+    // Remove all subviews after closing current
+    purge: function(){
+        if( this.subviews && this.subviews.length !== 0 ){
+            _.each(this.subviews, function(subview){
+                // If subview may have own subviews - purge, else - remove
+                subview.purge ? subview.purge() : subview.remove();
+            });
+        }
+        this.remove();
     }
 }));
 /**
@@ -921,8 +933,8 @@ App.set('view/Account', 'layout', App.get('view/BaseView').extend({
     }
 }));
 App.set('view/Carts', 'layout', Backbone.View.extend({
-    //className: 'row',
-    el: '.main-content',
+    className: 'row',
+    //el: '.main-content',
 
 
 
@@ -940,21 +952,16 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
     },
 
     render: function(){
-        this.reset();
+        this.$el.html('');
         this.collection.each(this.addOne, this);
-        this.$el.html( this.$row.wrap('<div class="container-fluid" />').parent() );
+        App.Helpers.renderContent( this.$el.wrap('<div class="container-fluid" />').parent() );
         this.masonry();
         return this;
     },
 
-    reset: function(){
-        this.$el.html('');
-        this.$row = $('<div class="row" />');
-    },
-
     addOne: function(model){
         var view = App.create('view/Cart', 'content', {model: model});
-        this.$row.append(view.render().el);
+        this.$el.append(view.render().el);
     },
 
 
@@ -965,7 +972,7 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
 
         //Init masonry event handler function
         var masonry = function () {
-            this.$row.masonry({
+            this.$el.masonry({
                 columnWidth: this.$('.cart-item')[0],
                 itemSelector: '.cart-item',
                 percentPosition: true
@@ -1283,11 +1290,18 @@ App.Router = Backbone.Router.extend({
         //'!/add-media': 'addMedia'
     },
 
+    beforeRouteChange: function(e){
+        // Remove changed view and all subviews;
+        console.log(this.view);
+        this.view.purge ? this.view.purge() : this.view.remove();
+        //console.log(e);
+    },
+
     index: function(){
         App.Vent.trigger('layoutChange');
 
         var collection = App.create('collection/Carts'),
-            view = App.createLayout('view/Carts');
+            view = this.view = App.createLayout('view/Carts');
 
         collection.fetch({
             success: success,
@@ -1307,10 +1321,8 @@ App.Router = Backbone.Router.extend({
 
     login: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
-        var model = App.createForm('model/Login'),
-            view  = App.createForm('view/Login', {model: model});
-
-        App.Helpers.renderContent(view.render().el);
+        this.view = App.createForm('view/Login', {model: App.createForm('model/Login')});
+        App.Helpers.renderContent(this.view.render().el);
     },
 
     logout: function(){
@@ -1320,28 +1332,26 @@ App.Router = Backbone.Router.extend({
 
     signin: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
-        var model = App.createForm('model/Sigin'),
-            view  = App.createForm('view/Sigin', {model: model});
+        this.view = App.createForm('view/Sigin', {model: App.createForm('model/Sigin')});
 
-        App.Helpers.renderContent(view.render().el);
+        App.Helpers.renderContent(this.view.render().el);
     },
 
     recover: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
-        var model = App.createForm('model/Recover'),
-            view  = App.createForm('view/Recover', {model: model});
+        this.view = App.createForm('view/Recover', {model: App.createForm('model/Recover')});
 
-        App.Helpers.renderContent(view.render().el);
+        App.Helpers.renderContent(this.view.render().el);
     },
 
     contacts: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
-        App.createLayout('view/Contacts').render();
+        this.view = App.createLayout('view/Contacts').render();
     },
 
     account: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
-        App.createLayout('view/Account').render();
+        this.view = App.createLayout('view/Account').render();
     },
 
     page: function(id){
@@ -1379,7 +1389,11 @@ App.State = new (Backbone.Model.extend({
         App.Vent.trigger('layoutRender');
 
         // Run routers when application starts
-        new App.Router;
+        var router = new App.Router;
+
+        // http://mikeygee.com/blog/backbone.html
+        // Run views purge before every routers url change
+        $(window).on('hashchange', router.beforeRouteChange.bind(router));
         Backbone.history.start();
 
 

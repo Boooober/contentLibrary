@@ -14,11 +14,18 @@ App.Router = Backbone.Router.extend({
         //'!/add-media': 'addMedia'
     },
 
+    beforeRouteChange: function(e){
+        // Remove changed view and all subviews;
+        console.log(this.view);
+        this.view.purge ? this.view.purge() : this.view.remove();
+        //console.log(e);
+    },
+
     index: function(){
         App.Vent.trigger('layoutChange');
 
         var collection = App.create('collection/Carts'),
-            view = App.createLayout('view/Carts');
+            view = this.view = App.createLayout('view/Carts');
 
         collection.fetch({
             success: success,
@@ -38,10 +45,8 @@ App.Router = Backbone.Router.extend({
 
     login: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
-        var model = App.createForm('model/Login'),
-            view  = App.createForm('view/Login', {model: model});
-
-        App.Helpers.renderContent(view.render().el);
+        this.view = App.createForm('view/Login', {model: App.createForm('model/Login')});
+        App.Helpers.renderContent(this.view.render().el);
     },
 
     logout: function(){
@@ -51,28 +56,26 @@ App.Router = Backbone.Router.extend({
 
     signin: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
-        var model = App.createForm('model/Sigin'),
-            view  = App.createForm('view/Sigin', {model: model});
+        this.view = App.createForm('view/Sigin', {model: App.createForm('model/Sigin')});
 
-        App.Helpers.renderContent(view.render().el);
+        App.Helpers.renderContent(this.view.render().el);
     },
 
     recover: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
-        var model = App.createForm('model/Recover'),
-            view  = App.createForm('view/Recover', {model: model});
+        this.view = App.createForm('view/Recover', {model: App.createForm('model/Recover')});
 
-        App.Helpers.renderContent(view.render().el);
+        App.Helpers.renderContent(this.view.render().el);
     },
 
     contacts: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
-        App.createLayout('view/Contacts').render();
+        this.view = App.createLayout('view/Contacts').render();
     },
 
     account: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
-        App.createLayout('view/Account').render();
+        this.view = App.createLayout('view/Account').render();
     },
 
     page: function(id){

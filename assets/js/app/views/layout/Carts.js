@@ -1,6 +1,6 @@
 App.set('view/Carts', 'layout', Backbone.View.extend({
-    //className: 'row',
-    el: '.main-content',
+    className: 'row',
+    //el: '.main-content',
 
 
 
@@ -18,21 +18,16 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
     },
 
     render: function(){
-        this.reset();
+        this.$el.html('');
         this.collection.each(this.addOne, this);
-        this.$el.html( this.$row.wrap('<div class="container-fluid" />').parent() );
+        App.Helpers.renderContent( this.$el.wrap('<div class="container-fluid" />').parent() );
         this.masonry();
         return this;
     },
 
-    reset: function(){
-        this.$el.html('');
-        this.$row = $('<div class="row" />');
-    },
-
     addOne: function(model){
         var view = App.create('view/Cart', 'content', {model: model});
-        this.$row.append(view.render().el);
+        this.$el.append(view.render().el);
     },
 
 
@@ -43,7 +38,7 @@ App.set('view/Carts', 'layout', Backbone.View.extend({
 
         //Init masonry event handler function
         var masonry = function () {
-            this.$row.masonry({
+            this.$el.masonry({
                 columnWidth: this.$('.cart-item')[0],
                 itemSelector: '.cart-item',
                 percentPosition: true

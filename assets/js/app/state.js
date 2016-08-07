@@ -18,7 +18,11 @@ App.State = new (Backbone.Model.extend({
         App.Vent.trigger('layoutRender');
 
         // Run routers when application starts
-        new App.Router;
+        var router = new App.Router;
+
+        // http://mikeygee.com/blog/backbone.html
+        // Run views purge before every routers url change
+        $(window).on('hashchange', router.beforeRouteChange.bind(router));
         Backbone.history.start();
 
 

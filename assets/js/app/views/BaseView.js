@@ -2,9 +2,9 @@
 // Extended with helpful methods for rendering DOM
 App.set('view/BaseView', Backbone.View.extend({
 
-    //https://ianstormtaylor.com/assigning-backbone-subviews-made-even-cleaner
-    //https://ianstormtaylor.com/rendering-views-in-backbonejs-isnt-always-simple
-    //Render subviews with delegating events;
+    // https://ianstormtaylor.com/assigning-backbone-subviews-made-even-cleaner
+    // https://ianstormtaylor.com/rendering-views-in-backbonejs-isnt-always-simple
+    // Render subviews with delegating events;
     assign: function(selector, view){
         var selectors;
 
@@ -19,5 +19,17 @@ App.set('view/BaseView', Backbone.View.extend({
         _.each(selectors, function(view, selector){
             view.setElement(this.$(selector)).render();
         }, this);
+    },
+
+    // http://mikeygee.com/blog/backbone.html
+    // Remove all subviews after closing current
+    purge: function(){
+        if( this.subviews && this.subviews.length !== 0 ){
+            _.each(this.subviews, function(subview){
+                // If subview may have own subviews - purge, else - remove
+                subview.purge ? subview.purge() : subview.remove();
+            });
+        }
+        this.remove();
     }
 }));
