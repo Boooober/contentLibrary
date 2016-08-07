@@ -46,7 +46,7 @@
 		<div class="form-group">
 			<label for="s" class="sr-only">Search</label>
 			<div class="input-group">
-				<input id="s" name="s" type="text" class="form-control" placeholder="Search" value="<%= s %>"/>
+				<input id="s" name="s" type="text" class="form-control" placeholder="Search"/>
 			    <span class="input-group-btn" id="basic-addon3">
 			        <button class="btn btn-primary"><i class="icon-search"></i></button>
 			    </span>

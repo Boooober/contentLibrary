@@ -12,6 +12,27 @@ App.Helpers = {
         return wrap.html();
     },
 
+    loadCollection: function(options){
+        var collection = options.collection,
+            filter = options.filter;
+
+        collection.fetch({
+            success: success,
+            error: error
+        });
+
+        function success(collection){
+            // Filter collection if filtering function exists
+            if(filter) collection.reset(collection.filter(filter));
+            App.Vent.trigger('collectionLoad', collection);
+            //App.setQuery(collection);
+        }
+        function error(collection, response){
+            console.log(response.responseText);
+            //MyApp.vent.trigger("search:error", response);
+        }
+    },
+
     getQueryParam: function(param, source){
         var params, i, l, data;
         source = source || window.location.search.substring(1);

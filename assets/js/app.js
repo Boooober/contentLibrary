@@ -244,6 +244,27 @@ App.Helpers = {
         return wrap.html();
     },
 
+    loadCollection: function(options){
+        var collection = options.collection,
+            filter = options.filter;
+
+        collection.fetch({
+            success: success,
+            error: error
+        });
+
+        function success(collection){
+            // Filter collection if filtering function exists
+            if(filter) collection.reset(collection.filter(filter));
+            App.Vent.trigger('collectionLoad', collection);
+            //App.setQuery(collection);
+        }
+        function error(collection, response){
+            console.log(response.responseText);
+            //MyApp.vent.trigger("search:error", response);
+        }
+    },
+
     getQueryParam: function(param, source){
         var params, i, l, data;
         source = source || window.location.search.substring(1);
@@ -392,30 +413,6 @@ App.set('model/Recover', 'form', App.get('model/BaseForm', 'form').extend({
 
     }
 
-}));
-App.set('model/Search', 'form', Backbone.Model.extend({
-    defaults: {
-        s: App.Helpers.getQueryParam('s')
-    },
-    search: function(s){
-        var collection = App.create('collection/Carts');
-        this.set('s', s);
-
-        collection.fetch({
-            success: function(){
-                var pattern;
-
-                if(s){
-                    pattern = new RegExp(s, 'i');
-                    collection.reset(collection.filter(function(model){
-                        return pattern.test(model.get('title')) || pattern.test(model.get('description'));
-                    }));
-                }
-
-                App.Vent.trigger('collectionLoad', collection);
-            }
-        });
-    }
 }));
 App.set('model/Signin', 'form', App.get('model/BaseForm', 'form').extend({
     defaults: {
@@ -844,9 +841,6 @@ App.set('view/Recover', 'form', App.get('view/BaseForm', 'form').extend({
     }
 }));
 App.set('view/Search', 'form', Backbone.View.extend({
-    initialize: function(){
-        this.model = App.createForm('model/Search');
-    },
     events: {
         "submit form": 'submit',
         "keyup [name='s']": 'keyup'
@@ -854,7 +848,7 @@ App.set('view/Search', 'form', Backbone.View.extend({
     template: App.Helpers.getTemplate('#searchform'),
 
     render: function(){
-        this.$el.html( this.template( this.model.toJSON() ) );
+        this.$el.html( this.template() );
         return this;
     },
     keyup: function(e){
@@ -866,12 +860,13 @@ App.set('view/Search', 'form', Backbone.View.extend({
         e.preventDefault();
         var s = $(e.target).find("input[name='s']").val();
         this.search(s);
-
     },
 
     search: function(s){
-        this.model.search(s);
-        //App.Vent.trigger('searching');
+        var router = App.getRouter();
+        s.length > 0 ?
+            router.navigate('!/search/'+s, {trigger: true}) :
+            router.navigate('', {trigger: true});
     }
 }));
 App.set('view/Sigin', 'form', App.get('view/BaseForm', 'form').extend({
@@ -1450,16 +1445,16 @@ App.Router = Backbone.Router.extend({
         '!/account/logout': 'logout',
         '!/account/recover': 'recover',
         '!/contacts': 'contacts',
+        '!/search/:s': 'search'
         //'!/account': 'account',
         //'!/page/:id': 'page'
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
     },
 
-    execute: function (callback, args, name) {
+    execute: function (callback, args/*, name*/) {
 
         if (this.view) this.view.remove();
-
 
         // Call new route to render view
         if (callback) callback.apply(this, args);
@@ -1467,24 +1462,11 @@ App.Router = Backbone.Router.extend({
 
     index: function(){
         App.Vent.trigger('layoutChange');
+        this.view = App.createLayout('view/Carts');
 
-        var collection = App.create('collection/Carts'),
-            view = this.view = App.createLayout('view/Carts');
-
-
-        collection.fetch({
-            success: success,
-            error: error
+        App.Helpers.loadCollection({
+            collection: App.create('collection/Carts')
         });
-
-        function success(collection){
-            App.Vent.trigger('collectionLoad', collection);
-            App.setQuery(collection);
-        }
-        function error(collection, response){
-            console.log(response.responseText);
-            //MyApp.vent.trigger("search:error", response);
-        }
     },
 
 
@@ -1523,6 +1505,24 @@ App.Router = Backbone.Router.extend({
     contacts: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         this.view = App.createLayout('view/Contacts').render();
+    },
+
+    search: function(s){
+        App.Vent.trigger('layoutChange');
+        this.view = App.createLayout('view/Carts');
+
+        App.Helpers.loadCollection({
+            collection: App.create('collection/Carts'),
+
+            // Filtering function
+            // Return every model, that content match to pattern
+            filter: (function(){
+                var pattern = new RegExp(s, 'i');
+                return function(model){
+                    return pattern.test(model.get('title')) || pattern.test(model.get('description'));
+                }
+            })()
+        });
     },
 
     //account: function(){

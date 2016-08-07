@@ -7,16 +7,16 @@ App.Router = Backbone.Router.extend({
         '!/account/logout': 'logout',
         '!/account/recover': 'recover',
         '!/contacts': 'contacts',
+        '!/search/:s': 'search'
         //'!/account': 'account',
         //'!/page/:id': 'page'
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
     },
 
-    execute: function (callback, args, name) {
+    execute: function (callback, args/*, name*/) {
 
         if (this.view) this.view.remove();
-
 
         // Call new route to render view
         if (callback) callback.apply(this, args);
@@ -24,24 +24,11 @@ App.Router = Backbone.Router.extend({
 
     index: function(){
         App.Vent.trigger('layoutChange');
+        this.view = App.createLayout('view/Carts');
 
-        var collection = App.create('collection/Carts'),
-            view = this.view = App.createLayout('view/Carts');
-
-
-        collection.fetch({
-            success: success,
-            error: error
+        App.Helpers.loadCollection({
+            collection: App.create('collection/Carts')
         });
-
-        function success(collection){
-            App.Vent.trigger('collectionLoad', collection);
-            App.setQuery(collection);
-        }
-        function error(collection, response){
-            console.log(response.responseText);
-            //MyApp.vent.trigger("search:error", response);
-        }
     },
 
 
@@ -80,6 +67,24 @@ App.Router = Backbone.Router.extend({
     contacts: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         this.view = App.createLayout('view/Contacts').render();
+    },
+
+    search: function(s){
+        App.Vent.trigger('layoutChange');
+        this.view = App.createLayout('view/Carts');
+
+        App.Helpers.loadCollection({
+            collection: App.create('collection/Carts'),
+
+            // Filtering function
+            // Return every model, that content match to pattern
+            filter: (function(){
+                var pattern = new RegExp(s, 'i');
+                return function(model){
+                    return pattern.test(model.get('title')) || pattern.test(model.get('description'));
+                }
+            })()
+        });
     },
 
     //account: function(){

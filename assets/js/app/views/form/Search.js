@@ -1,7 +1,4 @@
 App.set('view/Search', 'form', Backbone.View.extend({
-    initialize: function(){
-        this.model = App.createForm('model/Search');
-    },
     events: {
         "submit form": 'submit',
         "keyup [name='s']": 'keyup'
@@ -9,7 +6,7 @@ App.set('view/Search', 'form', Backbone.View.extend({
     template: App.Helpers.getTemplate('#searchform'),
 
     render: function(){
-        this.$el.html( this.template( this.model.toJSON() ) );
+        this.$el.html( this.template() );
         return this;
     },
     keyup: function(e){
@@ -21,11 +18,12 @@ App.set('view/Search', 'form', Backbone.View.extend({
         e.preventDefault();
         var s = $(e.target).find("input[name='s']").val();
         this.search(s);
-
     },
 
     search: function(s){
-        this.model.search(s);
-        //App.Vent.trigger('searching');
+        var router = App.getRouter();
+        s.length > 0 ?
+            router.navigate('!/search/'+s, {trigger: true}) :
+            router.navigate('', {trigger: true});
     }
 }));
