@@ -1,9 +1,14 @@
 img{
   max-width: 100%;
+  display: block;
 }
 
 a{
   &:hover, &:focus{
     text-decoration: none;
   }
+}
+
+.noscroll {
+  overflow: hidden;
 }

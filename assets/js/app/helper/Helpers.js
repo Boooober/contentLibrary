@@ -7,9 +7,9 @@ App.Helpers = {
         return _.template($(selector).html());
     },
 
-    getTypeTemplate: function(type){
-        return this.getTemplate('#'+type+'Cart');
-    },
+    //getTypeTemplate: function(type){
+    //    return this.getTemplate('#'+type+'Cart');
+    //},
     getQueryParam: function(param, source){
         var params, i, l, data;
         source = source || window.location.search.substring(1);

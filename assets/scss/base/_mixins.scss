@@ -38,3 +38,15 @@
   border-top: 3px solid $default;
   box-shadow: 0 1px 1px rgba(0,0,0,0.1);
 }
+
+@mixin boxComponents{
+  .box-header, .box-body, .box-footer{
+    padding: 15px;
+  }
+  .box-footer{
+    border-top: 1px solid $lightgray;
+  }
+  .box-header.with-border{
+    border-bottom: 1px solid $lightgray;
+  }
+}

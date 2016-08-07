@@ -65,16 +65,16 @@
     margin: 0 auto;
   }
 }
-.image-cart{
-  .cart-image{
-    display: block;
-    background-size: cover;
-    background-position: center;
-  }
-}
+//.image-cart{
+//  .cart-image{
+//    display: block;
+//    background-size: cover;
+//    background-position: center;
+//  }
+//}
 
 .video-cart{
-  .video-frame{
+  figure{
     height: 0;
     display: block;
 //    transition: .2s;

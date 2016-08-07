@@ -1,6 +1,6 @@
 'use strict';
 var App = {
-    debug: false,
+    debug: true,
 
     //Namespace app structure
     //Models: {
@@ -215,9 +215,9 @@ App.Helpers = {
         return _.template($(selector).html());
     },
 
-    getTypeTemplate: function(type){
-        return this.getTemplate('#'+type+'Cart');
-    },
+    //getTypeTemplate: function(type){
+    //    return this.getTemplate('#'+type+'Cart');
+    //},
     getQueryParam: function(param, source){
         var params, i, l, data;
         source = source || window.location.search.substring(1);
@@ -434,7 +434,7 @@ App.set('model/Cart', 'content', Backbone.Model.extend({
 
     isText: function(){
         return this.get('type') === 2;
-    }
+    },
 
 }));
 App.set('model/Main', 'layout', Backbone.Model.extend({
@@ -818,6 +818,58 @@ App.set('view/Sigin', 'form', App.get('view/BaseForm', 'form').extend({
         console.log('Form is submitting');
     }
 }));
+App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
+    scaleMedia: function () {
+        var video = this.$('.video-cart iframe'),
+            container = video.parent();
+        var scaleMedia = function () {
+            var ratio = container.width() / video.attr('width'),
+                height = video.attr('height') * ratio;
+
+            container.css('padding-bottom', height);
+        }.bind(this);
+
+        setTimeout(scaleMedia, 0);
+        $(window).resize(scaleMedia);
+        this.listenTo(App.Vent, 'layoutResize', scaleMedia);
+    },
+
+    processMediaTag: function(link, title){
+        var wrap = $('<div />');
+
+        // Create DOM element and push it to temp wrapper
+        if( this.model.isVideo() ){
+            wrap.append($('<iframe />').attr({
+                width: 640,
+                height: 360,
+                src: link,
+                frameborder: 0,
+                allowfullscreen: true
+            }));
+        } else if(this.model.isImage() ){
+            wrap.append($('<img />').attr({
+                src: link,
+                alt: title,
+                title: title
+            }));
+        }
+
+        // Return text representation of DOM element
+        // To use it in template
+        return wrap.html();
+    },
+
+    // Return type of cart
+    typeClass: function(){
+        return this.model.isImage() ? 'image-cart' :
+            this.model.isVideo() ? 'video-cart' :
+            'text-type';
+    }
+
+
+}));
+
+
 // Cart toolbox view
 
 App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
@@ -845,7 +897,7 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
         e.preventDefault();
         var id = this.model.get('id'),
             router = App.getRouter(),
-            content = 'sdfasdfsdf' + id;
+            content = App.createContent('view/CartInPopup', {model: this.model});
 
         router.navigate('!/page/' + id);
 
@@ -861,49 +913,39 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
 }));
 
 
-App.set('view/Cart', 'content', App.get('view/BaseView').extend({
+App.set('view/Cart', 'content', App.get('view/BaseCart', 'content').extend({
     initSubviews: function(){
         this.subviews = {};
         this.subviews['.toolbox'] = App.createContent('view/CartToolbox', {model: this.model});
         return this.subviews;
     },
 
-    //There are three content types:
-    //0 => image, 1 => video, 3 => text
-    //They are stored in array by indexes
-    templates: [
-        App.Helpers.getTypeTemplate('image'),
-        App.Helpers.getTypeTemplate('video'),
-        App.Helpers.getTypeTemplate('text')
-    ],
+    mediaTemplate: App.Helpers.getTemplate('#mediaCart'),
+    textTemplate: App.Helpers.getTemplate('#textCart'),
 
     render: function(){
-        var model = this.model.toJSON(),
-            template = this.templates[model.type](model);
+        var type = this.model.isText() ? 'text' : 'media',
+            template = this[type+'Template'](this.model.toJSON());
 
-        this.setElement($(template));
+        this.setElement(template);
         this.assign( this.initSubviews() );
 
         if(this.model.isVideo()) this.scaleMedia();
 
         return this;
-    },
-
-    scaleMedia: function(){
-        var video = this.$('.video-frame iframe'),
-            container = video.parent();
-        var scaleMedia = function(){
-            var ratio = container.width() / video.attr('width'),
-                height = video.attr('height') * ratio;
-
-            container.css('padding-bottom', height);
-        }.bind(this);
-
-        setTimeout(scaleMedia, 0);
-        $(window).resize(scaleMedia);
-        this.listenTo(App.Vent, 'layoutResize', scaleMedia);
     }
 }));
+
+
+App.set('view/CartInPopup', 'content', App.get('view/BaseCart', 'content').extend({
+    template: App.Helpers.getTemplate('#cartInPopup'),
+    render: function () {
+        this.$el.html(this.template(this.model.toJSON()));
+        if(this.model.isVideo()) this.scaleMedia();
+        return this;
+    }
+}));
+
 
 
 App.set('view/Page', 'content', App.get('view/BaseView').extend({
@@ -1203,14 +1245,15 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
     initialize: function(){
         this.root = $(document).find('.popup-container');
 
-        this.$box = $('<div class="popup-box" />');
+        this.$content = $('<div class="popup-content" />');
 
         // Create popup structure
         // .popup -> .popup-container -> .popup-box -> content...
-        this.$el.html( $('<div class="popup-wrapper" />').html(this.$box) );
+        this.$el.html( $('<div class="popup-wrapper" />').html(this.$content) );
     },
     events: {
-        'click .close-trigger, .popup-wrapper': 'closeHandler'
+        'click': 'closeHandler',
+        'click .close-trigger': 'closeHandler'
     },
     // Classes of popup size
     sizes: {
@@ -1239,7 +1282,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
         var content = this.getDataContent(data);
 
         this.$el.css('z-index', 9999);
-        this.$box.html(content);
+        this.$content.html(content);
         this.setOptions(options);
         this.open();
     },
@@ -1261,7 +1304,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
                     break;
                 case 'trigger':
                     if(value === true)
-                        this.$box.append('<div class="close-trigger" />');
+                        this.$content.append('<div class="close-trigger" />');
                     break;
                 case 'size':
                     this.$el.addClass(this.sizes[value]);
@@ -1285,8 +1328,6 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
     },
 
     open: function(){
-
-        console.log(this.root);
         this.root.append(this.$el);
         this.$el.fadeIn().addClass('open--popup');
     },
@@ -1329,7 +1370,6 @@ App.Router = Backbone.Router.extend({
         '!/contacts': 'contacts',
         //'!/account': 'account',
         //'!/page/:id': 'page'
-        //'!/page-:id': 'page',
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
     },
@@ -1349,8 +1389,6 @@ App.Router = Backbone.Router.extend({
     },
 
     index: function(){
-
-        console.log('index');
         App.Vent.trigger('layoutChange');
 
         var collection = App.create('collection/Carts'),

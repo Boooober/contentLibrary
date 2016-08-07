@@ -25,7 +25,7 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
         e.preventDefault();
         var id = this.model.get('id'),
             router = App.getRouter(),
-            content = 'sdfasdfsdf' + id;
+            content = App.createContent('view/CartInPopup', {model: this.model});
 
         router.navigate('!/page/' + id);
 
@@ -41,47 +41,26 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
 }));
 
 
-App.set('view/Cart', 'content', App.get('view/BaseView').extend({
+App.set('view/Cart', 'content', App.get('view/BaseCart', 'content').extend({
     initSubviews: function(){
         this.subviews = {};
         this.subviews['.toolbox'] = App.createContent('view/CartToolbox', {model: this.model});
         return this.subviews;
     },
 
-    //There are three content types:
-    //0 => image, 1 => video, 3 => text
-    //They are stored in array by indexes
-    templates: [
-        App.Helpers.getTypeTemplate('image'),
-        App.Helpers.getTypeTemplate('video'),
-        App.Helpers.getTypeTemplate('text')
-    ],
+    mediaTemplate: App.Helpers.getTemplate('#mediaCart'),
+    textTemplate: App.Helpers.getTemplate('#textCart'),
 
     render: function(){
-        var model = this.model.toJSON(),
-            template = this.templates[model.type](model);
+        var type = this.model.isText() ? 'text' : 'media',
+            template = this[type+'Template'](this.model.toJSON());
 
-        this.setElement($(template));
+        this.setElement(template);
         this.assign( this.initSubviews() );
 
         if(this.model.isVideo()) this.scaleMedia();
 
         return this;
-    },
-
-    scaleMedia: function(){
-        var video = this.$('.video-frame iframe'),
-            container = video.parent();
-        var scaleMedia = function(){
-            var ratio = container.width() / video.attr('width'),
-                height = video.attr('height') * ratio;
-
-            container.css('padding-bottom', height);
-        }.bind(this);
-
-        setTimeout(scaleMedia, 0);
-        $(window).resize(scaleMedia);
-        this.listenTo(App.Vent, 'layoutResize', scaleMedia);
     }
 }));
 

@@ -3,21 +3,8 @@
   margin-bottom: 20px;
   width: 100%;
   @include boxStyle;
-
-
   &.box-flat{
     border-radius: 0;
   }
-
-  .box-header, .box-body, .box-footer{
-    padding: 15px;
-  }
-
-  .box-footer{
-    border-top: 1px solid $lightgray;
-  }
-  .box-header.with-border{
-    border-bottom: 1px solid $lightgray;
-  }
-
+  @include boxComponents
 }

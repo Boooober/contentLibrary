@@ -9,7 +9,6 @@ App.Router = Backbone.Router.extend({
         '!/contacts': 'contacts',
         //'!/account': 'account',
         //'!/page/:id': 'page'
-        //'!/page-:id': 'page',
         //'!/category-:id': 'category',
         //'!/add-media': 'addMedia'
     },
@@ -29,8 +28,6 @@ App.Router = Backbone.Router.extend({
     },
 
     index: function(){
-
-        console.log('index');
         App.Vent.trigger('layoutChange');
 
         var collection = App.create('collection/Carts'),

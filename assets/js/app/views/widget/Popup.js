@@ -8,14 +8,15 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
     initialize: function(){
         this.root = $(document).find('.popup-container');
 
-        this.$box = $('<div class="popup-box" />');
+        this.$content = $('<div class="popup-content" />');
 
         // Create popup structure
         // .popup -> .popup-container -> .popup-box -> content...
-        this.$el.html( $('<div class="popup-wrapper" />').html(this.$box) );
+        this.$el.html( $('<div class="popup-wrapper" />').html(this.$content) );
     },
     events: {
-        'click .close-trigger, .popup-wrapper': 'closeHandler'
+        'click': 'closeHandler',
+        'click .close-trigger': 'closeHandler'
     },
     // Classes of popup size
     sizes: {
@@ -44,7 +45,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
         var content = this.getDataContent(data);
 
         this.$el.css('z-index', 9999);
-        this.$box.html(content);
+        this.$content.html(content);
         this.setOptions(options);
         this.open();
     },
@@ -66,7 +67,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
                     break;
                 case 'trigger':
                     if(value === true)
-                        this.$box.append('<div class="close-trigger" />');
+                        this.$content.append('<div class="close-trigger" />');
                     break;
                 case 'size':
                     this.$el.addClass(this.sizes[value]);
@@ -90,8 +91,6 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
     },
 
     open: function(){
-
-        console.log(this.root);
         this.root.append(this.$el);
         this.$el.fadeIn().addClass('open--popup');
     },

@@ -30,6 +30,6 @@ App.set('model/Cart', 'content', Backbone.Model.extend({
 
     isText: function(){
         return this.get('type') === 2;
-    }
+    },
 
 }));

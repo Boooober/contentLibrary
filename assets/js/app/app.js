@@ -1,6 +1,6 @@
 'use strict';
 var App = {
-    debug: false,
+    debug: true,
 
     //Namespace app structure
     //Models: {
