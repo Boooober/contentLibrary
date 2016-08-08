@@ -1,7 +1,6 @@
 App.Router = Backbone.Router.extend({
     routes: {
-        '': 'index',
-        '!/': 'index',
+        '(!/)': 'index',
         '!/account/signin': 'accountSignin',
         '!/account/login': 'accountLogin',
         '!/account/logout': 'accountLogout',
@@ -13,7 +12,7 @@ App.Router = Backbone.Router.extend({
         '!/search/:s': 'search',
         '!/uploads': 'uploads',
         '!/favorites': 'favorites',
-        '!/add-cart': 'addCart'
+        '!/add-card': 'addCard'
     },
 
     execute: function (callback, args/*, name*/) {
@@ -26,10 +25,10 @@ App.Router = Backbone.Router.extend({
 
     index: function(){
         App.Vent.trigger('layoutChange');
-        this.view = App.createLayout('view/Carts');
+        this.view = App.createLayout('view/Cards');
 
         App.Helpers.loadFromCollection({
-            collection: App.create('collection/Carts')
+            collection: App.create('collection/Cards')
         });
     },
 
@@ -69,8 +68,11 @@ App.Router = Backbone.Router.extend({
         App.Helpers.renderContent(this.view.render().el);
     },
 
-    accountDestroy: function(){
+    addCard: function(){
+        App.Vent.trigger('layoutChange');
+        this.view = App.createForm('view/AddCard');
 
+        App.Helpers.renderContent(this.view.render().el);
     },
     // ==============
 
@@ -84,10 +86,10 @@ App.Router = Backbone.Router.extend({
 
     search: function(s){
         App.Vent.trigger('layoutChange');
-        this.view = App.createLayout('view/Carts');
+        this.view = App.createLayout('view/Cards');
 
         App.Helpers.loadFromCollection({
-            collection: App.create('collection/Carts'),
+            collection: App.create('collection/Cards'),
 
             // Filtering function
             // Return every model, that content match to pattern
@@ -102,27 +104,22 @@ App.Router = Backbone.Router.extend({
 
     page: function(id){
         App.Vent.trigger('layoutChange');
-        this.view = App.createLayout('view/CartPage');
+        this.view = App.createLayout('view/CardPage');
 
         App.Helpers.loadFromCollection({
-            collection: App.create('collection/Carts'),
+            collection: App.create('collection/Cards'),
             find: {id: parseInt(id)}
         });
-    },
-
-
-    addCart: function(){
-        console.log('final route');
     },
 
     // Filters
     // ==============
     uploads: function(){
         App.Vent.trigger('layoutChange');
-        this.view = App.createLayout('view/Carts');
+        this.view = App.createLayout('view/Cards');
 
         App.Helpers.loadFromCollection({
-            collection: App.create('collection/Carts'),
+            collection: App.create('collection/Cards'),
 
             // Filtering function
             // Return every model, that content match to pattern
@@ -137,10 +134,10 @@ App.Router = Backbone.Router.extend({
 
     favorites: function(){
         App.Vent.trigger('layoutChange');
-        this.view = App.createLayout('view/Carts');
+        this.view = App.createLayout('view/Cards');
 
         App.Helpers.loadFromCollection({
-            collection: App.create('collection/Carts'),
+            collection: App.create('collection/Cards'),
 
             // Filtering function
             // Return every model, that content match to pattern

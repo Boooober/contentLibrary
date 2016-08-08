@@ -1,7 +1,7 @@
 /**
- * Cart model
+ * Card model
  */
-App.set('model/Cart', 'content', Backbone.Model.extend({
+App.set('model/Card', 'content', Backbone.Model.extend({
     defaults: {
         type: 0,
         title: '',
@@ -19,6 +19,13 @@ App.set('model/Cart', 'content', Backbone.Model.extend({
         this.set('isFavorite', !favorite);
         this.set('favorites', favorite ? --count : ++count);
     },
+
+    types: {
+        0: 'Image',
+        1: 'Video',
+        2: 'Text'
+    },
+
 
     isImage: function(){
         return this.get('type') === 0;

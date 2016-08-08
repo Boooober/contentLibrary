@@ -70,7 +70,7 @@
 	</form>
 </script>
 
-<script type="text/template" id="cartPage">
+<script type="text/template" id="cardPage">
 	<div class="box">
 		<div class="box-header">
 			<h1><%= title %></h1>

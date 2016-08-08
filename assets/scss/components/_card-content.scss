@@ -1,15 +1,15 @@
-.cart-content {
+.card-content {
   overflow: hidden;
   margin-bottom: 20px;
 
-  .cart-head, .cart-body, .cart-footer {
+  .card-head, .card-body, .card-footer {
     background: white;
   }
-  .cart-head {
+  .card-head {
   }
-  .cart-body {
+  .card-body {
   }
-  .cart-footer {
+  .card-footer {
   }
 
   .toolbox {
@@ -76,15 +76,15 @@
     margin: 0 auto;
   }
 }
-//.image-cart{
-//  .cart-image{
+//.image-card{
+//  .card-image{
 //    display: block;
 //    background-size: cover;
 //    background-position: center;
 //  }
 //}
 
-.video-cart{
+.video-card{
   figure{
     height: 0;
     display: block;
@@ -101,7 +101,7 @@
   }
 }
 
-.text-cart{
+.text-card{
   @include boxStyle;
 }
 

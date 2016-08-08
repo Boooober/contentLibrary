@@ -456,9 +456,9 @@ App.set('model/Signin', 'form', App.get('model/BaseForm', 'form').extend({
     }
 }));
 /**
- * Cart model
+ * Card model
  */
-App.set('model/Cart', 'content', Backbone.Model.extend({
+App.set('model/Card', 'content', Backbone.Model.extend({
     defaults: {
         type: 0,
         title: '',
@@ -476,6 +476,13 @@ App.set('model/Cart', 'content', Backbone.Model.extend({
         this.set('isFavorite', !favorite);
         this.set('favorites', favorite ? --count : ++count);
     },
+
+    types: {
+        0: 'Image',
+        1: 'Video',
+        2: 'Text'
+    },
+
 
     isImage: function(){
         return this.get('type') === 0;
@@ -584,9 +591,9 @@ App.set('model/GoogleMap', 'widget', Backbone.Model.extend({
         ]
     }
 }));
-App.set('collection/Carts', Backbone.Collection.extend({
-    url: 'assets/js/database/carts.json',
-    model: App.get('model/Cart', 'content')
+App.set('collection/Cards', Backbone.Collection.extend({
+    url: 'assets/js/database/cards.json',
+    model: App.get('model/Card', 'content')
 }));
 App.set('collection/Users', Backbone.Collection.extend({
     url: 'assets/js/database/users.json',
@@ -645,7 +652,7 @@ App.set('view/Validator', 'form', Backbone.View.extend({
         e.preventDefault();
         var $form = $(e.target),
             noErrors = true,
-            data = this.processData($form.find(':input[name]')),
+            data = this.processData($form.find(":input[name]:not([data-skip-validation], [type='file'])")),
             formData;
 
 
@@ -894,16 +901,18 @@ App.set('view/AccountEdit', 'form', App.get('view/BaseForm', 'form').extend({
     }
 
 }));
-App.set('view/AddCart', 'form', App.get('view/BaseForm', 'form').extend({
+App.set('view/AddCard', 'form', App.get('view/BaseForm', 'form').extend({
 
-    template: App.Helpers.getTemplate('#addCart'),
+    template: App.Helpers.getTemplate('#addCard'),
 
     initialize: function(){
-        this.model = this.model ? this.model : App.createContent('model/Cart');
+        this.model = this.model ? this.model : App.createContent('model/Card');
         this.extendParentEvents(this.events);
     },
     events: {
-
+        'change select': 'dependentFields',
+        'change #cardImage': 'imagePreview',
+        'blur #cardVideo': 'videoPreview'
     },
 
     render: function(){
@@ -912,10 +921,91 @@ App.set('view/AddCart', 'form', App.get('view/BaseForm', 'form').extend({
     },
 
     submit: function(e, data){
+        console.log(data);
+        //this.model.set(data);
+    },
 
-        this.model.set(data);
-        App.Vent.trigger('closePopup', this);
+    renderDropdown: function(){
+        var $dropdown = $('<div />'),
+            $tag, type = this.model.get('type');
+
+        // Append blank option
+        $dropdown.append( $('<option />').attr({selected: true, value: ''}).text('Select type') );
+
+        // Append real options
+        _.each(this.model.types, function(name, code){
+            $tag = $('<option />').attr('value', code).text(name);
+            if(type === code) $tag.attr('selected', true);
+            $dropdown.append($tag);
+        }, this);
+
+        return $dropdown.html();
+    },
+
+    dependentFields: function (e) {
+        var $target = $(e.target).find('option:selected'),
+            pattern = new RegExp($target.text(), 'i'),
+            $fields = this.$('.dependent-fields li'),
+            $selected, $field;
+
+        // Remove active class from all
+        $fields.each(removeActive);
+
+        // Search appropriative list to selected option
+        $fields.each(function () {
+            $field = $(this);
+            if (pattern.test($field.data('type'))) $selected = $field;
+        });
+
+        // If found, set active class
+        // Allow validation
+        if ($selected) makeActive.call($selected);
+
+
+        // Allow or disallow validation
+        // Toggle from front-end
+        function makeActive() {
+            $(this).addClass('active')
+                .find(':input[name]').removeAttr('data-skip-validation');
+        }
+
+        function removeActive() {
+            $(this).removeClass('active')
+                .find(':input[name]').attr('data-skip-validation', true);
+        }
+
+    },
+
+    imagePreview: function(e){
+        var $target = $(e.target),
+            image = $target.prop('files')[0],
+            reader = new FileReader();
+
+        if(image){
+            reader.onload = function(e){
+                $target.after( $('<img />').attr({src: e.target.result}) );
+            };
+            reader.readAsDataURL(image);
+        }
+    },
+
+    videoPreview: function(e){
+        var $target = $(e.target),
+            link = $target.val().trim(),
+            $video;
+
+        if(!link) return;
+
+        $video = $('<iframe />').attr({
+            src: '//www.youtube.com/embed/'+link+'?rel=0&amp;controls=0&amp;showinfo=0&amp;feature=oembed',
+            frameborder: 0,
+            width: '100%'
+        });
+
+        $target.after($video);
     }
+
+
 
 }));
 App.set('view/Contact', 'form', App.get('view/BaseForm', 'form').extend({
@@ -1058,9 +1148,9 @@ App.set('view/AccountInfo', 'content', App.get('view/BaseView').extend({
     }
 
 }));
-App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
+App.set('view/BaseCard', 'content', App.get('view/BaseView').extend({
     scaleMedia: function () {
-        var video = this.$('.video-cart iframe'),
+        var video = this.$('.video-card iframe'),
             container = video.parent();
         var scaleMedia = function () {
             var ratio = container.width() / video.attr('width'),
@@ -1097,14 +1187,14 @@ App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
         return App.Helpers.elemToString(media);
     },
 
-    // Return type of cart
+    // Return type of card
     typeClass: function(){
-        return this.model.isImage() ? 'image-cart' :
-            this.model.isVideo() ? 'video-cart' :
+        return this.model.isImage() ? 'image-card' :
+            this.model.isVideo() ? 'video-card' :
             'text-type';
     },
 
-    // Render cart link
+    // Render card link
     getLink: function(className){
         var link = $('<a />').attr({
             href: '#!/page/'+this.model.id,
@@ -1125,9 +1215,9 @@ App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
 }));
 
 
-// Cart toolbox view
+// Card toolbox view
 
-App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
+App.set('view/CardToolbox', 'content', App.get('view/BaseView').extend({
 
     initialize: function() {
         this.model.on('change:favorites', this.render, this);
@@ -1135,7 +1225,7 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
     events: {
         'click .rate-button': 'toggleRate',
     },
-    template: App.Helpers.getTemplate('#cartToolbox'),
+    template: App.Helpers.getTemplate('#cardToolbox'),
 
     render: function(){
         this.$el.html( this.template( this.model.toJSON() ) );
@@ -1149,18 +1239,18 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
 }));
 
 
-App.set('view/Cart', 'content', App.get('view/BaseCart', 'content').extend({
+App.set('view/Card', 'content', App.get('view/BaseCard', 'content').extend({
     initSubviews: function(){
         this.subviews = {};
-        this.subviews['.toolbox'] = App.createContent('view/CartToolbox', {model: this.model});
+        this.subviews['.toolbox'] = App.createContent('view/CardToolbox', {model: this.model});
         return this.subviews;
     },
     events: {
         'click .post-link': 'openInPopup'
     },
 
-    mediaTemplate: App.Helpers.getTemplate('#mediaCart'),
-    textTemplate: App.Helpers.getTemplate('#textCart'),
+    mediaTemplate: App.Helpers.getTemplate('#mediaCard'),
+    textTemplate: App.Helpers.getTemplate('#textCard'),
 
     render: function(){
         var type = this.model.isText() ? 'text' : 'media',
@@ -1178,7 +1268,7 @@ App.set('view/Cart', 'content', App.get('view/BaseCart', 'content').extend({
         e.preventDefault();
         var id = this.model.get('id'),
             router = App.getRouter(),
-            content = App.createContent('view/CartInPopup', {model: this.model});
+            content = App.createContent('view/CardInPopup', {model: this.model});
 
         router.navigate('!/page/' + id);
 
@@ -1193,8 +1283,8 @@ App.set('view/Cart', 'content', App.get('view/BaseCart', 'content').extend({
 }));
 
 
-App.set('view/CartInPopup', 'content', App.get('view/BaseCart', 'content').extend({
-    template: App.Helpers.getTemplate('#cartInPopup'),
+App.set('view/CardInPopup', 'content', App.get('view/BaseCard', 'content').extend({
+    template: App.Helpers.getTemplate('#cardInPopup'),
     render: function () {
         this.$el.html(this.template(this.model.toJSON()));
         if(this.model.isVideo()) this.scaleMedia();
@@ -1204,10 +1294,10 @@ App.set('view/CartInPopup', 'content', App.get('view/BaseCart', 'content').exten
 
 
 
-App.set('view/CartPage', 'layout', App.get('view/BaseCart', 'content').extend({
+App.set('view/CardPage', 'layout', App.get('view/BaseCard', 'content').extend({
 
     className: 'container-fluid',
-    template: App.Helpers.getTemplate('#cartPage'),
+    template: App.Helpers.getTemplate('#cardPage'),
     initialize: function(){
         this.listenTo(App.Vent, 'modelLoad', this.render);
     },
@@ -1218,7 +1308,7 @@ App.set('view/CartPage', 'layout', App.get('view/BaseCart', 'content').extend({
         return this;
     }
 }));
-App.set('view/Carts', 'layout', App.get('view/BaseView').extend({
+App.set('view/Cards', 'layout', App.get('view/BaseView').extend({
     className: 'row',
 
     subviews: {},
@@ -1242,7 +1332,7 @@ App.set('view/Carts', 'layout', App.get('view/BaseView').extend({
 
     // Render every subview and save pointers to objects
     addOne: function(model, index){
-        var view = App.create('view/Cart', 'content', {model: model});
+        var view = App.create('view/Card', 'content', {model: model});
 
         this.subviews[index] = view;
         this.$el.append(view.render().el);
@@ -1256,8 +1346,8 @@ App.set('view/Carts', 'layout', App.get('view/BaseView').extend({
         //Init masonry event handler function
         var masonry = function () {
             this.$el.masonry({
-                columnWidth: this.$('.cart-item')[0],
-                itemSelector: '.cart-item',
+                columnWidth: this.$('.card-item')[0],
+                itemSelector: '.card-item',
                 percentPosition: true
             });
         }.bind(this);
@@ -1617,8 +1707,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
 }));
 App.Router = Backbone.Router.extend({
     routes: {
-        '': 'index',
-        '!/': 'index',
+        '(!/)': 'index',
         '!/account/signin': 'accountSignin',
         '!/account/login': 'accountLogin',
         '!/account/logout': 'accountLogout',
@@ -1630,7 +1719,7 @@ App.Router = Backbone.Router.extend({
         '!/search/:s': 'search',
         '!/uploads': 'uploads',
         '!/favorites': 'favorites',
-        '!/add-cart': 'addCart'
+        '!/add-card': 'addCard'
     },
 
     execute: function (callback, args/*, name*/) {
@@ -1643,10 +1732,10 @@ App.Router = Backbone.Router.extend({
 
     index: function(){
         App.Vent.trigger('layoutChange');
-        this.view = App.createLayout('view/Carts');
+        this.view = App.createLayout('view/Cards');
 
         App.Helpers.loadFromCollection({
-            collection: App.create('collection/Carts')
+            collection: App.create('collection/Cards')
         });
     },
 
@@ -1686,8 +1775,11 @@ App.Router = Backbone.Router.extend({
         App.Helpers.renderContent(this.view.render().el);
     },
 
-    accountDestroy: function(){
+    addCard: function(){
+        App.Vent.trigger('layoutChange');
+        this.view = App.createForm('view/AddCard');
 
+        App.Helpers.renderContent(this.view.render().el);
     },
     // ==============
 
@@ -1701,10 +1793,10 @@ App.Router = Backbone.Router.extend({
 
     search: function(s){
         App.Vent.trigger('layoutChange');
-        this.view = App.createLayout('view/Carts');
+        this.view = App.createLayout('view/Cards');
 
         App.Helpers.loadFromCollection({
-            collection: App.create('collection/Carts'),
+            collection: App.create('collection/Cards'),
 
             // Filtering function
             // Return every model, that content match to pattern
@@ -1719,27 +1811,22 @@ App.Router = Backbone.Router.extend({
 
     page: function(id){
         App.Vent.trigger('layoutChange');
-        this.view = App.createLayout('view/CartPage');
+        this.view = App.createLayout('view/CardPage');
 
         App.Helpers.loadFromCollection({
-            collection: App.create('collection/Carts'),
+            collection: App.create('collection/Cards'),
             find: {id: parseInt(id)}
         });
-    },
-
-
-    addCart: function(){
-        console.log('final route');
     },
 
     // Filters
     // ==============
     uploads: function(){
         App.Vent.trigger('layoutChange');
-        this.view = App.createLayout('view/Carts');
+        this.view = App.createLayout('view/Cards');
 
         App.Helpers.loadFromCollection({
-            collection: App.create('collection/Carts'),
+            collection: App.create('collection/Cards'),
 
             // Filtering function
             // Return every model, that content match to pattern
@@ -1754,10 +1841,10 @@ App.Router = Backbone.Router.extend({
 
     favorites: function(){
         App.Vent.trigger('layoutChange');
-        this.view = App.createLayout('view/Carts');
+        this.view = App.createLayout('view/Cards');
 
         App.Helpers.loadFromCollection({
-            collection: App.create('collection/Carts'),
+            collection: App.create('collection/Cards'),
 
             // Filtering function
             // Return every model, that content match to pattern

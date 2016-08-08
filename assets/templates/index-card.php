@@ -1,10 +1,10 @@
-<!-- Image/Video-cart template -->
-<script type="text/template" id="mediaCart">
-	<div class="cart-item col-xs-12 col-sm-4">
-		<div class="cart-content <%= this.typeClass() %>">
-			<div class="cart-head"></div>
+<!-- Image/Video-card template -->
+<script type="text/template" id="mediaCard">
+	<div class="card-item col-xs-12 col-sm-4">
+		<div class="card-content <%= this.typeClass() %>">
+			<div class="card-head"></div>
 
-			<div class="cart-body hover-toolbox">
+			<div class="card-body hover-toolbox">
 				<% if(mediaLink) { %>
 					<figure>
 						<%= this.processMediaTag(mediaLink, title) %>
@@ -16,31 +16,31 @@
 				<div class="toolbox with-padding"></div>
 			</div>
 
-			<div class="cart-footer"></div>
+			<div class="card-footer"></div>
 		</div>
 	</div>
 </script>
-<!-- ./Image/Video-cart template -->
+<!-- ./Image/Video-card template -->
 
-<!-- Text-type cart template -->
-<script type="text/template" id="textCart">
-	<div class="cart-item col-xs-12 col-sm-4">
-		<div class="cart-content text-cart">
-			<div class="cart-head with-padding">
+<!-- Text-type card template -->
+<script type="text/template" id="textCard">
+	<div class="card-item col-xs-12 col-sm-4">
+		<div class="card-content text-card">
+			<div class="card-head with-padding">
 				<div class="toolbox"></div>
 			</div>
-			<div class="cart-body with-padding">
+			<div class="card-body with-padding">
 				<h3 class="post-title"><a href="#!/page/<%= id %>"><%= title %></a></h3>
 				<div class="post-content"><%= description %></div>
 			</div>
-			<div class="cart-footer"></div>
+			<div class="card-footer"></div>
 		</div>
 	</div>
 </script>
-<!-- ./Text-type cart template -->
+<!-- ./Text-type card template -->
 
-<!-- Popup cart template -->
-<script type="text/template" id="cartInPopup">
+<!-- Popup card template -->
+<script type="text/template" id="cardInPopup">
 	<div class="box-popup <%= this.typeClass() %>">
 		<div class="box-header with-border">
 			<h1><%= title %></h1>
@@ -58,14 +58,14 @@
 		</div>
 	</div>
 </script>
-<!-- ./Popup cart template -->
+<!-- ./Popup card template -->
 
-<!--Cart toolbox template-->
-<script type="text/template" id="cartToolbox">
+<!--Card toolbox template-->
+<script type="text/template" id="cardToolbox">
 	<div class="pull-right">
 		<a href="#" class="rate-button<% if(isFavorite) { %> is-favorite<% } %>"><i class="icon-rate-star"></i><%= favorites %></a>
 		<a href="#!/page/<%= id %>" class="post-link"><i class="icon-goto"></i></a>
 	</div>
 	<a href="#" class="label label-hover"><%= author %></a>
 </script>
-<!-- ./Cart toolbox template-->
+<!-- ./Card toolbox template-->

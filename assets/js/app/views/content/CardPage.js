@@ -1,7 +1,7 @@
-App.set('view/CartPage', 'layout', App.get('view/BaseCart', 'content').extend({
+App.set('view/CardPage', 'layout', App.get('view/BaseCard', 'content').extend({
 
     className: 'container-fluid',
-    template: App.Helpers.getTemplate('#cartPage'),
+    template: App.Helpers.getTemplate('#cardPage'),
     initialize: function(){
         this.listenTo(App.Vent, 'modelLoad', this.render);
     },
