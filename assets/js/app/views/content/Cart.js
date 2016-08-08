@@ -55,9 +55,8 @@ App.set('view/Cart', 'content', App.get('view/BaseCart', 'content').extend({
 
         router.navigate('!/page/' + id);
 
-        App.create('view/Popup', 'widget')
+        App.createWidget('Popup')
             .render(content, {
-
                 // Redirect to index after close popup
                 redirect: function () {
                     router.navigate('');

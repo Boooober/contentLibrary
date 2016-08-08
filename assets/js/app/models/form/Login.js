@@ -25,11 +25,5 @@ App.set('model/Login', 'form', App.get('model/BaseForm', 'form').extend({
             console.log(response.responseText);
             //MyApp.vent.trigger("search:error", response);
         }
-
-
-
-
-
-        console.log(this.toJSON());
     }
 }));

@@ -23,6 +23,7 @@ App.State = new (Backbone.Model.extend({
     userLogout: function(){
         this.set('user', false);
         this.storage.remove('userId');
+        this.storage.remove('layout');
     },
 
     run: function(){

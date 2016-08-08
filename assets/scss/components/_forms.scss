@@ -1,0 +1,22 @@
+.account-edit-form{
+
+  @media(min-width: 550px){
+    .image-col{
+      float: left;
+      width: 150px;
+    }
+    .form-col{
+      margin-left: 150px;
+      padding-left: 15px;
+      overflow: hidden;
+    }
+  }
+
+  .account-image{
+    width: 150px;
+    height: 150px;
+  }
+  .account-image-button{
+    margin: 20px 0;
+  }
+}

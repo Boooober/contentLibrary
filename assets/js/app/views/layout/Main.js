@@ -6,7 +6,7 @@ App.set('view/Topmenu', 'layout', App.get('view/BaseView').extend({
 
     initialize: function(){
         this.model = App.getLayout();
-        this.model.on('change:withSidebar', this.render, this);
+        this.listenTo(this.model, 'change:withSidebar', this.render);
     },
 
     render: function(){
@@ -29,24 +29,34 @@ App.set('view/Sidebar', 'layout', App.get('view/BaseView').extend({
 
     template: App.Helpers.getTemplate('#sidebarLayout'),
 
+    initSubviews: function(){
+        this.subviews = {};
+        this.subviews['.account-info'] = App.createContent('view/AccountInfo');
+        return this.subviews;
+    },
+
     initialize: function(){
         this.model = App.getLayout();
-        this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
+        this.listenTo(this.model, 'change:sidebarCollapsed', this.toggleSidebar);
 
         // Remove if withSidebar changed (it will always change to false)
-        this.model.on('change:withSidebar', this.remove, this);
+        //this.listenTo(this.model, 'change:withSidebar', this.remove);
     },
 
     render: function(){
-        this.setElement( this.template( App.getUser().toJSON() ) );
+        this.setElement(this.template());
+        this.assign(this.initSubviews());
+
         this.$('.side-wrapper').slimScroll({
             height: '100%'
         });
         return this;
     },
 
+
     toggleSidebar: function(){
-        this.model.get('sidebarCollapsed') ?
+        console.log('Collapsed?',this.model.sidebarCollapsed());
+        this.model.sidebarCollapsed() ?
             this.$('.side-content').fadeOut(150) :
             this.$('.side-content').hide().delay(300).fadeIn(150);
     }
@@ -96,15 +106,12 @@ App.set('view/Wrapper', 'layout',  App.get('view/BaseView').extend({
         this.model = App.getLayout();
 
         this.listenTo(App.Vent, 'layoutRender', this.render);
-
-        this.model.on('change:withSidebar', this.render, this);
-        this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
+        this.listenTo(this.model, 'change:withSidebar', this.reset);
+        this.listenTo(this.model, 'change:sidebarCollapsed', this.toggleSidebar);
     },
 
     render: function(){
-        this.$el.html('').removeClass();
         this.initSubviews();
-
         _.each(this.subviews, function(subview){
             this.$el.append(subview.render().el);
         }, this);
@@ -127,6 +134,14 @@ App.set('view/Wrapper', 'layout',  App.get('view/BaseView').extend({
     // Resize layouts width
     toggleSidebar: function(){
         this.$el.toggleClass('sidebar-collapsed');
+    },
+
+    reset: function(){
+        _.each(this.subviews, function(subview){
+            subview.remove();
+        });
+        this.$el.html('').removeClass();
+        this.render();
     }
 
 }));

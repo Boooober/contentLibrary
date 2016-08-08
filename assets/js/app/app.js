@@ -1,6 +1,6 @@
 'use strict';
 var App = {
-    debug: true,
+    debug: false,
 
     //Namespace app structure
     //Models: {
@@ -33,6 +33,14 @@ var App = {
     },
     createContent: function(namespace, config){
         return this.create(namespace, 'content', config)
+    },
+
+
+    /**
+     * Widgets
+     */
+    createWidget: function(name){
+        return this.create('view/'+name, 'widget');
     },
 
 

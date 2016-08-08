@@ -8,22 +8,7 @@
 				<div class="side-content">
 
 					<div class="side-header">
-						<div class="user-profile">
-							<figure>
-								<img class="image-circle" src="<%= avatar %>" alt="<%= fullname %>" />
-							</figure>
-
-							<div class="account-links">
-								<a href="#!/account"><%= fullname %></a>
-								<div class="account-dropdown dropdown">
-									<span class="dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon-pencil"></i></span>
-									<ul class="dropdown-menu">
-										<li><a href="#!/edit-profile">Edit profile</a></li>
-										<li><a href="#!/delete-profile">Delete profile</a></li>
-									</ul>
-								</div>
-							</div>
-						</div>
+						<div class="account-info"></div>
 					</div>
 
 					<ul class="menu-list">

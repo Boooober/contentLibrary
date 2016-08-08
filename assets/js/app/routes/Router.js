@@ -2,10 +2,12 @@ App.Router = Backbone.Router.extend({
     routes: {
         '': 'index',
         '!/': 'index',
-        '!/account/signin': 'signin',
-        '!/account/login': 'login',
-        '!/account/logout': 'logout',
-        '!/account/recover': 'recover',
+        '!/account/signin': 'accountSignin',
+        '!/account/login': 'accountLogin',
+        '!/account/logout': 'accountLogout',
+        '!/account/recover': 'accountRecover',
+        '!/account/delete': 'accountDelete',
+        '!/account/edit': 'accountEdit',
         '!/contacts': 'contacts',
         '!/page/:id': 'page',
         '!/search/:s': 'search',
@@ -34,30 +36,41 @@ App.Router = Backbone.Router.extend({
 
     // Forms
     // ==============
-    login: function(){
+    accountLogin: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         this.view = App.createForm('view/Login', {model: App.createForm('model/Login')});
 
         App.Helpers.renderContent(this.view.render().el);
     },
 
-    logout: function(){
+    accountLogout: function(){
         App.Vent.trigger('userLogout');
         this.navigate('', {trigger: true, replace: true});
     },
 
-    signin: function(){
+    accountSignin: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         this.view = App.createForm('view/Sigin', {model: App.createForm('model/Sigin')});
 
         App.Helpers.renderContent(this.view.render().el);
     },
 
-    recover: function(){
+    accountRecover: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         this.view = App.createForm('view/Recover', {model: App.createForm('model/Recover')});
 
         App.Helpers.renderContent(this.view.render().el);
+    },
+
+    accountEdit: function(){
+        App.Vent.trigger('layoutChange');
+        this.view = App.createForm('view/AccountEdit');
+
+        App.Helpers.renderContent(this.view.render().el);
+    },
+
+    accountDelete: function(){
+
     },
     // ==============
 
@@ -96,6 +109,7 @@ App.Router = Backbone.Router.extend({
             find: {id: parseInt(id)}
         });
     },
+
 
     addMedia: function(){
 

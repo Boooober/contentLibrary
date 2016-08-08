@@ -15,7 +15,7 @@ App.set('view/Carts', 'layout', App.get('view/BaseView').extend({
     render: function(){
         this.$el.html('');
         this.collection.each(this.addOne, this);
-        App.Helpers.renderContent( this.$el.wrap('<div class="container-fluid" />').parent() );
+        App.Helpers.renderContent( this.$el );
         this.masonry();
         return this;
     },

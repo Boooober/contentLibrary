@@ -30,5 +30,5 @@ App.set('view/BaseView', Backbone.View.extend({
             });
         }
         Backbone.View.prototype.remove.call(this);
-    }
+}
 }));

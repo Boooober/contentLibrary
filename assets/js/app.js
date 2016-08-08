@@ -1,6 +1,6 @@
 'use strict';
 var App = {
-    debug: true,
+    debug: false,
 
     //Namespace app structure
     //Models: {
@@ -33,6 +33,14 @@ var App = {
     },
     createContent: function(namespace, config){
         return this.create(namespace, 'content', config)
+    },
+
+
+    /**
+     * Widgets
+     */
+    createWidget: function(name){
+        return this.create('view/'+name, 'widget');
     },
 
 
@@ -236,7 +244,7 @@ _.extend(App.Vent, Backbone.Events);
 App.Helpers = {
 
     renderContent: function(content){
-        $('.main-content').html(content);
+        $('.main-content').html( $('<div class="container-fluid" />').html(content) );
     },
     getTemplate: function(selector){
         return _.template($(selector).html());
@@ -408,12 +416,6 @@ App.set('model/Login', 'form', App.get('model/BaseForm', 'form').extend({
             console.log(response.responseText);
             //MyApp.vent.trigger("search:error", response);
         }
-
-
-
-
-
-        console.log(this.toJSON());
     }
 }));
 App.set('model/Recover', 'form', App.get('model/BaseForm', 'form').extend({
@@ -615,7 +617,7 @@ App.set('view/BaseView', Backbone.View.extend({
             });
         }
         Backbone.View.prototype.remove.call(this);
-    }
+}
 }));
 /**
  * This object implemets useful methods for validating form inputs
@@ -802,12 +804,71 @@ App.set('view/Validator', 'form', Backbone.View.extend({
 }));
 App.set('view/BaseForm', 'form', App.get('view/Validator', 'form').extend({
 
+
+    // No events should be here for correct events
+    // extension in child objects
+
     // Clear all inputs values
     clearInputs: function(){
         this.$(':input[name]').each(function(){
             $(this).val('');
         });
+    },
+
+    //This method used in child classes to extend child events with parent events (from validator)
+    extendParentEvents: function(events){
+        this.events = _.extend(App.get('view/Validator', 'form').prototype.events, events);
     }
+
+
+}));
+App.set('view/AccountEdit', 'form', App.get('view/BaseForm', 'form').extend({
+
+    template: App.Helpers.getTemplate('#profileEdit'),
+
+    events: {
+        'change .account-avatar': 'loadImage'
+    },
+
+    initialize: function(){
+        this.model = App.getUser();
+        this.extendParentEvents(this.events);
+    },
+
+    /**
+     *
+     * @param {[bool]} inPopup
+     * @param {[Object]} options for popup
+     * @returns {*}
+     */
+    render: function(inPopup, options){
+        this.setElement(this.template(this.model.toJSON()));
+        if(inPopup) App.createWidget('Popup').render(this, options);
+        return this;
+    },
+
+    loadImage: function(e){
+        var $target = $(e.target),
+            image = $target.prop('files')[0],
+            reader = new FileReader();
+
+        if(image){
+            reader.onload = function(e){
+                this.$('img').attr('src', e.target.result);
+            }.bind(this);
+            reader.readAsDataURL(image);
+        }
+    },
+
+    submit: function(e, data){
+        data = _.reduce(data, function(obj, value, key){
+            if(value || value === 0)
+                obj[key] = value;
+            return obj;
+        }, {});
+        this.model.set(data);
+    }
+
 }));
 App.set('view/Contact', 'form', App.get('view/BaseForm', 'form').extend({
     initialize: function(){
@@ -825,7 +886,7 @@ App.set('view/Contact', 'form', App.get('view/BaseForm', 'form').extend({
         this.model.send();
     },
     showResponse: function(){
-        App.create('view/Popup', 'widget').render(this.model.response, {toggle: false, trigger: false});
+        App.createWidget('Popup').render(this.model.response, {toggle: false, trigger: false});
         if(this.model.get('success')) this.clearInputs();
         this.model.clear({silent: true});
     }
@@ -894,6 +955,38 @@ App.set('view/Sigin', 'form', App.get('view/BaseForm', 'form').extend({
     },
     submit: function(e){
         console.log('Form is submitting');
+    }
+}));
+App.set('view/AccountInfo', 'content', App.get('view/BaseView').extend({
+
+    template: App.Helpers.getTemplate('#accountInfo'),
+
+    events: {
+        'click .account-dropdown a': 'edit'
+    },
+
+    initialize: function(){
+        this.model = App.getUser();
+        this.listenTo(this.model, 'change', this.render);
+    },
+
+    render: function(){
+        this.$el.html(this.template(this.model.toJSON()));
+        return this;
+    },
+
+    edit: function(e){
+        e.preventDefault();
+        var $target = $(e.target),
+            link = $target.attr('href').substr(1),
+            currentRoute = Backbone.history.getFragment();
+
+        App.getRouter().navigate(link);
+        App.createForm('view/AccountEdit').render(true, {
+            redirect: function(){
+                App.getRouter().navigate(currentRoute);
+            }
+        });
     }
 }));
 App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
@@ -1020,9 +1113,8 @@ App.set('view/Cart', 'content', App.get('view/BaseCart', 'content').extend({
 
         router.navigate('!/page/' + id);
 
-        App.create('view/Popup', 'widget')
+        App.createWidget('Popup')
             .render(content, {
-
                 // Redirect to index after close popup
                 redirect: function () {
                     router.navigate('');
@@ -1074,7 +1166,7 @@ App.set('view/Carts', 'layout', App.get('view/BaseView').extend({
     render: function(){
         this.$el.html('');
         this.collection.each(this.addOne, this);
-        App.Helpers.renderContent( this.$el.wrap('<div class="container-fluid" />').parent() );
+        App.Helpers.renderContent( this.$el );
         this.masonry();
         return this;
     },
@@ -1135,7 +1227,7 @@ App.set('view/Topmenu', 'layout', App.get('view/BaseView').extend({
 
     initialize: function(){
         this.model = App.getLayout();
-        this.model.on('change:withSidebar', this.render, this);
+        this.listenTo(this.model, 'change:withSidebar', this.render);
     },
 
     render: function(){
@@ -1158,24 +1250,34 @@ App.set('view/Sidebar', 'layout', App.get('view/BaseView').extend({
 
     template: App.Helpers.getTemplate('#sidebarLayout'),
 
+    initSubviews: function(){
+        this.subviews = {};
+        this.subviews['.account-info'] = App.createContent('view/AccountInfo');
+        return this.subviews;
+    },
+
     initialize: function(){
         this.model = App.getLayout();
-        this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
+        this.listenTo(this.model, 'change:sidebarCollapsed', this.toggleSidebar);
 
         // Remove if withSidebar changed (it will always change to false)
-        this.model.on('change:withSidebar', this.remove, this);
+        //this.listenTo(this.model, 'change:withSidebar', this.remove);
     },
 
     render: function(){
-        this.setElement( this.template( App.getUser().toJSON() ) );
+        this.setElement(this.template());
+        this.assign(this.initSubviews());
+
         this.$('.side-wrapper').slimScroll({
             height: '100%'
         });
         return this;
     },
 
+
     toggleSidebar: function(){
-        this.model.get('sidebarCollapsed') ?
+        console.log('Collapsed?',this.model.sidebarCollapsed());
+        this.model.sidebarCollapsed() ?
             this.$('.side-content').fadeOut(150) :
             this.$('.side-content').hide().delay(300).fadeIn(150);
     }
@@ -1225,15 +1327,12 @@ App.set('view/Wrapper', 'layout',  App.get('view/BaseView').extend({
         this.model = App.getLayout();
 
         this.listenTo(App.Vent, 'layoutRender', this.render);
-
-        this.model.on('change:withSidebar', this.render, this);
-        this.model.on('change:sidebarCollapsed', this.toggleSidebar, this);
+        this.listenTo(this.model, 'change:withSidebar', this.reset);
+        this.listenTo(this.model, 'change:sidebarCollapsed', this.toggleSidebar);
     },
 
     render: function(){
-        this.$el.html('').removeClass();
         this.initSubviews();
-
         _.each(this.subviews, function(subview){
             this.$el.append(subview.render().el);
         }, this);
@@ -1256,6 +1355,14 @@ App.set('view/Wrapper', 'layout',  App.get('view/BaseView').extend({
     // Resize layouts width
     toggleSidebar: function(){
         this.$el.toggleClass('sidebar-collapsed');
+    },
+
+    reset: function(){
+        _.each(this.subviews, function(subview){
+            subview.remove();
+        });
+        this.$el.html('').removeClass();
+        this.render();
     }
 
 }));
@@ -1432,10 +1539,12 @@ App.Router = Backbone.Router.extend({
     routes: {
         '': 'index',
         '!/': 'index',
-        '!/account/signin': 'signin',
-        '!/account/login': 'login',
-        '!/account/logout': 'logout',
-        '!/account/recover': 'recover',
+        '!/account/signin': 'accountSignin',
+        '!/account/login': 'accountLogin',
+        '!/account/logout': 'accountLogout',
+        '!/account/recover': 'accountRecover',
+        '!/account/delete': 'accountDelete',
+        '!/account/edit': 'accountEdit',
         '!/contacts': 'contacts',
         '!/page/:id': 'page',
         '!/search/:s': 'search',
@@ -1464,30 +1573,41 @@ App.Router = Backbone.Router.extend({
 
     // Forms
     // ==============
-    login: function(){
+    accountLogin: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         this.view = App.createForm('view/Login', {model: App.createForm('model/Login')});
 
         App.Helpers.renderContent(this.view.render().el);
     },
 
-    logout: function(){
+    accountLogout: function(){
         App.Vent.trigger('userLogout');
         this.navigate('', {trigger: true, replace: true});
     },
 
-    signin: function(){
+    accountSignin: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         this.view = App.createForm('view/Sigin', {model: App.createForm('model/Sigin')});
 
         App.Helpers.renderContent(this.view.render().el);
     },
 
-    recover: function(){
+    accountRecover: function(){
         App.Vent.trigger('layoutChange', {sidebarCollapsed: true});
         this.view = App.createForm('view/Recover', {model: App.createForm('model/Recover')});
 
         App.Helpers.renderContent(this.view.render().el);
+    },
+
+    accountEdit: function(){
+        App.Vent.trigger('layoutChange');
+        this.view = App.createForm('view/AccountEdit');
+
+        App.Helpers.renderContent(this.view.render().el);
+    },
+
+    accountDelete: function(){
+
     },
     // ==============
 
@@ -1526,6 +1646,7 @@ App.Router = Backbone.Router.extend({
             find: {id: parseInt(id)}
         });
     },
+
 
     addMedia: function(){
 
@@ -1591,6 +1712,7 @@ App.State = new (Backbone.Model.extend({
     userLogout: function(){
         this.set('user', false);
         this.storage.remove('userId');
+        this.storage.remove('layout');
     },
 
     run: function(){

@@ -14,7 +14,7 @@ App.set('view/Contact', 'form', App.get('view/BaseForm', 'form').extend({
         this.model.send();
     },
     showResponse: function(){
-        App.create('view/Popup', 'widget').render(this.model.response, {toggle: false, trigger: false});
+        App.createWidget('Popup').render(this.model.response, {toggle: false, trigger: false});
         if(this.model.get('success')) this.clearInputs();
         this.model.clear({silent: true});
     }

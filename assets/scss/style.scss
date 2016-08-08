@@ -3,26 +3,28 @@
 
 /* Vendors/Libs */
 
-@import 'vendors/reset';
-@import 'base/mixins';
+//@import 'vendors/reset';
 @import 'base/variables';
-
+@import 'base/mixins';
 
 @import 'base/base';
 @import 'base/layout';
 
-@import 'blocks/_pages';
-
 @import 'blocks/sidebar';
 @import 'blocks/topmenu';
-@import 'blocks/cart-content';
 @import 'blocks/box';
 @import 'blocks/box-forms';
 @import 'blocks/box-popup';
-@import 'blocks/user-profile';
+
+@import 'components/_pages';
+@import 'components/forms';
+@import 'components/account-info';
+@import 'components/cart-content';
 
 @import 'parts/preloader';
-@import 'widgets/_popup';
+
+@import 'widgets/popup';
+
 
 @import 'base/color-themes';
 

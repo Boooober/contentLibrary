@@ -6,5 +6,6 @@
   &.box-flat{
     border-radius: 0;
   }
-  @include boxComponents
+  @include boxComponents;
+
 }

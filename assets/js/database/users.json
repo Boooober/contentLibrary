@@ -3,6 +3,7 @@
         "id": 1,
         "username": "nikita",
         "password": "12345",
+        "email": "nikita.slobodian@gmail.com",
         "fullname": "Nikita Slobodian",
         "avatar": "/assets/images/user/nikita.jpg"
     },
@@ -10,6 +11,7 @@
         "id": 2,
         "username": "admin",
         "password": "12345",
+        "email": "admin@test.com",
         "fullname": "Admin",
         "avatar": "/assets/images/user/default.jpg"
     }
