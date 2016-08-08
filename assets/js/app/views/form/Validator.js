@@ -17,7 +17,7 @@ App.set('view/Validator', 'form', Backbone.View.extend({
         e.preventDefault();
         var $form = $(e.target),
             noErrors = true,
-            data = this.processData($form.find(':input[name]')),
+            data = this.processData($form.find(":input[name]:not([data-skip-validation], [type='file'])")),
             formData;
 
 
