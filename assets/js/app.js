@@ -1276,7 +1276,6 @@ App.set('view/Sidebar', 'layout', App.get('view/BaseView').extend({
 
 
     toggleSidebar: function(){
-        console.log('Collapsed?',this.model.sidebarCollapsed());
         this.model.sidebarCollapsed() ?
             this.$('.side-content').fadeOut(150) :
             this.$('.side-content').hide().delay(300).fadeIn(150);
@@ -1353,8 +1352,10 @@ App.set('view/Wrapper', 'layout',  App.get('view/BaseView').extend({
     },
 
     // Resize layouts width
-    toggleSidebar: function(){
-        this.$el.toggleClass('sidebar-collapsed');
+    toggleSidebar: function(view, collapsed){
+        collapsed ?
+            this.$el.addClass('sidebar-collapsed') :
+            this.$el.removeClass('sidebar-collapsed') ;
     },
 
     reset: function(){
