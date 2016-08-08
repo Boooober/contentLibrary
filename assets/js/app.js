@@ -722,7 +722,7 @@ App.set('view/Validator', 'form', Backbone.View.extend({
         rules.required = rules.required !== void(0) ? rules.required : !!$target.attr('required');
         rules.pattern = $target.attr('pattern');
 
-                
+
 
         // If current target type is number, than max and min validators behavior is different.
         // Validators should compare number value, not number string length.
@@ -923,8 +923,9 @@ App.set('view/AddCard', 'form', App.get('view/BaseForm', 'form').extend({
     },
 
     submit: function(e, data){
-        console.log(data);
-        //this.model.set(data);
+        this.model.set(data);
+        this.clearInputs();
+        App.createWidget('Popup').render('Model successfully created', {toggle: true});
     },
 
     renderDropdown: function(){

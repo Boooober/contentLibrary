@@ -18,8 +18,9 @@ App.set('view/AddCard', 'form', App.get('view/BaseForm', 'form').extend({
     },
 
     submit: function(e, data){
-        console.log(data);
-        //this.model.set(data);
+        this.model.set(data);
+        this.clearInputs();
+        App.createWidget('Popup').render('Model successfully created', {toggle: true});
     },
 
     renderDropdown: function(){
