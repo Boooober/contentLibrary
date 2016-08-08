@@ -243,14 +243,14 @@
 								<li data-type="video">
 									<div class="form-group">
 										<label for="cardVideo" class="sr-only">Title</label>
-										<input id="cardVideo" name="mediaLink" type="text" class="form-control" value="<%= mediaLink %>" placeholder="Video link" />
+										<input id="cardVideo" name="mediaLink" type="text" class="form-control" value="<%= mediaLink %>" placeholder="Video link" data-validate='{"required":true}'/>
 									</div>
 								</li>
 
 								<li data-type="image">
 									<div class="form-group">
 										<label for="cardImage" class="btn btn-primary btn-sm">Load image</label>
-										<input id="cardImage" name="mediaLink" class="hidden" type="file"/>
+										<input id="cardImage" name="mediaLink" class="hidden" type="file" />
 									</div>
 								</li>
 							</ul>

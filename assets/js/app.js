@@ -719,8 +719,10 @@ App.set('view/Validator', 'form', Backbone.View.extend({
             rules = $target.data('validate') || {},
             isValid, error;
         rules.type = $target.attr('type') || 'text';
-        rules.required = !!$target.attr('required');
+        rules.required = rules.required !== void(0) ? rules.required : !!$target.attr('required');
         rules.pattern = $target.attr('pattern');
+
+                
 
         // If current target type is number, than max and min validators behavior is different.
         // Validators should compare number value, not number string length.
