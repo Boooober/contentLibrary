@@ -30,11 +30,6 @@ App.set('view/AccountEdit', 'form', App.get('view/BaseForm', 'form').extend({
     },
 
     submit: function(e, data){
-        data = _.reduce(data, function(obj, value, key){
-            if(value || value === 0)
-                obj[key] = value;
-            return obj;
-        }, {});
         this.model.set(data);
         App.Vent.trigger('closePopup', this);
     }

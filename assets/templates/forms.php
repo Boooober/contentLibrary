@@ -206,3 +206,23 @@
 		</div>
 	</div>
 </script>
+
+<script type="text/template" id="addCart">
+	<div class="form-box form-box-md">
+		<div class="form-headline">
+			<p>Create content</p>
+		</div>
+
+		<div class="box primary-box">
+			<div class="box-body">
+				<form class="add-cart-form">
+
+					<div class="form-group">
+						<label for="media"></label>
+					</div>
+				</form>
+
+			</div>
+		</div>
+	</div>
+</script>

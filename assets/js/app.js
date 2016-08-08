@@ -661,9 +661,11 @@ App.set('view/Validator', 'form', Backbone.View.extend({
         }, noErrors, this);
 
 
-        // Key - value form data object
+        // Key - value form data object,
+        // Skip empty values
         formData = _.reduce(data, function(attrs, input, name){
-            attrs[name] = input.value;
+            if(input.value || input.value === 0)
+                attrs[name] = input.value;
             return attrs;
         }, {});
 
@@ -887,11 +889,30 @@ App.set('view/AccountEdit', 'form', App.get('view/BaseForm', 'form').extend({
     },
 
     submit: function(e, data){
-        data = _.reduce(data, function(obj, value, key){
-            if(value || value === 0)
-                obj[key] = value;
-            return obj;
-        }, {});
+        this.model.set(data);
+        App.Vent.trigger('closePopup', this);
+    }
+
+}));
+App.set('view/AddCart', 'form', App.get('view/BaseForm', 'form').extend({
+
+    template: App.Helpers.getTemplate('#addCart'),
+
+    initialize: function(){
+        this.model = this.model ? this.model : App.createContent('model/Cart');
+        this.extendParentEvents(this.events);
+    },
+    events: {
+
+    },
+
+    render: function(){
+        this.setElement(this.template(this.model.toJSON()));
+        return this;
+    },
+
+    submit: function(e, data){
+
         this.model.set(data);
         App.Vent.trigger('closePopup', this);
     }
@@ -1609,7 +1630,7 @@ App.Router = Backbone.Router.extend({
         '!/search/:s': 'search',
         '!/uploads': 'uploads',
         '!/favorites': 'favorites',
-        //'!/add-media': 'addMedia'
+        '!/add-cart': 'addCart'
     },
 
     execute: function (callback, args/*, name*/) {
@@ -1707,8 +1728,8 @@ App.Router = Backbone.Router.extend({
     },
 
 
-    addMedia: function(){
-
+    addCart: function(){
+        console.log('final route');
     },
 
     // Filters

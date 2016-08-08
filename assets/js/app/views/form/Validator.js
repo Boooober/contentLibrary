@@ -33,9 +33,11 @@ App.set('view/Validator', 'form', Backbone.View.extend({
         }, noErrors, this);
 
 
-        // Key - value form data object
+        // Key - value form data object,
+        // Skip empty values
         formData = _.reduce(data, function(attrs, input, name){
-            attrs[name] = input.value;
+            if(input.value || input.value === 0)
+                attrs[name] = input.value;
             return attrs;
         }, {});
 

@@ -13,7 +13,7 @@ App.Router = Backbone.Router.extend({
         '!/search/:s': 'search',
         '!/uploads': 'uploads',
         '!/favorites': 'favorites',
-        //'!/add-media': 'addMedia'
+        '!/add-cart': 'addCart'
     },
 
     execute: function (callback, args/*, name*/) {
@@ -111,8 +111,8 @@ App.Router = Backbone.Router.extend({
     },
 
 
-    addMedia: function(){
-
+    addCart: function(){
+        console.log('final route');
     },
 
     // Filters
