@@ -9,8 +9,9 @@
 			<span class="dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon-pencil"></i></span>
 			<ul class="dropdown-menu">
 				<li><a href="#!/account/edit">Edit profile</a></li>
-				<li><a href="#!/account/delete">Delete profile</a></li>
+				<li><a href="#!/account/destroy">Delete profile</a></li>
 			</ul>
 		</div>
 	</div>
 </script>
+

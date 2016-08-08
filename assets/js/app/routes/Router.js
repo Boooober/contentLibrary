@@ -6,7 +6,7 @@ App.Router = Backbone.Router.extend({
         '!/account/login': 'accountLogin',
         '!/account/logout': 'accountLogout',
         '!/account/recover': 'accountRecover',
-        '!/account/delete': 'accountDelete',
+        '!/account/destroy': 'accountDestroy',
         '!/account/edit': 'accountEdit',
         '!/contacts': 'contacts',
         '!/page/:id': 'page',
@@ -69,7 +69,7 @@ App.Router = Backbone.Router.extend({
         App.Helpers.renderContent(this.view.render().el);
     },
 
-    accountDelete: function(){
+    accountDestroy: function(){
 
     },
     // ==============

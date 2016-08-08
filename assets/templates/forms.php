@@ -131,7 +131,7 @@
 		<div class="box primary-box">
 			<div class="box-body">
 
-				<form class="account-edit-form form-horizontal" method="post">
+				<form class="account-edit-form form-horizontal">
 					<div class="clearfix">
 						<div class="image-col">
 							<figure class="account-image">
@@ -180,6 +180,28 @@
 
 
 				</form>
+			</div>
+		</div>
+	</div>
+</script>
+
+<script type="text/template" id="profileDestroy">
+	<div class="form-box form-box-sm">
+		<div class="form-headline">
+			<p><%= fullname %></p>
+		</div>
+
+		<div class="box primary-box">
+			<div class="box-body">
+
+				<form class="account-destroy-form form-horizontal">
+					<p class="form-title">Are you sure you want to delete your account?</p>
+					<div class="clearfix">
+						<button class="btn btn-danger pull-right destroy">Sure, delete</button>
+						<button class="btn btn-primary">Cancel</button>
+					</div>
+				</form>
+
 			</div>
 		</div>
 	</div>

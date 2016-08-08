@@ -24,6 +24,7 @@ App.State = new (Backbone.Model.extend({
         this.set('user', false);
         this.storage.remove('userId');
         this.storage.remove('layout');
+        App.getRouter().navigate('', {trigger: true, replace: true});
     },
 
     run: function(){

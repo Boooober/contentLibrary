@@ -829,6 +829,32 @@ App.set('view/BaseForm', 'form', App.get('view/Validator', 'form').extend({
 
 
 }));
+App.set('view/AccountDestroy', 'form', App.get('view/BaseForm', 'form').extend({
+
+    template: App.Helpers.getTemplate('#profileDestroy'),
+
+    events: {
+        'click button': 'submit'
+    },
+    initialize: function(){
+        this.model = App.getUser();
+    },
+
+    render: function(){
+        this.setElement(this.template(this.model.toJSON()));
+        return this;
+    },
+
+    submit: function(e){
+        var $target = $(e.target);
+
+        if($target.hasClass('destroy')){
+            App.Vent.trigger('userLogout');
+        }
+        App.Vent.trigger('closePopup', this);
+    }
+
+}));
 App.set('view/AccountEdit', 'form', App.get('view/BaseForm', 'form').extend({
 
     template: App.Helpers.getTemplate('#profileEdit'),
@@ -963,7 +989,8 @@ App.set('view/AccountInfo', 'content', App.get('view/BaseView').extend({
     template: App.Helpers.getTemplate('#accountInfo'),
 
     events: {
-        'click .account-dropdown a': 'edit'
+        "click .account-dropdown a[href='#!/account/edit']": 'edit',
+        "click .account-dropdown a[href='#!/account/destroy']": 'destroy'
     },
 
     initialize: function(){
@@ -990,10 +1017,25 @@ App.set('view/AccountInfo', 'content', App.get('view/BaseView').extend({
                     App.getRouter().navigate(currentRoute);
                 }
             });
+    },
 
+    destroy: function(e){
+        e.preventDefault();
+        var $target = $(e.target),
+            link = $target.attr('href').substr(1),
+            currentRoute = Backbone.history.getFragment();
 
+        App.getRouter().navigate(link);
 
+        App.createWidget('Popup')
+            .render(App.createForm('view/AccountDestroy'), {
+                redirect: function () {
+                    App.getRouter().navigate(currentRoute);
+                },
+                size: 'sm'
+            });
     }
+
 }));
 App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
     scaleMedia: function () {
@@ -1560,7 +1602,7 @@ App.Router = Backbone.Router.extend({
         '!/account/login': 'accountLogin',
         '!/account/logout': 'accountLogout',
         '!/account/recover': 'accountRecover',
-        '!/account/delete': 'accountDelete',
+        '!/account/destroy': 'accountDestroy',
         '!/account/edit': 'accountEdit',
         '!/contacts': 'contacts',
         '!/page/:id': 'page',
@@ -1623,7 +1665,7 @@ App.Router = Backbone.Router.extend({
         App.Helpers.renderContent(this.view.render().el);
     },
 
-    accountDelete: function(){
+    accountDestroy: function(){
 
     },
     // ==============
@@ -1730,6 +1772,7 @@ App.State = new (Backbone.Model.extend({
         this.set('user', false);
         this.storage.remove('userId');
         this.storage.remove('layout');
+        App.getRouter().navigate('', {trigger: true, replace: true});
     },
 
     run: function(){
