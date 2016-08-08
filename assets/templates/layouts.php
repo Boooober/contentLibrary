@@ -15,6 +15,7 @@
 <!--						<li><a href="#!/add-media"><i class="icon-media"></i>Media</a></li>-->
 						<li><a href="#!/uploads">My uploads</a></li>
 						<li><a href="#!/favorites">Favorites</a></li>
+						<li><a href="#!/add-card">Add card</a></li>
 					</ul>
 				</div>
 

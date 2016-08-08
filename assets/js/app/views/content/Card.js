@@ -1,6 +1,6 @@
-// Cart toolbox view
+// Card toolbox view
 
-App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
+App.set('view/CardToolbox', 'content', App.get('view/BaseView').extend({
 
     initialize: function() {
         this.model.on('change:favorites', this.render, this);
@@ -8,7 +8,7 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
     events: {
         'click .rate-button': 'toggleRate',
     },
-    template: App.Helpers.getTemplate('#cartToolbox'),
+    template: App.Helpers.getTemplate('#cardToolbox'),
 
     render: function(){
         this.$el.html( this.template( this.model.toJSON() ) );
@@ -22,18 +22,18 @@ App.set('view/CartToolbox', 'content', App.get('view/BaseView').extend({
 }));
 
 
-App.set('view/Cart', 'content', App.get('view/BaseCart', 'content').extend({
+App.set('view/Card', 'content', App.get('view/BaseCard', 'content').extend({
     initSubviews: function(){
         this.subviews = {};
-        this.subviews['.toolbox'] = App.createContent('view/CartToolbox', {model: this.model});
+        this.subviews['.toolbox'] = App.createContent('view/CardToolbox', {model: this.model});
         return this.subviews;
     },
     events: {
         'click .post-link': 'openInPopup'
     },
 
-    mediaTemplate: App.Helpers.getTemplate('#mediaCart'),
-    textTemplate: App.Helpers.getTemplate('#textCart'),
+    mediaTemplate: App.Helpers.getTemplate('#mediaCard'),
+    textTemplate: App.Helpers.getTemplate('#textCard'),
 
     render: function(){
         var type = this.model.isText() ? 'text' : 'media',
@@ -51,7 +51,7 @@ App.set('view/Cart', 'content', App.get('view/BaseCart', 'content').extend({
         e.preventDefault();
         var id = this.model.get('id'),
             router = App.getRouter(),
-            content = App.createContent('view/CartInPopup', {model: this.model});
+            content = App.createContent('view/CardInPopup', {model: this.model});
 
         router.navigate('!/page/' + id);
 

@@ -207,19 +207,62 @@
 	</div>
 </script>
 
-<script type="text/template" id="addCart">
-	<div class="form-box form-box-md">
+<script type="text/template" id="addCard">
+	<div class="form-box form-box-lg">
 		<div class="form-headline">
 			<p>Create content</p>
 		</div>
 
 		<div class="box primary-box">
 			<div class="box-body">
-				<form class="add-cart-form">
+				<form class="add-card-form">
 
-					<div class="form-group">
-						<label for="media"></label>
+					<div class="row">
+						<div class="col-sm-8">
+							<div class="form-group">
+								<label for="cardTitle" class="sr-only">Title</label>
+								<input id="cardTitle" name="title" type="text" class="form-control" value="<%= title %>" placeholder="Card title" required />
+							</div>
+
+							<div class="form-group">
+								<label for="cardDescription" class="sr-only">Description</label>
+								<textarea id="cardDescription" name="description" class="form-control" rows="5" placeholder="Description" required><%= description %></textarea>
+							</div>
+
+						</div>
+						<div class="col-sm-4">
+							<div class="form-group">
+								<label for="cardType" class="sr-only">Type</label>
+								<select name="cardType" id="cardType" class="form-control">
+									<option selected>Select type</option>
+									<option value="3">Image</option>
+									<option value="1">Video</option>
+									<option value="2">Text</option>
+								</select>
+							</div>
+
+							<ul class="dependent-fields">
+								<li>
+									<div class="form-group">
+										<label for="cardTitle" class="sr-only">Title</label>
+										<input id="cardTitle" name="mediaLink" type="text" class="form-control" value="<%= mediaLink %>" placeholder="Card video" />
+									</div>
+								</li>
+								<li>
+									<div class="form-group">
+										<img src="<%= mediaLink %>" alt="<%= title %>"/>
+										<label for="cardImage" class="btn btn-primary btn-sm">Load image</label>
+										<input id="cardImage" name="mediaLink" class="hidden" type="file"/>
+									</div>
+								</li>
+							</ul>
+						</div>
+
+						<div class="col-xs-12">
+							<button class="btn btn-primary" type="submit">Publish</button>
+						</div>
 					</div>
+
 				</form>
 
 			</div>

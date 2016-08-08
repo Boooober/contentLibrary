@@ -1,4 +1,4 @@
-App.set('view/Carts', 'layout', App.get('view/BaseView').extend({
+App.set('view/Cards', 'layout', App.get('view/BaseView').extend({
     className: 'row',
 
     subviews: {},
@@ -22,7 +22,7 @@ App.set('view/Carts', 'layout', App.get('view/BaseView').extend({
 
     // Render every subview and save pointers to objects
     addOne: function(model, index){
-        var view = App.create('view/Cart', 'content', {model: model});
+        var view = App.create('view/Card', 'content', {model: model});
 
         this.subviews[index] = view;
         this.$el.append(view.render().el);
@@ -36,8 +36,8 @@ App.set('view/Carts', 'layout', App.get('view/BaseView').extend({
         //Init masonry event handler function
         var masonry = function () {
             this.$el.masonry({
-                columnWidth: this.$('.cart-item')[0],
-                itemSelector: '.cart-item',
+                columnWidth: this.$('.card-item')[0],
+                itemSelector: '.card-item',
                 percentPosition: true
             });
         }.bind(this);

@@ -1,9 +1,9 @@
-App.set('view/AddCart', 'form', App.get('view/BaseForm', 'form').extend({
+App.set('view/AddCard', 'form', App.get('view/BaseForm', 'form').extend({
 
-    template: App.Helpers.getTemplate('#addCart'),
+    template: App.Helpers.getTemplate('#addCard'),
 
     initialize: function(){
-        this.model = this.model ? this.model : App.createContent('model/Cart');
+        this.model = this.model ? this.model : App.createContent('model/Card');
         this.extendParentEvents(this.events);
     },
     events: {
@@ -16,9 +16,7 @@ App.set('view/AddCart', 'form', App.get('view/BaseForm', 'form').extend({
     },
 
     submit: function(e, data){
-
         this.model.set(data);
-        App.Vent.trigger('closePopup', this);
     }
 
 }));

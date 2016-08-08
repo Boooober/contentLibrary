@@ -263,6 +263,8 @@ html, body {
     max-width: 400px; }
   .form-box.form-box-md {
     max-width: 600px; }
+  .form-box.form-box-lg {
+    max-width: 900px; }
   .form-box .form-headline p {
     font-size: 1.5em;
     text-align: center;
@@ -366,24 +368,24 @@ html, body {
         background: #c4c4c4;
         color: #212121; }
 
-.cart-content {
+.card-content {
   overflow: hidden;
   margin-bottom: 20px; }
-  .cart-content .cart-head, .cart-content .cart-body, .cart-content .cart-footer {
+  .card-content .card-head, .card-content .card-body, .card-content .card-footer {
     background: white; }
-  .cart-content .toolbox a {
+  .card-content .toolbox a {
     color: inherit;
     -webkit-transition: .3s;
     transition: .3s;
     margin-left: 10px;
     display: inline-block; }
-    .cart-content .toolbox a:first-child {
+    .card-content .toolbox a:first-child {
       margin-left: 0; }
-    .cart-content .toolbox a:hover {
+    .card-content .toolbox a:hover {
       color: #fd703a; }
-  .cart-content .hover-toolbox {
+  .card-content .hover-toolbox {
     position: relative; }
-    .cart-content .hover-toolbox .toolbox {
+    .card-content .hover-toolbox .toolbox {
       color: white;
       z-index: 100;
       bottom: 0;
@@ -399,37 +401,37 @@ html, body {
       background: -webkit-linear-gradient(top, transparent 0%, rgba(0, 0, 0, 0.65) 100%);
       background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.65) 100%);
       filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00000000', endColorstr='#a6000000', GradientType=0); }
-    .cart-content .hover-toolbox:hover .toolbox {
+    .card-content .hover-toolbox:hover .toolbox {
       opacity: 1;
       -webkit-transform: translateY(0);
               transform: translateY(0); }
-  .cart-content .with-padding {
+  .card-content .with-padding {
     padding: 15px; }
-  .cart-content figure {
+  .card-content figure {
     position: relative; }
-    .cart-content figure a {
+    .card-content figure a {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%; }
-  .cart-content img, .cart-content iframe {
+  .card-content img, .card-content iframe {
     width: 100%;
     display: block;
     margin: 0 auto; }
 
-.video-cart figure {
+.video-card figure {
   height: 0;
   display: block;
   position: relative; }
-  .video-cart figure iframe {
+  .video-card figure iframe {
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     position: absolute; }
 
-.text-cart {
+.text-card {
   border-radius: 3px;
   background: #ffffff;
   border-top: 3px solid #c4c4c4;

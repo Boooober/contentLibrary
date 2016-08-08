@@ -89,13 +89,13 @@
 
 
 
-    <!-- Video-cart template -->
-    <script type="text/template" id="videoCart">
+    <!-- Video-card template -->
+    <script type="text/template" id="videoCard">
         <div class="col-sm-4">
-            <div class="cart-content video-cart">
-                <div class="cart-head"></div>
+            <div class="card-content video-card">
+                <div class="card-head"></div>
 
-                <div class="cart-body hover-toolbox">
+                <div class="card-body hover-toolbox">
                     <figure>
                         <!-- Video -->
                         <div class="video-frame">
@@ -106,22 +106,22 @@
                     <div class="toolbox with-padding"></div>
                 </div>
 
-                <div class="cart-footer"></div>
+                <div class="card-footer"></div>
             </div>
         </div>
     </script>
-    <!-- ./Video-cart template -->
+    <!-- ./Video-card template -->
 
-    <!-- Image-cart template -->
-    <script type="text/template" id="imageCart">
+    <!-- Image-card template -->
+    <script type="text/template" id="imageCard">
         <div class="col-sm-4">
-            <div class="cart-content image-cart">
-                <div class="cart-head"></div>
+            <div class="card-content image-card">
+                <div class="card-head"></div>
 
-                <div class="cart-body hover-toolbox">
+                <div class="card-body hover-toolbox">
                     <figure>
                         <!-- Image -->
-                        <a href="#" class="cart-link">
+                        <a href="#" class="card-link">
                             <img src="<%= mediaLink %>" alt="<%= title %>"/>
                         </a>
                         <!-- ./Image -->
@@ -129,39 +129,39 @@
                     <div class="toolbox with-padding"></div>
                 </div>
 
-                <div class="cart-footer"></div>
+                <div class="card-footer"></div>
             </div>
         </div>
     </script>
-    <!-- ./Image-cart template -->
+    <!-- ./Image-card template -->
 
-    <!-- Test-type cart template -->
-    <script type="text/template" id="textCart">
+    <!-- Test-type card template -->
+    <script type="text/template" id="textCard">
         <div class="col-sm-4">
-            <div class="cart-content text-cart">
-                <div class="cart-head">
+            <div class="card-content text-card">
+                <div class="card-head">
                     <h3 class="post-title with-padding"><%= title %></h3>
                     <div class="toolbox"></div>
                 </div>
-                <div class="cart-body">
+                <div class="card-body">
                     <div class="post-content with-padding"><%= content %></div>
                 </div>
-                <div class="cart-footer"></div>
+                <div class="card-footer"></div>
             </div>
         </div>
     </script>
-    <!-- ./Text-type cart template -->
+    <!-- ./Text-type card template -->
 
 
-    <!--Cart toolbox template-->
-    <script type="text/template" id="cartToolbox">
+    <!--Card toolbox template-->
+    <script type="text/template" id="cardToolbox">
         <div class="pull-right">
             <a href="#" class="rate-button<% if(isFavorite) { %> is-favorite<% } %>"><i class="icon-rate-star"></i><%= favorites %></a>
             <a href="#"><i class="icon-goto"></i></a>
         </div>
         <a href="#" class="label label-hover"><%= author %></a>
     </script>
-    <!-- ./Cart toolbox template-->
+    <!-- ./Card toolbox template-->
 
 
 

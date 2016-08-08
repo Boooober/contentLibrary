@@ -1,6 +1,6 @@
-App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
+App.set('view/BaseCard', 'content', App.get('view/BaseView').extend({
     scaleMedia: function () {
-        var video = this.$('.video-cart iframe'),
+        var video = this.$('.video-card iframe'),
             container = video.parent();
         var scaleMedia = function () {
             var ratio = container.width() / video.attr('width'),
@@ -37,14 +37,14 @@ App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
         return App.Helpers.elemToString(media);
     },
 
-    // Return type of cart
+    // Return type of card
     typeClass: function(){
-        return this.model.isImage() ? 'image-cart' :
-            this.model.isVideo() ? 'video-cart' :
+        return this.model.isImage() ? 'image-card' :
+            this.model.isVideo() ? 'video-card' :
             'text-type';
     },
 
-    // Render cart link
+    // Render card link
     getLink: function(className){
         var link = $('<a />').attr({
             href: '#!/page/'+this.model.id,

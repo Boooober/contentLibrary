@@ -1,7 +1,7 @@
 /**
- * Cart model
+ * Card model
  */
-App.set('model/Cart', 'content', Backbone.Model.extend({
+App.set('model/Card', 'content', Backbone.Model.extend({
     defaults: {
         type: 0,
         title: '',
