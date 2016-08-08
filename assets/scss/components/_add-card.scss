@@ -1,0 +1,11 @@
+.dependent-fields{
+  li{
+    display: none;
+    &.active{
+      display: block;
+    }
+    input, .btn{
+      margin-bottom: 15px;
+    }
+  }
+}

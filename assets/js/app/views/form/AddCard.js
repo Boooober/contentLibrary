@@ -7,7 +7,9 @@ App.set('view/AddCard', 'form', App.get('view/BaseForm', 'form').extend({
         this.extendParentEvents(this.events);
     },
     events: {
-        'change select': 'dependentFields'
+        'change select': 'dependentFields',
+        'change #cardImage': 'imagePreview',
+        'blur #cardVideo': 'videoPreview'
     },
 
     render: function(){
@@ -16,13 +18,18 @@ App.set('view/AddCard', 'form', App.get('view/BaseForm', 'form').extend({
     },
 
     submit: function(e, data){
-        this.model.set(data);
+        console.log(data);
+        //this.model.set(data);
     },
 
     renderDropdown: function(){
         var $dropdown = $('<div />'),
             $tag, type = this.model.get('type');
 
+        // Append blank option
+        $dropdown.append( $('<option />').attr({selected: true, value: ''}).text('Select type') );
+
+        // Append real options
         _.each(this.model.types, function(name, code){
             $tag = $('<option />').attr('value', code).text(name);
             if(type === code) $tag.attr('selected', true);
@@ -31,7 +38,6 @@ App.set('view/AddCard', 'form', App.get('view/BaseForm', 'form').extend({
 
         return $dropdown.html();
     },
-
 
     dependentFields: function (e) {
         var $target = $(e.target).find('option:selected'),
@@ -65,8 +71,36 @@ App.set('view/AddCard', 'form', App.get('view/BaseForm', 'form').extend({
                 .find(':input[name]').attr('data-skip-validation', true);
         }
 
-    }
+    },
 
+    imagePreview: function(e){
+        var $target = $(e.target),
+            image = $target.prop('files')[0],
+            reader = new FileReader();
+
+        if(image){
+            reader.onload = function(e){
+                $target.after( $('<img />').attr({src: e.target.result}) );
+            };
+            reader.readAsDataURL(image);
+        }
+    },
+
+    videoPreview: function(e){
+        var $target = $(e.target),
+            link = $target.val().trim(),
+            $video;
+
+        if(!link) return;
+
+        $video = $('<iframe />').attr({
+            src: '//www.youtube.com/embed/'+link+'?rel=0&amp;controls=0&amp;showinfo=0&amp;feature=oembed',
+            frameborder: 0,
+            width: '100%'
+        });
+
+        $target.after($video);
+    }
 
 
 

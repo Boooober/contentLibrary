@@ -226,28 +226,29 @@
 
 							<div class="form-group">
 								<label for="cardDescription" class="sr-only">Description</label>
-								<textarea id="cardDescription" name="description" class="form-control" rows="5" placeholder="Description" required><%= description %></textarea>
+								<textarea id="cardDescription" name="description" class="form-control" rows="10" placeholder="Description" required><%= description %></textarea>
 							</div>
 
 						</div>
 						<div class="col-sm-4">
 							<div class="form-group">
 								<label for="cardType" class="sr-only">Type</label>
-								<select name="cardType" id="cardType" class="form-control">
+								<select name="cardType" id="cardType" class="form-control" required>
 									<%= this.renderDropdown() %>
 								</select>
 							</div>
 
 							<ul class="dependent-fields">
+
 								<li data-type="video">
 									<div class="form-group">
-										<label for="cardTitle" class="sr-only">Title</label>
-										<input id="cardTitle" name="mediaLink" type="text" class="form-control" value="<%= mediaLink %>" placeholder="Video link" />
+										<label for="cardVideo" class="sr-only">Title</label>
+										<input id="cardVideo" name="mediaLink" type="text" class="form-control" value="<%= mediaLink %>" placeholder="Video link" />
 									</div>
 								</li>
+
 								<li data-type="image">
 									<div class="form-group">
-										<img src="<%= mediaLink %>" alt="<%= title %>"/>
 										<label for="cardImage" class="btn btn-primary btn-sm">Load image</label>
 										<input id="cardImage" name="mediaLink" class="hidden" type="file"/>
 									</div>

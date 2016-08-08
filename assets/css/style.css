@@ -437,6 +437,13 @@ html, body {
   border-top: 3px solid #c4c4c4;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); }
 
+.dependent-fields li {
+  display: none; }
+  .dependent-fields li.active {
+    display: block; }
+  .dependent-fields li input, .dependent-fields li .btn {
+    margin-bottom: 15px; }
+
 .preloader {
   position: fixed;
   top: 0;
