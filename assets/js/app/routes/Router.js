@@ -1,7 +1,6 @@
 App.Router = Backbone.Router.extend({
     routes: {
-        '': 'index',
-        '!/': 'index',
+        '(!/)': 'index',
         '!/account/signin': 'accountSignin',
         '!/account/login': 'accountLogin',
         '!/account/logout': 'accountLogout',

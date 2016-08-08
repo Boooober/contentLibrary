@@ -234,21 +234,18 @@
 							<div class="form-group">
 								<label for="cardType" class="sr-only">Type</label>
 								<select name="cardType" id="cardType" class="form-control">
-									<option selected>Select type</option>
-									<option value="3">Image</option>
-									<option value="1">Video</option>
-									<option value="2">Text</option>
+									<%= this.renderDropdown() %>
 								</select>
 							</div>
 
 							<ul class="dependent-fields">
-								<li>
+								<li data-type="video">
 									<div class="form-group">
 										<label for="cardTitle" class="sr-only">Title</label>
-										<input id="cardTitle" name="mediaLink" type="text" class="form-control" value="<%= mediaLink %>" placeholder="Card video" />
+										<input id="cardTitle" name="mediaLink" type="text" class="form-control" value="<%= mediaLink %>" placeholder="Video link" />
 									</div>
 								</li>
-								<li>
+								<li data-type="image">
 									<div class="form-group">
 										<img src="<%= mediaLink %>" alt="<%= title %>"/>
 										<label for="cardImage" class="btn btn-primary btn-sm">Load image</label>

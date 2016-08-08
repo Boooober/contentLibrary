@@ -477,6 +477,13 @@ App.set('model/Card', 'content', Backbone.Model.extend({
         this.set('favorites', favorite ? --count : ++count);
     },
 
+    types: {
+        0: 'Image',
+        1: 'Video',
+        2: 'Text'
+    },
+
+
     isImage: function(){
         return this.get('type') === 0;
     },
@@ -903,7 +910,7 @@ App.set('view/AddCard', 'form', App.get('view/BaseForm', 'form').extend({
         this.extendParentEvents(this.events);
     },
     events: {
-
+        'change select': 'dependentFields'
     },
 
     render: function(){
@@ -913,7 +920,58 @@ App.set('view/AddCard', 'form', App.get('view/BaseForm', 'form').extend({
 
     submit: function(e, data){
         this.model.set(data);
+    },
+
+    renderDropdown: function(){
+        var $dropdown = $('<div />'),
+            $tag, type = this.model.get('type');
+
+        _.each(this.model.types, function(name, code){
+            $tag = $('<option />').attr('value', code).text(name);
+            if(type === code) $tag.attr('selected', true);
+            $dropdown.append($tag);
+        }, this);
+
+        return $dropdown.html();
+    },
+
+
+    dependentFields: function (e) {
+        var $target = $(e.target).find('option:selected'),
+            pattern = new RegExp($target.text(), 'i'),
+            $fields = this.$('.dependent-fields li'),
+            $selected, $field;
+
+        // Remove active class from all
+        $fields.each(removeActive);
+
+        // Search appropriative list to selected option
+        $fields.each(function () {
+            $field = $(this);
+            if (pattern.test($field.data('type'))) $selected = $field;
+        });
+
+        // If found, set active class
+        // Allow validation
+        if ($selected) makeActive.call($selected);
+
+
+        // Allow or disallow validation
+        // Toggle from front-end
+        function makeActive() {
+            $(this).addClass('active')
+                .find(':input[name]').removeAttr('data-skip-validation');
+        }
+
+        function removeActive() {
+            $(this).removeClass('active')
+                .find(':input[name]').attr('data-skip-validation', true);
+        }
+
     }
+
+
+
 
 }));
 App.set('view/Contact', 'form', App.get('view/BaseForm', 'form').extend({
@@ -1615,8 +1673,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
 }));
 App.Router = Backbone.Router.extend({
     routes: {
-        '': 'index',
-        '!/': 'index',
+        '(!/)': 'index',
         '!/account/signin': 'accountSignin',
         '!/account/login': 'accountLogin',
         '!/account/logout': 'accountLogout',

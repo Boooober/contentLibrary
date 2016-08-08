@@ -20,6 +20,13 @@ App.set('model/Card', 'content', Backbone.Model.extend({
         this.set('favorites', favorite ? --count : ++count);
     },
 
+    types: {
+        0: 'Image',
+        1: 'Video',
+        2: 'Text'
+    },
+
+
     isImage: function(){
         return this.get('type') === 0;
     },
