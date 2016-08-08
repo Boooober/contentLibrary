@@ -46,4 +46,11 @@ _.extend(App.Vent, Backbone.Events);
  *
  *** userLogout: user logout action
  *
+ *
+ * Popup events
+ * ------------
+ *
+ *** closePopup [view]: Nested into popup view triggers this event to close popup
+ *   Accept triggered view object.
+ *
  */

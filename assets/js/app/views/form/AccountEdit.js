@@ -11,15 +11,8 @@ App.set('view/AccountEdit', 'form', App.get('view/BaseForm', 'form').extend({
         this.extendParentEvents(this.events);
     },
 
-    /**
-     *
-     * @param {[bool]} inPopup
-     * @param {[Object]} options for popup
-     * @returns {*}
-     */
-    render: function(inPopup, options){
+    render: function(){
         this.setElement(this.template(this.model.toJSON()));
-        if(inPopup) App.createWidget('Popup').render(this, options);
         return this;
     },
 
@@ -43,6 +36,7 @@ App.set('view/AccountEdit', 'form', App.get('view/BaseForm', 'form').extend({
             return obj;
         }, {});
         this.model.set(data);
+        App.Vent.trigger('closePopup', this);
     }
 
 }));

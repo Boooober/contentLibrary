@@ -23,10 +23,15 @@ App.set('view/AccountInfo', 'content', App.get('view/BaseView').extend({
             currentRoute = Backbone.history.getFragment();
 
         App.getRouter().navigate(link);
-        App.createForm('view/AccountEdit').render(true, {
-            redirect: function(){
-                App.getRouter().navigate(currentRoute);
-            }
-        });
+
+        App.createWidget('Popup')
+            .render(App.createForm('view/AccountEdit'), {
+                redirect: function () {
+                    App.getRouter().navigate(currentRoute);
+                }
+            });
+
+
+
     }
 }));

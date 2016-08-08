@@ -239,6 +239,13 @@ _.extend(App.Vent, Backbone.Events);
  *
  *** userLogout: user logout action
  *
+ *
+ * Popup events
+ * ------------
+ *
+ *** closePopup [view]: Nested into popup view triggers this event to close popup
+ *   Accept triggered view object.
+ *
  */
 
 App.Helpers = {
@@ -835,15 +842,8 @@ App.set('view/AccountEdit', 'form', App.get('view/BaseForm', 'form').extend({
         this.extendParentEvents(this.events);
     },
 
-    /**
-     *
-     * @param {[bool]} inPopup
-     * @param {[Object]} options for popup
-     * @returns {*}
-     */
-    render: function(inPopup, options){
+    render: function(){
         this.setElement(this.template(this.model.toJSON()));
-        if(inPopup) App.createWidget('Popup').render(this, options);
         return this;
     },
 
@@ -867,6 +867,7 @@ App.set('view/AccountEdit', 'form', App.get('view/BaseForm', 'form').extend({
             return obj;
         }, {});
         this.model.set(data);
+        App.Vent.trigger('closePopup', this);
     }
 
 }));
@@ -982,11 +983,16 @@ App.set('view/AccountInfo', 'content', App.get('view/BaseView').extend({
             currentRoute = Backbone.history.getFragment();
 
         App.getRouter().navigate(link);
-        App.createForm('view/AccountEdit').render(true, {
-            redirect: function(){
-                App.getRouter().navigate(currentRoute);
-            }
-        });
+
+        App.createWidget('Popup')
+            .render(App.createForm('view/AccountEdit'), {
+                redirect: function () {
+                    App.getRouter().navigate(currentRoute);
+                }
+            });
+
+
+
     }
 }));
 App.set('view/BaseCart', 'content', App.get('view/BaseView').extend({
@@ -1427,6 +1433,8 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
 
         // Push content for popup to this element
         this.$content = $content;
+
+        this.listenTo(App.Vent, 'closePopup', this.closeVent)
     },
     events: {
         //'click': 'closeHandler',
@@ -1499,8 +1507,15 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
         }, this);
     },
 
+    // Event handler for click event
     closeHandler: function(e){
         if(e.target !== e.currentTarget) return;
+        this.close();
+    },
+
+    // Event handler for vent triggered event
+    closeVent: function(view){
+        if(this.nestedView && this.nestedView.cid === view.cid)
         this.close();
     },
 
@@ -1508,6 +1523,7 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
         this.root.append(this.$el);
         this.$el.fadeIn().addClass('open--popup');
     },
+
     close: function(){
         var timeout = this.$el.data('timeout');
         if( timeout !== void(0) ) clearTimeout(timeout);
@@ -1515,9 +1531,9 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
         this.$el.toggleClass('open--popup close--popup');
         setTimeout(_.bind(this.removePopup, this), this.removeTimeout);
     },
+
     removePopup: function(){
-        this.$el.remove();
-        this.removeContentModel();
+        this.removeNestedView();
         this.redirect();
         this.remove();
     },
@@ -1527,13 +1543,13 @@ App.set('view/Popup', 'widget', Backbone.View.extend({
 
     getDataContent: function(data){
         if( data instanceof Backbone.View){
-            this.contentModel = data;
+            this.nestedView = data;
             return data.render().el;
         }
         return data;
     },
-    removeContentModel: function(){
-        if(this.contentModel) this.contentModel.remove();
+    removeNestedView: function(){
+        if(this.nestedView) this.nestedView.remove();
     }
 }));
 App.Router = Backbone.Router.extend({
