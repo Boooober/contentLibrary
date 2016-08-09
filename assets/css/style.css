@@ -377,6 +377,15 @@ html, body {
   margin: 0 -15px;
   position: relative; }
 
+.contact-page .contacts-box .box-header h3, .contact-page .contacts-box .box-body h3 {
+  margin-top: 0;
+  font-size: 16px;
+  font-weight: 700; }
+
+.contact-page .contacts-box .contact-info li,
+.contact-page .contacts-box .box-body .contact-info li {
+  margin-bottom: 20px; }
+
 @media (min-width: 768px) {
   .contact-page .contacts-box {
     top: 50px;
@@ -384,6 +393,14 @@ html, body {
     width: 300px;
     z-index: 999;
     position: absolute; } }
+
+.contact-page h1 {
+  text-align: center;
+  margin-bottom: 30px; }
+
+.contact-page .aside-text {
+  color: #6f6f6f;
+  font-size: 16px; }
 
 .google-map {
   width: 100%;
@@ -454,6 +471,8 @@ html, body {
   margin-bottom: 20px; }
   .card-content .card-head, .card-content .card-body, .card-content .card-footer {
     background: white; }
+  .card-content .card-body h1, .card-content .card-body .h1, .card-content .card-body h2, .card-content .card-body .h2, .card-content .card-body h3, .card-content .card-body .h3 {
+    margin-top: 0; }
   .card-content .toolbox a {
     color: inherit;
     -webkit-transition: .3s;

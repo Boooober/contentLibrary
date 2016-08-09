@@ -1,11 +1,14 @@
 <script type="text/template" id="contactPage">
 	<div class="contact-page">
 
+
 		<div class="container">
+			<h1>Contact us</h1>
 			<div class="row">
 				<div class="col-sm-6 col-sm-push-6">
-					<p>If you have any questions regarding this privacy statement, the practices of this site or your dealings with us, please do not hesitate to contact us at the below-mentioned address, e-mail address, telephone number or fax number. </p>
-
+					<div class="aside-text">
+						<p>If you have any questions regarding this privacy statement, the practices of this site or your dealings with us, please do not hesitate to contact us at the below-mentioned address, e-mail address, telephone number or fax number. </p>
+					</div>
 				</div>
 				<div class="col-sm-6 col-sm-pull-6">
 					<div class="contact-form"></div>
@@ -14,11 +17,8 @@
 		</div>
 		<div class="map-wrapper">
 			<div class="box contacts-box">
-				<div class="box-header">
-					<h3>You can reach us via the following contact details</h3>
-				</div>
-
 				<div class="box-body">
+					<p>You can reach us via the following contact details</p>
 					<ul class="contact-info">
 						<li>
 							<h3>Address</h3>
