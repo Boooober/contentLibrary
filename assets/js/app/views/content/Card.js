@@ -6,7 +6,7 @@ App.set('view/CardToolbox', 'content', App.get('view/BaseView').extend({
         this.model.on('change:favorites', this.render, this);
     },
     events: {
-        'click .rate-button': 'toggleRate',
+        'click .rate-button': 'toggleRate'
     },
     template: App.Helpers.getTemplate('#cardToolbox'),
 

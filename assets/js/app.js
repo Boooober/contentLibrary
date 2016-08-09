@@ -357,7 +357,16 @@ App.Helpers = {
                 }
             };
         return storeAPI;
-    })()
+    })(),
+
+
+    socSharingWindow: function(url, name) {
+        if (window.showModalDialog) {
+            window.showModalDialog(url, name, "dialogWidth:500px;dialogHeight:500px");
+        } else {
+            window.open(url, name, 'height=500,width=500,toolbar=no,directories=no,status=no,linemenubar = no,scrollbars = no,resizable=no,modal=yes');
+        }
+    }
 };
 App.set('model/User', Backbone.Model.extend({
     defaults: {
@@ -1226,7 +1235,7 @@ App.set('view/CardToolbox', 'content', App.get('view/BaseView').extend({
         this.model.on('change:favorites', this.render, this);
     },
     events: {
-        'click .rate-button': 'toggleRate',
+        'click .rate-button': 'toggleRate'
     },
     template: App.Helpers.getTemplate('#cardToolbox'),
 
@@ -1309,7 +1318,28 @@ App.set('view/CardPage', 'layout', App.get('view/BaseCard', 'content').extend({
         this.$el.html( this.template(model.toJSON()) );
         App.Helpers.renderContent(this.el);
         return this;
+    },
+
+    socialLinks: function(){
+        var $links = $('<div />'), $link,
+            url = window.location.host+'/?#'+Backbone.history.getFragment(),
+            socs = [
+                {name:'Facebook Share', text:'<i class="icon-facebook"></i>', link:'//www.facebook.com/sharer/sharer.php?u='+url},
+                {name:'Twitter Share', text:'<i class="icon-twitter"></i>', link:'//twitter.com/home?status='+url},
+                {name:'Google Share', text:'<i class="icon-gplus"></i>', link:'//plus.google.com/share?url='+url},
+                {name:'Vkontakte Share', text:'<i class="icon-vkontakte"></i>', link:'//vk.com/share.php?url='+url},
+                {name:'Pinterest Share', text:'<i class="icon-pinterest"></i>', link:'//www.pinterest.com/pin/create/button/?url='+url}
+            ];
+
+        _.each(socs, function(soc){
+            $link = $('<li />').attr({
+                onclick: "App.Helpers.socSharingWindow('"+soc.link+"', '"+soc.name+"'); return false"
+            }).html(soc.text);
+            $links.append($link);
+        });
+        return $links.html();
     }
+
 }));
 App.set('view/Cards', 'layout', App.get('view/BaseView').extend({
     className: 'row',

@@ -58,7 +58,7 @@
 
 			<div class="container-fluid">
 				<div class="pull-right">
-					<ul class="soc-icons">
+					<ul class="soc-links">
 						<li><a href="#"><i class="icon-facebook"></i></a></li>
 						<li><a href="#"><i class="icon-gplus"></i></a></li>
 						<li><a href="#"><i class="icon-twitter"></i></a></li>

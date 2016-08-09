@@ -86,9 +86,7 @@
 		</div>
 		<div class="box-footer">
 			<ul class="soc-links">
-				<% _.each(this.socialLinks(), function(link){ %>
-					<li><%= link %></li>
-				<% }) %>
+				<%= this.socialLinks() %>
 			</ul>
 		</div>
 	</div>

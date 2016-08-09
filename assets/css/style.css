@@ -207,6 +207,57 @@ html, body {
   transition: .4s;
   width: 220px; }
 
+.soc-links {
+  margin: 0 -5px;
+  font-size: 0; }
+  .soc-links > li {
+    float: none !important;
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 16px; }
+  .soc-links li {
+    cursor: pointer;
+    padding: 0 5px; }
+    .soc-links li a {
+      position: relative;
+      color: white;
+      display: block;
+      width: 1.4em;
+      height: 1.4em; }
+      .soc-links li a::before {
+        content: '';
+        display: block;
+        position: absolute;
+        width: 130%;
+        height: 130%;
+        -webkit-transition: .3s;
+        transition: .3s;
+        background: white;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        margin-left: -65%;
+        margin-top: -65%;
+        -webkit-transform: scale(0);
+                transform: scale(0); }
+      .soc-links li a:hover::before {
+        -webkit-transform: scale(1);
+                transform: scale(1); }
+      .soc-links li a i {
+        position: relative;
+        -webkit-transition: .3s;
+        transition: .3s; }
+  .soc-links .icon-twitter:hover {
+    color: #55acee; }
+  .soc-links .icon-facebook:hover {
+    color: #3b5998; }
+  .soc-links .icon-gplus:hover {
+    color: #da4835; }
+  .soc-links .icon-vkontakte:hover {
+    color: #4c75a3; }
+  .soc-links .icon-pinterest:hover {
+    color: #cb2026; }
+
 .sidebar {
   overflow-x: hidden; }
   .sidebar .side-container {
@@ -269,55 +320,6 @@ html, body {
   background: #286090;
   padding: 15px 0;
   color: white; }
-  .footer .soc-icons {
-    margin: 0 -5px;
-    font-size: 0; }
-    .footer .soc-icons > li {
-      float: none !important;
-      display: inline-block;
-      vertical-align: middle;
-      font-size: 16px; }
-    .footer .soc-icons li {
-      padding: 0 5px; }
-      .footer .soc-icons li a {
-        position: relative;
-        color: white;
-        display: block;
-        width: 1.4em;
-        height: 1.4em; }
-        .footer .soc-icons li a::before {
-          content: '';
-          display: block;
-          position: absolute;
-          width: 130%;
-          height: 130%;
-          -webkit-transition: .3s;
-          transition: .3s;
-          background: white;
-          border-radius: 50%;
-          top: 50%;
-          left: 50%;
-          margin-left: -65%;
-          margin-top: -65%;
-          -webkit-transform: scale(0);
-                  transform: scale(0); }
-        .footer .soc-icons li a:hover::before {
-          -webkit-transform: scale(1);
-                  transform: scale(1); }
-        .footer .soc-icons li a i {
-          position: relative;
-          -webkit-transition: .3s;
-          transition: .3s; }
-        .footer .soc-icons li a .icon-twitter:hover {
-          color: #55acee; }
-        .footer .soc-icons li a .icon-facebook:hover {
-          color: #3b5998; }
-        .footer .soc-icons li a .icon-gplus:hover {
-          color: #da4835; }
-        .footer .soc-icons li a .icon-vkontakte:hover {
-          color: #4c75a3; }
-        .footer .soc-icons li a .icon-pinterest:hover {
-          color: #cb2026; }
   .footer p {
     margin: 0; }
 

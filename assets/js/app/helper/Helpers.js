@@ -107,5 +107,14 @@ App.Helpers = {
                 }
             };
         return storeAPI;
-    })()
+    })(),
+
+
+    socSharingWindow: function(url, name) {
+        if (window.showModalDialog) {
+            window.showModalDialog(url, name, "dialogWidth:500px;dialogHeight:500px");
+        } else {
+            window.open(url, name, 'height=500,width=500,toolbar=no,directories=no,status=no,linemenubar = no,scrollbars = no,resizable=no,modal=yes');
+        }
+    }
 };
