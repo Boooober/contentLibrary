@@ -1,0 +1,81 @@
+.footer{
+  bottom: 0;
+  width: 100%;
+  position: absolute;
+  background: $primary;
+  padding: 15px 0;
+  color: white;
+  .soc-icons{
+    margin: 0 -5px;
+    @include inlineList();
+    li{
+      padding: 0 5px;
+
+      a {
+        position: relative;
+        color: white;
+        display: block;
+        width: 1.4em;
+        height: 1.4em;
+
+        &::before{
+          content: '';
+          display: block;
+          position: absolute;
+          width: 130%;
+          height: 130%;
+          transition: .3s;
+          background: white;
+          border-radius: 50%;
+          top: 50%;
+          left: 50%;
+          margin-left: -65%;
+          margin-top: -65%;
+          transform: scale(0);
+        }
+
+
+        &:hover{
+          &::before{
+            transform: scale(1);
+          }
+        }
+
+
+
+        i{
+          position: relative;
+          transition: .3s;
+        }
+        .icon-twitter {
+          &:hover{
+            color: $color-twitter;
+          }
+        }
+        .icon-facebook {
+          &:hover{
+            color: $color-facebook;
+          }
+        }
+        .icon-gplus {
+          &:hover{
+            color: $color-google;
+          }
+        }
+        .icon-vkontakte {
+          &:hover{
+            color: $color-vkontakte;
+          }
+        }
+        .icon-pinterest {
+          &:hover{
+            color: $color-pinterest;
+          }
+        }
+      }
+    }
+  }
+  p{
+    margin: 0;
+  }
+}

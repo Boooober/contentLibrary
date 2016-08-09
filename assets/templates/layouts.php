@@ -54,23 +54,23 @@
 		<!-- Dynamic content -->
 		<div class="main-content"></div>
 		<!-- ./Dynamic content -->
-		<div class="row">
-			<div class="footer">
-				<div class="container-fluid">
-					<div class="pull-right">
-						<ul class="soc-icons">
-							<li><a href="#">FB</a></li>
-							<li><a href="#">GP</a></li>
-							<li><a href="#">TW</a></li>
-							<li><a href="#">PIN</a></li>
-							<li><a href="#">VK</a></li>
-						</ul>
-					</div>
-					<div>
-						<p>Author: Nikita Slobodian</p>
-					</div>
+		<div class="footer">
+
+			<div class="container-fluid">
+				<div class="pull-right">
+					<ul class="soc-icons">
+						<li><a href="#"><i class="icon-facebook"></i></a></li>
+						<li><a href="#"><i class="icon-gplus"></i></a></li>
+						<li><a href="#"><i class="icon-twitter"></i></a></li>
+						<li><a href="#"><i class="icon-vkontakte"></i></a></li>
+						<li><a href="#"><i class="icon-pinterest"></i></a></li>
+					</ul>
+				</div>
+				<div>
+					<p>Author: Nikita Slobodian</p>
 				</div>
 			</div>
+
 
 		</div>
 	</div>
