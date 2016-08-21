@@ -16,35 +16,23 @@ App.set('view/Validator', 'form', Backbone.View.extend({
     submitForm: function(e){
         e.preventDefault();
         var $form = $(e.target),
-            noErrors = true,
-            data = this.processData($form.find(":input[name]:not([data-skip-validation], [type='file'])")),
-            formData;
+            $inputs = $form.find(":input[name]:not([data-skip-validation], [type='file'])"),
+            data, formData = {}, isValid = true;
 
+        data = this.processData($inputs);
 
-        // Loop over form inputs and return general form validation flag.
-        //
-        // On every iteration check current input to set/remove error messages
-        // Reduce general form error status. If error flag is already set, continue
-        // inputs validation and return same flag. If there are still to errors, try
-        // to set them from current input validation.
-        noErrors = _.reduce(data, function(flag, item){
-            var result = this.validateOne(item);
-            return flag === true ? result : flag;
-        }, noErrors, this);
+        // Set general validation flag
+        // And compound formData
+        _.each(data, function (obj) {
+            formData[obj.name] = obj.value;
+            var result = this.validateOne(obj);
 
+            // Try to change general validation flag if
+            if (isValid) isValid = result;
+        }, this);
 
-        // Key - value form data object,
-        // Skip empty values
-        formData = _.reduce(data, function(attrs, input, name){
-            if(input.value || input.value === 0)
-                attrs[name] = input.value;
-            return attrs;
-        }, {});
-
-        if(noErrors && this['submit']){
-            // Submitting method fires in successor object
-            this['submit'].call(this, e, formData);
-        }
+        if (isValid && this['submit'])
+            this['submit'](e, formData);
     },
 
 
@@ -86,7 +74,8 @@ App.set('view/Validator', 'form', Backbone.View.extend({
         rules.type = $target.attr('type') || 'text';
         rules.required = rules.required !== void(0) ? rules.required : !!$target.attr('required');
         rules.pattern = $target.attr('pattern');
-
+        rules.min = $target.attr('min');
+        rules.max = $target.attr('max');
 
 
         // If current target type is number, than max and min validators behavior is different.
